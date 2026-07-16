@@ -1,0 +1,69 @@
+<div class="auth-container">
+  <div class="auth-card glass-card">
+    <div class="auth-header">
+      <div class="logo-wrapper">
+        <span class="logo-text">Stage<span class="logo-accent">Guide</span></span>
+      </div>
+      <h1 class="auth-title">Bon retour !</h1>
+      <p class="auth-subtitle">Connectez-vous pour accéder à votre espace de stage et mentorat</p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="alert alert-error">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+      <div class="form-group">
+        <label for="email" class="form-label">Adresse email</label>
+        <input 
+          id="email" 
+          type="email" 
+          formControlName="email" 
+          class="form-input" 
+          placeholder="exemple@email.com"
+          [class.input-error]="emailField.invalid && emailField.touched"
+        />
+        @if (emailField.invalid && emailField.touched) {
+          <div class="field-error">
+            @if (emailField.errors?.['required']) { L'adresse email est requise. }
+            @if (emailField.errors?.['email']) { Veuillez entrer une adresse email valide. }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Mot de passe</label>
+        <input 
+          id="password" 
+          type="password" 
+          formControlName="password" 
+          class="form-input" 
+          placeholder="••••••••"
+          [class.input-error]="passwordField.invalid && passwordField.touched"
+        />
+        @if (passwordField.invalid && passwordField.touched) {
+          <div class="field-error">
+            @if (passwordField.errors?.['required']) { Le mot de passe est requis. }
+            @if (passwordField.errors?.['minlength']) { Le mot de passe doit faire au moins 8 caractères. }
+          </div>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary w-full" [disabled]="isLoading()">
+        @if (isLoading()) {
+          <div class="spinner"></div>
+          Connexion en cours...
+        } @else {
+          Se connecter
+        }
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Pas encore inscrit ? <a routerLink="/register" class="auth-link">Créer un compte</a></p>
+    </div>
+  </div>
+</div>

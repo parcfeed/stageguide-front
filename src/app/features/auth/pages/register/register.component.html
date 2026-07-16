@@ -1,0 +1,276 @@
+<div class="auth-container">
+  <div class="auth-card glass-card">
+    <div class="auth-header">
+      <div class="logo-wrapper">
+        <span class="logo-text">Stage<span class="logo-accent">Guide</span></span>
+      </div>
+      <h1 class="auth-title">Créer un compte</h1>
+      <p class="auth-subtitle">Rejoignez la plateforme et lancez votre parcours professionnel</p>
+    </div>
+
+    <!-- Role Selector Tabs -->
+    <div class="role-selector">
+      <button 
+        type="button" 
+        class="role-tab" 
+        [class.active]="selectedRole() === UserRole.STAGIAIRE" 
+        (click)="selectRole(UserRole.STAGIAIRE)"
+      >
+        <span class="role-icon">🎓</span>
+        Stagiaire
+      </button>
+      <button 
+        type="button" 
+        class="role-tab" 
+        [class.active]="selectedRole() === UserRole.MENTOR" 
+        (click)="selectRole(UserRole.MENTOR)"
+      >
+        <span class="role-icon">🤝</span>
+        Mentor
+      </button>
+      <button 
+        type="button" 
+        class="role-tab" 
+        [class.active]="selectedRole() === UserRole.ENTREPRISE" 
+        (click)="selectRole(UserRole.ENTREPRISE)"
+      >
+        <span class="role-icon">🏢</span>
+        Entreprise
+      </button>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="alert alert-error">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+      
+      <!-- Name row -->
+      <div class="form-row">
+        <div class="form-group flex-1">
+          <label for="prenom" class="form-label">Prénom</label>
+          <input 
+            id="prenom" 
+            type="text" 
+            formControlName="prenom" 
+            class="form-input" 
+            placeholder="Jean"
+            [class.input-error]="prenomField.invalid && prenomField.touched"
+          />
+          @if (prenomField.invalid && prenomField.touched) {
+            <div class="field-error">Le prénom est requis.</div>
+          }
+        </div>
+
+        <div class="form-group flex-1">
+          <label for="nom" class="form-label">Nom</label>
+          <input 
+            id="nom" 
+            type="text" 
+            formControlName="nom" 
+            class="form-input" 
+            placeholder="Dupont"
+            [class.input-error]="nomField.invalid && nomField.touched"
+          />
+          @if (nomField.invalid && nomField.touched) {
+            <div class="field-error">Le nom est requis.</div>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email" class="form-label">Adresse email</label>
+        <input 
+          id="email" 
+          type="email" 
+          formControlName="email" 
+          class="form-input" 
+          placeholder="exemple@email.com"
+          [class.input-error]="emailField.invalid && emailField.touched"
+        />
+        @if (emailField.invalid && emailField.touched) {
+          <div class="field-error">
+            @if (emailField.errors?.['required']) { L'adresse email est requise. }
+            @if (emailField.errors?.['email']) { Veuillez entrer une adresse email valide. }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="telephone" class="form-label">Téléphone (Optionnel)</label>
+        <input 
+          id="telephone" 
+          type="text" 
+          formControlName="telephone" 
+          class="form-input" 
+          placeholder="+33 6 12 34 56 78"
+        />
+      </div>
+
+      <!-- DYNAMIC FIELDS BASED ON ROLE -->
+      @if (selectedRole() === UserRole.STAGIAIRE) {
+        <div class="dynamic-section">
+          <h3 class="section-title">Informations académiques</h3>
+          
+          <div class="form-group">
+            <label for="ecole" class="form-label">École / Université (Optionnel)</label>
+            <input 
+              id="ecole" 
+              type="text" 
+              formControlName="ecole" 
+              class="form-input" 
+              placeholder="Université de Douala"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="niveauEtudes" class="form-label">Niveau d'études</label>
+            <input 
+              id="niveauEtudes" 
+              type="text" 
+              formControlName="niveauEtudes" 
+              class="form-input" 
+              placeholder="Licence 3, Master 1, etc."
+              [class.input-error]="niveauField.invalid && niveauField.touched"
+            />
+            @if (niveauField.invalid && niveauField.touched) {
+              <div class="field-error">Le niveau d'études est requis pour le rôle Stagiaire.</div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (selectedRole() === UserRole.ENTREPRISE) {
+        <div class="dynamic-section">
+          <h3 class="section-title">Informations entreprise</h3>
+          
+          <div class="form-group">
+            <label for="entreprise" class="form-label">Nom de l'entreprise</label>
+            <input 
+              id="entreprise" 
+              type="text" 
+              formControlName="entreprise" 
+              class="form-input" 
+              placeholder="StageGuide Inc."
+              [class.input-error]="entrepriseField.invalid && entrepriseField.touched"
+            />
+            @if (entrepriseField.invalid && entrepriseField.touched) {
+              <div class="field-error">Le nom de l'entreprise est requis.</div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (selectedRole() === UserRole.MENTOR) {
+        <div class="dynamic-section">
+          <h3 class="section-title">Informations professionnelles</h3>
+          
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="entreprise-mentor" class="form-label">Entreprise (Optionnel)</label>
+              <input 
+                id="entreprise-mentor" 
+                type="text" 
+                formControlName="entreprise" 
+                class="form-input" 
+                placeholder="Google, TechCorp, etc."
+              />
+            </div>
+            
+            <div class="form-group flex-1">
+              <label for="poste" class="form-label">Poste / Titre (Optionnel)</label>
+              <input 
+                id="poste" 
+                type="text" 
+                formControlName="poste" 
+                class="form-input" 
+                placeholder="Développeur Senior"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="bio" class="form-label">Biographie / Profil (Optionnel)</label>
+            <textarea 
+              id="bio" 
+              formControlName="bio" 
+              class="form-input text-area" 
+              placeholder="Présentez-vous brièvement auprès des stagiaires..."
+            ></textarea>
+          </div>
+        </div>
+      }
+
+      <!-- Security row -->
+      <div class="form-row">
+        <div class="form-group flex-1">
+          <label for="password" class="form-label">Mot de passe</label>
+          <input 
+            id="password" 
+            type="password" 
+            formControlName="password" 
+            class="form-input" 
+            placeholder="••••••••"
+            [class.input-error]="passwordField.invalid && passwordField.touched"
+          />
+          @if (passwordField.invalid && passwordField.touched) {
+            <div class="field-error">
+              @if (passwordField.errors?.['required']) { Le mot de passe est requis. }
+              @if (passwordField.errors?.['minlength']) { Le mot de passe doit faire au moins 8 caractères. }
+              @if (passwordField.errors?.['pattern']) { Doit contenir une majuscule et un chiffre. }
+            </div>
+          }
+        </div>
+
+        <div class="form-group flex-1">
+          <label for="confirmPassword" class="form-label">Confirmer</label>
+          <input 
+            id="confirmPassword" 
+            type="password" 
+            formControlName="confirmPassword" 
+            class="form-input" 
+            placeholder="••••••••"
+            [class.input-error]="confirmPasswordField.invalid && confirmPasswordField.touched"
+          />
+          @if (confirmPasswordField.invalid && confirmPasswordField.touched) {
+            <div class="field-error">
+              @if (confirmPasswordField.errors?.['required']) { La confirmation est requise. }
+              @if (confirmPasswordField.errors?.['passwordMismatch']) { Les mots de passe ne correspondent pas. }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <input 
+          id="consentGiven" 
+          type="checkbox" 
+          formControlName="consentGiven" 
+          class="form-checkbox"
+        />
+        <label for="consentGiven" class="checkbox-label">
+          J'accepte les conditions d'utilisation et la politique de confidentialité de StageGuide.
+        </label>
+        @if (consentField.invalid && consentField.touched) {
+          <div class="field-error">Vous devez accepter les conditions pour continuer.</div>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary w-full" [disabled]="isLoading()">
+        @if (isLoading()) {
+          <div class="spinner"></div>
+          Inscription en cours...
+        } @else {
+          S'inscrire
+        }
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Déjà inscrit ? <a routerLink="/login" class="auth-link">Se connecter</a></p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,55 @@
+<app-navbar></app-navbar>
+
+<main class="notifications-container">
+  <header class="page-header">
+    <button class="back-btn" type="button" (click)="goBack()">Retour</button>
+    <div>
+      <p class="eyebrow">Notifications</p>
+      <h1>Notifications</h1>
+      <p class="subtitle">
+        @if (unreadCount() > 0) {
+          {{ unreadCount() }} notification{{ unreadCount() > 1 ? 's' : '' }} non lue{{ unreadCount() > 1 ? 's' : '' }}
+        } @else {
+          Aucune notification non lue
+        }
+      </p>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (isLoading()) {
+    <section class="loading-state glass-card">
+      <div class="spinner"></div>
+      <p>Chargement des notifications...</p>
+    </section>
+  } @else {
+    @if (notifications().length === 0) {
+      <div class="empty-state glass-card">
+        <span class="empty-icon">🔔</span>
+        <h3>Aucune notification</h3>
+        <p class="muted">Vous n'avez pas encore de notifications.</p>
+      </div>
+    } @else {
+      <div class="notifications-list">
+        @for (notif of sortedNotifications(); track notif.id) {
+          <div class="notification-card glass-card" [class.unread]="!notif.estLue">
+            <div class="notif-indicator"></div>
+            <div class="notif-content">
+              <div class="notif-header">
+                <strong class="notif-title">{{ notif.titre }}</strong>
+                <span class="notif-date">{{ notif.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+              <p class="notif-message">{{ notif.message }}</p>
+              <span class="notif-status" [class.read]="notif.estLue">
+                {{ notif.estLue ? 'Lu' : 'Non lu' }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</main>

@@ -1,0 +1,461 @@
+<div class="entreprise-container">
+  <app-navbar></app-navbar>
+
+  <!-- Header -->
+  <div class="entreprise-header">
+    <button class="back-btn" (click)="goBack()" title="Retour au tableau de bord">
+      ← Retour
+    </button>
+    <h1>Espace Recruteur</h1>
+    <p class="subtitle">Gérez vos offres de recrutement, suivez les candidatures reçues et organisez vos entretiens</p>
+  </div>
+
+  <!-- Tabs Selector -->
+  <div class="tabs-container">
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab() === 'offres'" 
+      (click)="switchTab('offres')"
+    >
+      💼 Nos Offres
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab() === 'candidatures'" 
+      (click)="switchTab('candidatures')"
+    >
+      ✉️ Candidatures reçues
+    </button>
+    <button 
+      class="tab-btn" 
+      [class.active]="activeTab() === 'entretiens'" 
+      (click)="switchTab('entretiens')"
+    >
+      🗓️ Entretiens planifiés
+    </button>
+  </div>
+
+  <!-- Success/Error Messages -->
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      {{ successMessage() }}
+    </div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement des informations...</p>
+    </div>
+  }
+
+  @if (!isLoading()) {
+    <!-- 1. OFFERS TAB -->
+    @if (activeTab() === 'offres') {
+      <div class="tab-header">
+        <h2>Vos Offres Actives</h2>
+        <button class="btn btn-primary btn-small" (click)="openCreateOffer()">
+          + Publier une offre
+        </button>
+      </div>
+
+      <!-- Internship section -->
+      <div class="offer-section-title">🎓 Offres de Stages ({{ offresStage().length }})</div>
+      @if (offresStage().length === 0) {
+        <div class="empty-state-inline glass-card">
+          <p>Aucune offre de stage en cours de publication.</p>
+        </div>
+      } @else {
+        <div class="offers-grid">
+          @for (offre of offresStage(); track offre.id) {
+            <div class="offer-card glass-card">
+              <div class="card-details">
+                <h3>{{ offre.titre }}</h3>
+                <p class="domain">{{ offre.domaine || 'Général' }}</p>
+                <div class="metadata">
+                  <span>📍 {{ offre.ville }}</span>
+                  <span>⏱️ {{ offre.duree }}</span>
+                  @if (offre.remote) {
+                    <span class="badge badge-success">🏠 Distanciel</span>
+                  }
+                </div>
+                <p class="desc-snippet">{{ offre.description | slice:0:120 }}...</p>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-secondary btn-small" (click)="openEditOffer(offre, 'stage')">Modifier</button>
+                <button class="btn btn-danger btn-small" (click)="archiveOffer(offre, 'stage')">Archiver</button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Job section -->
+      <div class="offer-section-title" style="margin-top: 2.5rem;">💼 Offres d'Emplois ({{ offresEmploi().length }})</div>
+      @if (offresEmploi().length === 0) {
+        <div class="empty-state-inline glass-card">
+          <p>Aucune offre d'emploi en cours de publication.</p>
+        </div>
+      } @else {
+        <div class="offers-grid">
+          @for (offre of offresEmploi(); track offre.id) {
+            <div class="offer-card glass-card">
+              <div class="card-details">
+                <h3>{{ offre.titre }}</h3>
+                <p class="domain">{{ offre.domaine || 'Général' }}</p>
+                <div class="metadata">
+                  <span>📍 {{ offre.ville }}</span>
+                  <span>📄 {{ offre.typeContrat }}</span>
+                  <span>💼 Exp: {{ offre.experience }}</span>
+                  @if (offre.remote) {
+                    <span class="badge badge-success">🏠 Distanciel</span>
+                  }
+                </div>
+                <p class="desc-snippet">{{ offre.description | slice:0:120 }}...</p>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-secondary btn-small" (click)="openEditOffer(offre, 'emploi')">Modifier</button>
+                <button class="btn btn-danger btn-small" (click)="archiveOffer(offre, 'emploi')">Archiver</button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- 2. CANDIDATURES TAB -->
+    @if (activeTab() === 'candidatures') {
+      <div class="tab-header">
+        <h2>Candidatures reçues</h2>
+      </div>
+
+      @if (candidatures().length === 0) {
+        <div class="empty-state glass-card">
+          <span class="empty-icon">✉️</span>
+          <h3>Aucune candidature</h3>
+          <p>Vous n'avez pas encore reçu de candidatures pour vos offres.</p>
+        </div>
+      } @else {
+        <div class="candidatures-list">
+          @for (candidature of candidatures(); track candidature.id) {
+            <div class="candidature-card glass-card">
+              <div class="candidature-header-row">
+                <div class="candidate-details">
+                  <h3>{{ candidature.utilisateur?.prenom }} {{ candidature.utilisateur?.nom }}</h3>
+                  <p class="candidate-contact">
+                    📧 {{ candidature.utilisateur?.email }} 
+                    @if (candidature.utilisateur?.telephone) {
+                      | 📞 {{ candidature.utilisateur?.telephone }}
+                    }
+                  </p>
+                  <p class="candidate-meta">
+                    Postule à : <strong>{{ candidature.offreStage?.titre || candidature.offreEmploi?.titre }}</strong>
+                    ({{ candidature.offreStageId ? 'Stage' : 'Emploi' }})
+                  </p>
+                </div>
+                <div class="candidature-status">
+                  <span class="status-badge" [class]="'status-' + candidature.statut.toLowerCase()">
+                    {{ candidature.statut }}
+                  </span>
+                </div>
+              </div>
+
+              @if (candidature.message) {
+                <div class="motivation-box">
+                  <strong>Message du candidat :</strong>
+                  <p class="message-text">"{{ candidature.message }}"</p>
+                </div>
+              }
+
+              <div class="candidature-actions" style="margin-top: 1.25rem;">
+                @if (candidature.statut === 'EN_ATTENTE' || candidature.statut === 'EN_COURS') {
+                  <button class="btn btn-primary btn-small" (click)="openPlanInterview(candidature)">
+                    🗓️ Planifier un entretien
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- 3. ENTRETIENS TAB -->
+    @if (activeTab() === 'entretiens') {
+      <div class="tab-header">
+        <h2>Entretiens organisés</h2>
+      </div>
+
+      @if (entretiens().length === 0) {
+        <div class="empty-state glass-card">
+          <span class="empty-icon">🗓️</span>
+          <h3>Aucun entretien</h3>
+          <p>Aucun entretien n'est planifié pour le moment.</p>
+        </div>
+      } @else {
+        <div class="entretiens-list">
+          @for (entretien of entretiens(); track entretien.id) {
+            <div class="entretien-card glass-card">
+              <div class="entretien-header-row">
+                <div class="entretien-info">
+                  <h3>Entretien avec {{ entretien.utilisateur?.prenom }} {{ entretien.utilisateur?.nom }}</h3>
+                  <p class="job-relation">
+                    Poste visé : <strong>{{ entretien.offreStage?.titre || entretien.offreEmploi?.titre }}</strong>
+                  </p>
+                </div>
+                <div class="entretien-date-badge">
+                  📅 {{ entretien.dateProposee | date:'dd/MM/yyyy à HH:mm' }}
+                </div>
+              </div>
+
+              <div class="entretien-body" style="margin-top: 1rem;">
+                <p>📍 <strong>Lieu / Lien :</strong> {{ entretien.lieu }}</p>
+                @if (entretien.message) {
+                  <div class="message-box" style="margin-top: 0.5rem;">
+                    <strong>Instructions / Message :</strong>
+                    <p class="message-text">{{ entretien.message }}</p>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  }
+
+  <!-- OFFER FORM MODAL -->
+  @if (showOfferForm()) {
+    <div class="modal-overlay" (click)="closeOfferForm()">
+      <div class="modal-card glass-card" (click)="$event.stopPropagation()">
+        <button class="modal-close" (click)="closeOfferForm()">×</button>
+        
+        <h2>{{ isEditingOffer() ? 'Modifier l\'offre' : 'Publier une nouvelle offre' }}</h2>
+
+        <form [formGroup]="offerForm" (ngSubmit)="submitOffer()" class="offer-form" style="margin-top: 1.5rem;">
+          
+          @if (!isEditingOffer()) {
+            <div class="form-group">
+              <label for="type">Type d'offre <span class="required">*</span></label>
+              <select id="type" formControlName="type" class="form-control">
+                <option value="stage">🎓 Offre de Stage</option>
+                <option value="emploi">💼 Offre d'Emploi</option>
+              </select>
+            </div>
+          }
+
+          <div class="form-group">
+            <label for="titre">Titre du poste <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="titre" 
+              formControlName="titre" 
+              class="form-control"
+              placeholder="Ex: Développeur Angular (H/F)"
+            />
+            @if (offerForm.get('titre')?.invalid && offerForm.get('titre')?.touched) {
+              <span class="error-text">Le titre est requis (minimum 2 caractères)</span>
+            }
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="ville">Ville <span class="required">*</span></label>
+              <input 
+                type="text" 
+                id="ville" 
+                formControlName="ville" 
+                class="form-control"
+                placeholder="Ex: Douala, Paris, Remote..."
+              />
+              @if (offerForm.get('ville')?.invalid && offerForm.get('ville')?.touched) {
+                <span class="error-text">La ville est requise</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="domaine">Domaine</label>
+              <input 
+                type="text" 
+                id="domaine" 
+                formControlName="domaine" 
+                class="form-control"
+                placeholder="Ex: Tech, Design..."
+              />
+            </div>
+          </div>
+
+          <!-- Fields specific to Stage -->
+          @if (offerForm.get('type')?.value === 'stage') {
+            <div class="form-group">
+              <label for="duree">Durée du stage <span class="required">*</span></label>
+              <input 
+                type="text" 
+                id="duree" 
+                formControlName="duree" 
+                class="form-control"
+                placeholder="Ex: 3 mois, 6 mois"
+              />
+              @if (offerForm.get('duree')?.invalid && offerForm.get('duree')?.touched) {
+                <span class="error-text">La durée est obligatoire pour un stage</span>
+              }
+            </div>
+          }
+
+          <!-- Fields specific to Job -->
+          @if (offerForm.get('type')?.value === 'emploi') {
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="typeContrat">Type de contrat <span class="required">*</span></label>
+                <select id="typeContrat" formControlName="typeContrat" class="form-control">
+                  <option value="CDI">CDI</option>
+                  <option value="CDD">CDD</option>
+                  <option value="Freelance">Freelance</option>
+                  <option value="Alternance">Alternance</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="experience">Expérience requise <span class="required">*</span></label>
+                <input 
+                  type="text" 
+                  id="experience" 
+                  formControlName="experience" 
+                  class="form-control"
+                  placeholder="Ex: Débutant, 2 ans, Senior..."
+                />
+                @if (offerForm.get('experience')?.invalid && offerForm.get('experience')?.touched) {
+                  <span class="error-text">L'expérience requise est obligatoire</span>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="logoUrl">URL Logo</label>
+              <input 
+                type="url" 
+                id="logoUrl" 
+                formControlName="logoUrl" 
+                class="form-control"
+                placeholder="https://example.com/logo.png"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="dateExpiration">Date d'expiration</label>
+              <input 
+                type="date" 
+                id="dateExpiration" 
+                formControlName="dateExpiration" 
+                class="form-control"
+              />
+            </div>
+          </div>
+
+          <div class="form-group checkbox-container" style="height: auto; margin: 1rem 0;">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="remote" class="form-checkbox" />
+              Télétravail autorisé pour ce poste
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description complète <span class="required">*</span></label>
+            <textarea 
+              id="description" 
+              formControlName="description" 
+              class="form-control"
+              placeholder="Décrivez les missions, le profil recherché..."
+              rows="5"
+            ></textarea>
+            @if (offerForm.get('description')?.invalid && offerForm.get('description')?.touched) {
+              <span class="error-text">La description est requise (minimum 10 caractères)</span>
+            }
+          </div>
+
+          <div class="modal-footer" style="padding-top: 1rem; border: none; margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
+              {{ isEditingOffer() ? 'Mettre à jour' : 'Publier' }}
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="closeOfferForm()" [disabled]="isLoading()">
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- INTERVIEW FORM MODAL -->
+  @if (showInterviewForm() && selectedCandidature()) {
+    <div class="modal-overlay" (click)="closeInterviewForm()">
+      <div class="modal-card glass-card" (click)="$event.stopPropagation()">
+        <button class="modal-close" (click)="closeInterviewForm()">×</button>
+        
+        <h2>Planifier un entretien</h2>
+        <p class="subtitle" style="margin-top: 0.25rem;">
+          Avec {{ selectedCandidature()?.utilisateur?.prenom }} {{ selectedCandidature()?.utilisateur?.nom }} 
+          pour l'offre "{{ selectedCandidature()?.offreStage?.titre || selectedCandidature()?.offreEmploi?.titre }}"
+        </p>
+
+        <form [formGroup]="interviewForm" (ngSubmit)="submitInterview()" class="interview-form" style="margin-top: 1.5rem;">
+          
+          <div class="form-group">
+            <label for="dateProposee">Date et Heure de l'entretien <span class="required">*</span></label>
+            <input 
+              type="datetime-local" 
+              id="dateProposee" 
+              formControlName="dateProposee" 
+              class="form-control"
+            />
+            @if (interviewForm.get('dateProposee')?.invalid && interviewForm.get('dateProposee')?.touched) {
+              <span class="error-text">Veuillez indiquer une date et heure valide</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="lieu">Lieu / Moyen de rencontre <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="lieu" 
+              formControlName="lieu" 
+              class="form-control"
+              placeholder="Ex: Microsoft Teams, Google Meet, Nos bureaux de Yaoundé..."
+            />
+            @if (interviewForm.get('lieu')?.invalid && interviewForm.get('lieu')?.touched) {
+              <span class="error-text">Le lieu ou lien de rencontre est requis</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="message">Instructions supplémentaires (optionnel)</label>
+            <textarea 
+              id="message" 
+              formControlName="message" 
+              class="form-control"
+              placeholder="Lien d'invitation, documents à préparer..."
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="modal-footer" style="padding-top: 1rem; border: none; margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading()">
+              Confirmer la planification
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="closeInterviewForm()" [disabled]="isLoading()">
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

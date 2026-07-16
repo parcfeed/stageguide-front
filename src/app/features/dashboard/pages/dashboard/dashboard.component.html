@@ -1,0 +1,137 @@
+<main class="dashboard-shell">
+  <app-navbar></app-navbar>
+  <header class="dashboard-header">
+    <div>
+      <p class="eyebrow">Tableau de bord</p>
+      <h1>{{ displayName() }}</h1>
+      <p class="subtitle">Vue d'ensemble de votre progression, de vos candidatures et de vos prochaines actions.</p>
+    </div>
+
+    <button type="button" class="btn btn-secondary" (click)="logout()" [disabled]="isLoggingOut()">
+      @if (isLoggingOut()) {
+        <span class="spinner small-spinner"></span>
+        Deconnexion...
+      } @else {
+        Se deconnecter
+      }
+    </button>
+  </header>
+
+  @if (isLoading()) {
+    <section class="state-panel">
+      <span class="spinner"></span>
+      <p>Chargement du tableau de bord...</p>
+    </section>
+  } @else if (errorMessage()) {
+    <section class="state-panel error-state">
+      <p>{{ errorMessage() }}</p>
+    </section>
+  } @else if (dashboard(); as data) {
+    <section class="stats-grid" aria-label="Statistiques">
+      @for (stat of data.stats; track stat.label) {
+        <article class="stat-card">
+          <span>{{ stat.label }}</span>
+          <strong>{{ stat.value }}</strong>
+          <small>{{ stat.trend }}</small>
+        </article>
+      }
+    </section>
+
+    <section class="content-grid">
+      <article class="panel progress-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Profil</p>
+            <h2>Progression</h2>
+          </div>
+          <strong>{{ data.progressionProfil.pourcentage }}%</strong>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-value" [style.width.%]="data.progressionProfil.pourcentage"></div>
+        </div>
+
+        <ul class="check-list">
+          @for (step of data.progressionProfil.etapes; track step.label) {
+            <li [class.done]="step.done">
+              <span class="check-dot"></span>
+              {{ step.label }}
+            </li>
+          }
+        </ul>
+
+        <button type="button" class="btn btn-secondary btn-small" routerLink="/profile" style="margin-top: 16px; width: 100%;">
+          Voir/Modifier mon profil
+        </button>
+      </article>
+
+      <article class="panel mentor-panel">
+        <p class="eyebrow">Mentorat</p>
+        <h2>Mentor suggere</h2>
+
+        @if (data.mentorSuggere.name) {
+          <div class="mentor-details">
+            <strong>{{ data.mentorSuggere.name }}</strong>
+            <span>{{ data.mentorSuggere.title }}</span>
+          </div>
+        } @else {
+          <p class="empty-text">Aucun mentor suggere pour le moment.</p>
+        }
+      </article>
+    </section>
+
+    <section class="list-grid">
+      <article class="panel">
+        <h2>Formations</h2>
+        @if (data.formations.length) {
+          <ul class="plain-list">
+            @for (formation of data.formations; track formation.id || formation.title || formation.label) {
+              <li>{{ formation.title || formation.label || formation.name }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="empty-text">Aucune formation en cours.</p>
+        }
+      </article>
+
+      <article class="panel">
+        <h2>Sessions a venir</h2>
+        @if (data.sessionsAVenir.length) {
+          <ul class="plain-list">
+            @for (session of data.sessionsAVenir; track session.id || session.title || session.label) {
+              <li>{{ session.title || session.label || session.name }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="empty-text">Aucune session planifiee.</p>
+        }
+      </article>
+
+      <article class="panel">
+        <h2>Activites recentes</h2>
+        @if (data.activitesRecentes.length) {
+          <ul class="plain-list">
+            @for (activity of data.activitesRecentes; track activity.id || activity.title || activity.label) {
+              <li>{{ activity.title || activity.label || activity.description }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="empty-text">Aucune activite recente.</p>
+        }
+      </article>
+
+      <article class="panel">
+        <h2>Messages</h2>
+        @if (data.messages.length) {
+          <ul class="plain-list">
+            @for (message of data.messages; track message.id || message.title || message.label) {
+              <li>{{ message.title || message.label || message.description }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="empty-text">Aucun message recent.</p>
+        }
+      </article>
+    </section>
+  }
+</main>

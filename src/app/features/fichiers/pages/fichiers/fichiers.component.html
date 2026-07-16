@@ -1,0 +1,172 @@
+<app-navbar></app-navbar>
+
+<main class="fichiers-container">
+  <header class="page-header">
+    <button class="back-btn" type="button" (click)="goBack()">Retour</button>
+    <div class="header-info">
+      <p class="eyebrow">Fichiers</p>
+      <h1>Mes fichiers</h1>
+      <p class="subtitle">
+        {{ fichiers().length }} fichier{{ fichiers().length > 1 ? 's' : '' }}
+      </p>
+    </div>
+    <button
+      class="btn btn-primary upload-toggle"
+      type="button"
+      (click)="toggleUploadForm()"
+    >
+      {{ showUploadForm() ? 'Annuler' : '+ Ajouter un fichier' }}
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (showUploadForm()) {
+    <section class="upload-section glass-card">
+      <h2>Enregistrer un fichier</h2>
+      <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" class="upload-form">
+        <div class="form-group">
+          <label class="form-label" for="nom">Nom du fichier *</label>
+          <input
+            id="nom"
+            class="form-input"
+            type="text"
+            formControlName="nom"
+            placeholder="ex: cv-jean-dupont.pdf"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="typeMime">Type MIME *</label>
+          <input
+            id="typeMime"
+            class="form-input"
+            type="text"
+            formControlName="typeMime"
+            placeholder="ex: application/pdf"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="url">URL du fichier</label>
+          <input
+            id="url"
+            class="form-input"
+            type="url"
+            formControlName="url"
+            placeholder="https://stockage.example.com/fichier.pdf"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="typeDocument">Type de document</label>
+            <select
+              id="typeDocument"
+              class="form-input"
+              formControlName="typeDocument"
+            >
+              <option value="CV">CV</option>
+              <option value="LETTRE_MOTIVATION">Lettre de motivation</option>
+              <option value="CONVENTION">Convention</option>
+              <option value="ATTESTATION">Attestation</option>
+              <option value="CERTIFICAT">Certificat</option>
+              <option value="AUTRE">Autre</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="tailleOctets">Taille (octets)</label>
+            <input
+              id="tailleOctets"
+              class="form-input"
+              type="number"
+              min="0"
+              formControlName="tailleOctets"
+              placeholder="ex: 245760"
+            />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            class="btn btn-primary"
+            type="submit"
+            [disabled]="uploadForm.invalid || isUploading()"
+          >
+            @if (isUploading()) {
+              <span class="spinner-small"></span>
+              Enregistrement...
+            } @else {
+              Enregistrer
+            }
+          </button>
+          <button
+            class="btn btn-secondary"
+            type="button"
+            (click)="toggleUploadForm()"
+          >
+            Annuler
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @if (isLoading()) {
+    <section class="loading-state glass-card">
+      <div class="spinner"></div>
+      <p>Chargement des fichiers...</p>
+    </section>
+  } @else {
+    @if (fichiers().length === 0) {
+      <div class="empty-state glass-card">
+        <span class="empty-icon">📁</span>
+        <h3>Aucun fichier</h3>
+        <p class="muted">Vous n'avez pas encore de fichiers.</p>
+        <button
+          class="btn btn-primary"
+          type="button"
+          (click)="showUploadForm.set(true)"
+        >
+          + Ajouter un fichier
+        </button>
+      </div>
+    } @else {
+      <div class="fichiers-list">
+        @for (fichier of fichiers(); track fichier.id) {
+          <div class="fichier-card glass-card">
+            <div class="fichier-icon">{{ getMimeIcon(fichier.typeMime) }}</div>
+            <div class="fichier-info">
+              <div class="fichier-header">
+                <strong class="fichier-nom">{{ fichier.nom }}</strong>
+                <span class="fichier-type badge badge-success">{{ getTypeLabel(fichier.typeDocument) }}</span>
+              </div>
+              <div class="fichier-meta">
+                <span class="fichier-taille">{{ formatSize(fichier.tailleOctets) }}</span>
+                <span class="fichier-date">{{ fichier.createdAt | date:'dd/MM/yyyy' }}</span>
+                <span class="fichier-mime">{{ fichier.typeMime }}</span>
+              </div>
+            </div>
+            @if (fichier.url) {
+              <a
+                class="btn btn-secondary download-btn"
+                [href]="fichier.url"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Télécharger
+              </a>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</main>

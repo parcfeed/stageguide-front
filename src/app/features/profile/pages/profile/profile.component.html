@@ -1,0 +1,234 @@
+<div class="profile-container">
+  <app-navbar></app-navbar>
+  <!-- Header -->
+  <div class="profile-header">
+    <button class="back-btn" (click)="goBack()" title="Retour">
+      ← Retour
+    </button>
+    <h1>Mon Profil</h1>
+    <div style="width: 40px;"></div> <!-- Spacer for centering -->
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading">
+    <p>Chargement du profil...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage() && !isLoading()" class="alert alert-error">
+    {{ errorMessage() }}
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage() && !isLoading()" class="alert alert-success">
+    {{ successMessage() }}
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!isLoading()" class="profile-content">
+    <!-- Stagiaire Profile -->
+    <div *ngIf="isStagiaire() && stagiaireProfile()" class="profile-card">
+      <div class="profile-header-info">
+        <div class="profile-name">
+          <h2>{{ stagiaireProfile()!.prenom }} {{ stagiaireProfile()!.nom }}</h2>
+          <span class="role-badge">Stagiaire</span>
+        </div>
+      </div>
+
+      <!-- View Mode -->
+      <div *ngIf="!isEditMode()" class="profile-view">
+        <div class="profile-section">
+          <div class="profile-field">
+            <label>Téléphone:</label>
+            <p>{{ stagiaireProfile()!.telephone || 'Non renseigné' }}</p>
+          </div>
+          <div class="profile-field">
+            <label>École:</label>
+            <p>{{ stagiaireProfile()!.ecole || 'Non renseignée' }}</p>
+          </div>
+          <div class="profile-field">
+            <label>Niveau d'études:</label>
+            <p>{{ stagiaireProfile()!.niveauEtudes || 'Non renseigné' }}</p>
+          </div>
+          <div class="profile-field">
+            <label>Bio:</label>
+            <p>{{ stagiaireProfile()!.bio || 'Aucune bio' }}</p>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" (click)="toggleEditMode()">
+          Modifier le profil
+        </button>
+      </div>
+
+      <!-- Edit Mode -->
+      <form *ngIf="isEditMode()" [formGroup]="stagiaireForm" (ngSubmit)="saveStagiaireProfile()" class="profile-form">
+        <div class="form-group">
+          <label for="telephone">Téléphone:</label>
+          <input
+            type="tel"
+            id="telephone"
+            formControlName="telephone"
+            class="form-control"
+            placeholder="Ex: +33 6 12 34 56 78"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="ecole">École <span class="required">*</span>:</label>
+          <input
+            type="text"
+            id="ecole"
+            formControlName="ecole"
+            class="form-control"
+            placeholder="Ex: Université de Douala"
+            [class.is-invalid]="stagiaireForm.get('ecole')?.invalid && stagiaireForm.get('ecole')?.touched"
+          />
+          <div *ngIf="stagiaireForm.get('ecole')?.invalid && stagiaireForm.get('ecole')?.touched" class="error-text">
+            L'école est obligatoire
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="niveauEtudes">Niveau d'études <span class="required">*</span>:</label>
+          <input
+            type="text"
+            id="niveauEtudes"
+            formControlName="niveauEtudes"
+            class="form-control"
+            placeholder="Ex: Master 1"
+            [class.is-invalid]="stagiaireForm.get('niveauEtudes')?.invalid && stagiaireForm.get('niveauEtudes')?.touched"
+          />
+          <div *ngIf="stagiaireForm.get('niveauEtudes')?.invalid && stagiaireForm.get('niveauEtudes')?.touched" class="error-text">
+            Le niveau d'études est obligatoire
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="bio">Bio:</label>
+          <textarea
+            id="bio"
+            formControlName="bio"
+            class="form-control textarea"
+            placeholder="Parlez de vous..."
+            rows="4"
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success" [disabled]="isSaving()">
+            {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isSaving()">
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Mentor Profile -->
+    <div *ngIf="isMentor() && mentorProfile()" class="profile-card">
+      <div class="profile-header-info">
+        <div class="profile-name">
+          <h2>{{ mentorProfile()!.prenom }} {{ mentorProfile()!.nom }}</h2>
+          <span class="role-badge role-mentor">Mentor</span>
+        </div>
+      </div>
+
+      <!-- View Mode -->
+      <div *ngIf="!isEditMode()" class="profile-view">
+        <div class="profile-section">
+          <div class="profile-field">
+            <label>Téléphone:</label>
+            <p>{{ mentorProfile()!.telephone || 'Non renseigné' }}</p>
+          </div>
+          <div class="profile-field">
+            <label>Entreprise:</label>
+            <p>{{ mentorProfile()!.entreprise || 'Non renseignée' }}</p>
+          </div>
+          <div class="profile-field">
+            <label>Poste:</label>
+            <p>{{ mentorProfile()!.poste || 'Non renseigné' }}</p>
+          </div>
+          <div class="profile-field">
+            <label>Bio:</label>
+            <p>{{ mentorProfile()!.bio || 'Aucune bio' }}</p>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" (click)="toggleEditMode()">
+          Modifier le profil
+        </button>
+      </div>
+
+      <!-- Edit Mode -->
+      <form *ngIf="isEditMode()" [formGroup]="mentorForm" (ngSubmit)="saveMentorProfile()" class="profile-form">
+        <div class="form-group">
+          <label for="telephone-mentor">Téléphone:</label>
+          <input
+            type="tel"
+            id="telephone-mentor"
+            formControlName="telephone"
+            class="form-control"
+            placeholder="Ex: +33 6 12 34 56 78"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="entreprise">Entreprise <span class="required">*</span>:</label>
+          <input
+            type="text"
+            id="entreprise"
+            formControlName="entreprise"
+            class="form-control"
+            placeholder="Ex: StageGuide"
+            [class.is-invalid]="mentorForm.get('entreprise')?.invalid && mentorForm.get('entreprise')?.touched"
+          />
+          <div *ngIf="mentorForm.get('entreprise')?.invalid && mentorForm.get('entreprise')?.touched" class="error-text">
+            L'entreprise est obligatoire
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="poste">Poste <span class="required">*</span>:</label>
+          <input
+            type="text"
+            id="poste"
+            formControlName="poste"
+            class="form-control"
+            placeholder="Ex: Développeur senior"
+            [class.is-invalid]="mentorForm.get('poste')?.invalid && mentorForm.get('poste')?.touched"
+          />
+          <div *ngIf="mentorForm.get('poste')?.invalid && mentorForm.get('poste')?.touched" class="error-text">
+            Le poste est obligatoire
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="bio-mentor">Bio:</label>
+          <textarea
+            id="bio-mentor"
+            formControlName="bio"
+            class="form-control textarea"
+            placeholder="Parlez de vous..."
+            rows="4"
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success" [disabled]="isSaving()">
+            {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isSaving()">
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Unsupported Role -->
+    <div *ngIf="!isStagiaire() && !isMentor()" class="alert alert-error">
+      <p>Votre rôle n'a pas de profil disponible actuellement.</p>
+    </div>
+  </div>
+</div>

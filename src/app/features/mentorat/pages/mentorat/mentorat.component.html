@@ -1,0 +1,205 @@
+<app-navbar></app-navbar>
+
+<main class="mentorat-container">
+  <header class="page-header">
+    <button class="back-btn" type="button" (click)="goBack()">Retour</button>
+    <div>
+      <p class="eyebrow">Mentorat</p>
+      <h1>{{ isMentor() ? 'Espace mentor' : 'Accompagnement mentorat' }}</h1>
+      <p class="subtitle">
+        {{ isMentor() ? 'Suivez vos demandes, votre profil et les stagiaires accompagnes.' : 'Demandez un accompagnement et suivez votre parcours avec un mentor.' }}
+      </p>
+    </div>
+  </header>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (isLoading()) {
+    <section class="loading-state glass-card">
+      <div class="spinner"></div>
+      <p>Chargement du mentorat...</p>
+    </section>
+  } @else {
+    @if (isStagiaire() && stagiaireOverview(); as data) {
+      <section class="grid-layout">
+        <article class="panel glass-card">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Demande</p>
+              <h2>Créer une demande</h2>
+            </div>
+          </div>
+
+          <form [formGroup]="requestForm" (ngSubmit)="submitRequest()" class="form-stack">
+            <div class="form-group">
+              <label for="mentorId">Mentor cible (optionnel)</label>
+              <select id="mentorId" formControlName="mentorId" class="form-control">
+                <option value="">Affectation automatique</option>
+                @for (mentor of suggestionsList(); track mentor.id || mentor.name || mentor.prenom) {
+                  <option [value]="mentor.id || ''">{{ personName(mentor) }} {{ mentor.poste || mentor.title ? '- ' + (mentor.poste || mentor.title) : '' }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea id="message" formControlName="message" class="form-control" rows="5" placeholder="Expliquez votre objectif d'accompagnement..."></textarea>
+            </div>
+
+            <button class="btn btn-primary" type="submit" [disabled]="isSaving()">
+              {{ isSaving() ? 'Envoi en cours...' : 'Envoyer la demande' }}
+            </button>
+          </form>
+        </article>
+
+        <article class="panel glass-card">
+          <p class="eyebrow">Mentor actuel</p>
+          @if (data.mentor.name) {
+            <h2>{{ data.mentor.name }}</h2>
+            <p class="muted">{{ data.mentor.title }}</p>
+            <p>{{ data.mentor.bio }}</p>
+          } @else {
+            <h2>Aucun mentor attribue</h2>
+            <p class="muted">Envoyez une demande pour demarrer un accompagnement.</p>
+          }
+        </article>
+      </section>
+
+      <section class="grid-layout">
+        <article class="panel glass-card">
+          <h2>Parcours</h2>
+          <ul class="timeline">
+            @for (step of data.timeline; track step.label) {
+              <li [class.done]="step.done">
+                <span class="timeline-dot"></span>
+                <div>
+                  <strong>{{ step.label }}</strong>
+                  <small>{{ step.date }}</small>
+                </div>
+              </li>
+            }
+          </ul>
+        </article>
+
+        <article class="panel glass-card">
+          <h2>Demandes envoyées</h2>
+          @if (data.demandes.length) {
+            <div class="card-list">
+              @for (demande of data.demandes; track demande.id) {
+                <div class="list-card">
+                  <strong>{{ demande.statut || 'EN_ATTENTE' }}</strong>
+                  <p>{{ demande.message || 'Aucun message' }}</p>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="empty-text">Aucune demande enregistree pour le moment.</p>
+          }
+        </article>
+      </section>
+
+      <section class="panel glass-card">
+        <h2>Mentors suggérés</h2>
+        @if (suggestionsList().length) {
+          <div class="cards-grid">
+            @for (mentor of suggestionsList(); track mentor.id || mentor.name || mentor.prenom) {
+              <article class="list-card">
+                <strong>{{ personName(mentor) }}</strong>
+                <p>{{ mentor.poste || mentor.title || 'Mentor' }}</p>
+                <small>{{ mentor.entreprise || mentor.company || 'Entreprise non renseignee' }}</small>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="empty-text">Aucune suggestion disponible actuellement.</p>
+        }
+      </section>
+    }
+
+    @if (isMentor()) {
+      <section class="grid-layout">
+        <article class="panel glass-card">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Profil mentor</p>
+              <h2>{{ mentorProfile()?.prenom }} {{ mentorProfile()?.nom }}</h2>
+            </div>
+          </div>
+
+          <form [formGroup]="mentorProfileForm" (ngSubmit)="saveMentorProfile()" class="form-stack">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="telephone">Téléphone</label>
+                <input id="telephone" formControlName="telephone" class="form-control" type="text" />
+              </div>
+              <div class="form-group">
+                <label for="entreprise">Entreprise</label>
+                <input id="entreprise" formControlName="entreprise" class="form-control" type="text" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="poste">Poste</label>
+              <input id="poste" formControlName="poste" class="form-control" type="text" />
+            </div>
+
+            <div class="form-group">
+              <label for="bio">Bio</label>
+              <textarea id="bio" formControlName="bio" class="form-control" rows="4"></textarea>
+            </div>
+
+            <button class="btn btn-primary" type="submit" [disabled]="isSaving()">
+              {{ isSaving() ? 'Sauvegarde...' : 'Mettre a jour le profil' }}
+            </button>
+          </form>
+        </article>
+
+        <article class="panel glass-card">
+          <h2>Stagiaires suivis</h2>
+          @if (mentorStagiairesList().length) {
+            <div class="card-list">
+              @for (stagiaire of mentorStagiairesList(); track stagiaire.id || stagiaire.email) {
+                <div class="list-card">
+                  <strong>{{ personName(stagiaire) }}</strong>
+                  <p>{{ stagiaire.ecole || 'Ecole non renseignee' }}</p>
+                  <small>{{ stagiaire.niveauEtudes || 'Niveau non renseigne' }}</small>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="empty-text">Aucun stagiaire suivi pour le moment.</p>
+          }
+        </article>
+      </section>
+
+      <section class="panel glass-card">
+        <h2>Demandes de mentorat</h2>
+        @if (mentorDemandesList().length) {
+          <div class="card-list">
+            @for (demande of mentorDemandesList(); track demande.id) {
+              <article class="list-card request-card">
+                <div>
+                  <strong>{{ personName(demande.stagiaire) }}</strong>
+                  <p>{{ demande.message || 'Demande sans message.' }}</p>
+                  <small>Statut : {{ demande.statut || 'EN_ATTENTE' }}</small>
+                </div>
+                <div class="actions-row">
+                  <button class="btn btn-primary btn-small" type="button" (click)="respondToRequest(demande, 'ACCEPTEE')" [disabled]="isSaving()">Accepter</button>
+                  <button class="btn btn-secondary btn-small" type="button" (click)="respondToRequest(demande, 'REFUSEE')" [disabled]="isSaving()">Refuser</button>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="empty-text">Aucune demande adressee pour le moment.</p>
+        }
+      </section>
+    }
+  }
+</main>

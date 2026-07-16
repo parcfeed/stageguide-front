@@ -1,0 +1,56 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-text">Tableau de bord</span>
+    </a>
+    <a routerLink="/profile" routerLinkActive="active" class="nav-link">
+      <span class="nav-icon">👤</span>
+      <span class="nav-text">Profil</span>
+    </a>
+    @if (currentUser()?.role === 'stagiaire') {
+      <a routerLink="/portfolio" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">📁</span>
+        <span class="nav-text">Portfolio</span>
+      </a>
+      <a routerLink="/opportunites" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">💼</span>
+        <span class="nav-text">Opportunités</span>
+      </a>
+      <a routerLink="/candidatures" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">📄</span>
+        <span class="nav-text">Candidatures</span>
+      </a>
+      <a routerLink="/mentorat" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">🤝</span>
+        <span class="nav-text">Mentorat</span>
+      </a>
+    }
+    @if (currentUser()?.role === 'mentor') {
+      <a routerLink="/mentorat" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">🤝</span>
+        <span class="nav-text">Mentorat</span>
+      </a>
+    }
+    @if (currentUser()?.role === 'stagiaire' || currentUser()?.role === 'mentor' || currentUser()?.role === 'entreprise') {
+      <a routerLink="/messages" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">💬</span>
+        <span class="nav-text">Messages</span>
+      </a>
+      <a routerLink="/fichiers" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">📂</span>
+        <span class="nav-text">Fichiers</span>
+      </a>
+      <a routerLink="/notifications" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">🔔</span>
+        <span class="nav-text">Notifications</span>
+      </a>
+    }
+    @if (currentUser()?.role === 'entreprise') {
+      <a routerLink="/entreprise" routerLinkActive="active" class="nav-link">
+        <span class="nav-icon">🏢</span>
+        <span class="nav-text">Recruteur</span>
+      </a>
+    }
+  </div>
+</nav>
