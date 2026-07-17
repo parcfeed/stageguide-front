@@ -1,138 +1,136 @@
-<div class="auth-container">
-  <div class="auth-card glass-card">
-    <div class="auth-header">
-      <div class="logo-wrapper">
-        <span class="logo-text">Stage<span class="logo-accent">Guide</span></span>
-      </div>
-      <h1 class="auth-title">Créer un compte</h1>
-      <p class="auth-subtitle">Rejoignez la plateforme et lancez votre parcours professionnel</p>
-    </div>
+<!-- Subtle Background Atmosphere -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none">
+  <div class="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[120px]"></div>
+  <div class="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-tertiary/10 blur-[100px]"></div>
+</div>
 
-    <!-- Role Selector Tabs -->
-    <div class="role-selector">
-      <button 
-        type="button" 
-        class="role-tab" 
-        [class.active]="selectedRole() === UserRole.STAGIAIRE" 
-        (click)="selectRole(UserRole.STAGIAIRE)"
-      >
-        <span class="role-icon">🎓</span>
-        Stagiaire
+<main class="register-container">
+  <div class="register-card">
+
+    <!-- Header -->
+    <header class="header-section">
+      <div class="branding-row">
+        <span class="material-symbols-outlined branding-icon">school</span>
+        <h1 class="branding-title">
+          <span class="text-white">Stage</span><span class="text-accent">Guide</span>
+        </h1>
+      </div>
+      <h2 class="title">Créer un compte</h2>
+      <p class="subtitle">Rejoignez la plateforme et lancez votre parcours professionnel</p>
+    </header>
+
+    <!-- Role Selection -->
+    <div class="role-grid">
+      <button type="button" class="role-card" [class.active-role]="selectedRole() === UserRole.STAGIAIRE" (click)="selectRole(UserRole.STAGIAIRE)">
+        <span class="material-symbols-outlined role-icon">school</span>
+        <span class="role-label">Stagiaire</span>
       </button>
-      <button 
-        type="button" 
-        class="role-tab" 
-        [class.active]="selectedRole() === UserRole.MENTOR" 
-        (click)="selectRole(UserRole.MENTOR)"
-      >
-        <span class="role-icon">🤝</span>
-        Mentor
+      <button type="button" class="role-card" [class.active-role]="selectedRole() === UserRole.MENTOR" (click)="selectRole(UserRole.MENTOR)">
+        <span class="material-symbols-outlined role-icon">handshake</span>
+        <span class="role-label">Mentor</span>
       </button>
-      <button 
-        type="button" 
-        class="role-tab" 
-        [class.active]="selectedRole() === UserRole.ENTREPRISE" 
-        (click)="selectRole(UserRole.ENTREPRISE)"
-      >
-        <span class="role-icon">🏢</span>
-        Entreprise
+      <button type="button" class="role-card" [class.active-role]="selectedRole() === UserRole.ENTREPRISE" (click)="selectRole(UserRole.ENTREPRISE)">
+        <span class="material-symbols-outlined role-icon">corporate_fare</span>
+        <span class="role-label">Entreprise</span>
       </button>
     </div>
 
     @if (errorMessage()) {
       <div class="alert alert-error">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span class="material-symbols-outlined alert-icon">error</span>
         <span>{{ errorMessage() }}</span>
       </div>
     }
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
-      
-      <!-- Name row -->
-      <div class="form-row">
-        <div class="form-group flex-1">
-          <label for="prenom" class="form-label">Prénom</label>
-          <input 
-            id="prenom" 
-            type="text" 
-            formControlName="prenom" 
-            class="form-input" 
-            placeholder="Jean"
-            [class.input-error]="prenomField.invalid && prenomField.touched"
-          />
-          @if (prenomField.invalid && prenomField.touched) {
-            <div class="field-error">Le prénom est requis.</div>
-          }
-        </div>
 
-        <div class="form-group flex-1">
-          <label for="nom" class="form-label">Nom</label>
-          <input 
-            id="nom" 
-            type="text" 
-            formControlName="nom" 
-            class="form-input" 
-            placeholder="Dupont"
-            [class.input-error]="nomField.invalid && nomField.touched"
-          />
-          @if (nomField.invalid && nomField.touched) {
-            <div class="field-error">Le nom est requis.</div>
-          }
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="email" class="form-label">Adresse email</label>
-        <input 
-          id="email" 
-          type="email" 
-          formControlName="email" 
-          class="form-input" 
-          placeholder="exemple@email.com"
-          [class.input-error]="emailField.invalid && emailField.touched"
-        />
-        @if (emailField.invalid && emailField.touched) {
-          <div class="field-error">
-            @if (emailField.errors?.['required']) { L'adresse email est requise. }
-            @if (emailField.errors?.['email']) { Veuillez entrer une adresse email valide. }
+      <!-- Section 1: Personal Info -->
+      <div class="form-section">
+        <div class="name-row">
+          <div class="form-group">
+            <label for="prenom" class="form-label">Prénom</label>
+            <input
+              id="prenom"
+              type="text"
+              formControlName="prenom"
+              class="form-input"
+              placeholder="Jean"
+              [class.input-error]="prenomField.invalid && prenomField.touched"
+            />
+            @if (prenomField.invalid && prenomField.touched) {
+              <div class="field-error">Le prénom est requis.</div>
+            }
           </div>
-        }
+
+          <div class="form-group">
+            <label for="nom" class="form-label">Nom</label>
+            <input
+              id="nom"
+              type="text"
+              formControlName="nom"
+              class="form-input"
+              placeholder="Dupont"
+              [class.input-error]="nomField.invalid && nomField.touched"
+            />
+            @if (nomField.invalid && nomField.touched) {
+              <div class="field-error">Le nom est requis.</div>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Adresse email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="form-input"
+            placeholder="parcfeed&#64;gmail.com"
+            [class.input-error]="emailField.invalid && emailField.touched"
+          />
+          @if (emailField.invalid && emailField.touched) {
+            <div class="field-error">
+              @if (emailField.errors?.['required']) { L'adresse email est requise. }
+              @if (emailField.errors?.['email']) { Veuillez entrer une adresse email valide. }
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="telephone" class="form-label">Téléphone (Optionnel)</label>
+          <input
+            id="telephone"
+            type="tel"
+            formControlName="telephone"
+            class="form-input"
+            placeholder="+33 6 12 34 56 78"
+          />
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="telephone" class="form-label">Téléphone (Optionnel)</label>
-        <input 
-          id="telephone" 
-          type="text" 
-          formControlName="telephone" 
-          class="form-input" 
-          placeholder="+33 6 12 34 56 78"
-        />
-      </div>
-
-      <!-- DYNAMIC FIELDS BASED ON ROLE -->
+      <!-- Section 2: Dynamic Info (Academic / Company / Professional) -->
       @if (selectedRole() === UserRole.STAGIAIRE) {
         <div class="dynamic-section">
-          <h3 class="section-title">Informations académiques</h3>
-          
+          <h3 class="section-title">Informations Académiques</h3>
+
           <div class="form-group">
             <label for="ecole" class="form-label">École / Université (Optionnel)</label>
-            <input 
-              id="ecole" 
-              type="text" 
-              formControlName="ecole" 
-              class="form-input" 
+            <input
+              id="ecole"
+              type="text"
+              formControlName="ecole"
+              class="form-input"
               placeholder="Université de Douala"
             />
           </div>
 
           <div class="form-group">
             <label for="niveauEtudes" class="form-label">Niveau d'études</label>
-            <input 
-              id="niveauEtudes" 
-              type="text" 
-              formControlName="niveauEtudes" 
-              class="form-input" 
+            <input
+              id="niveauEtudes"
+              type="text"
+              formControlName="niveauEtudes"
+              class="form-input"
               placeholder="Licence 3, Master 1, etc."
               [class.input-error]="niveauField.invalid && niveauField.touched"
             />
@@ -145,15 +143,15 @@
 
       @if (selectedRole() === UserRole.ENTREPRISE) {
         <div class="dynamic-section">
-          <h3 class="section-title">Informations entreprise</h3>
-          
+          <h3 class="section-title">Informations Entreprise</h3>
+
           <div class="form-group">
             <label for="entreprise" class="form-label">Nom de l'entreprise</label>
-            <input 
-              id="entreprise" 
-              type="text" 
-              formControlName="entreprise" 
-              class="form-input" 
+            <input
+              id="entreprise"
+              type="text"
+              formControlName="entreprise"
+              class="form-input"
               placeholder="StageGuide Inc."
               [class.input-error]="entrepriseField.invalid && entrepriseField.touched"
             />
@@ -166,27 +164,27 @@
 
       @if (selectedRole() === UserRole.MENTOR) {
         <div class="dynamic-section">
-          <h3 class="section-title">Informations professionnelles</h3>
-          
-          <div class="form-row">
-            <div class="form-group flex-1">
+          <h3 class="section-title">Informations Professionnelles</h3>
+
+          <div class="name-row">
+            <div class="form-group">
               <label for="entreprise-mentor" class="form-label">Entreprise (Optionnel)</label>
-              <input 
-                id="entreprise-mentor" 
-                type="text" 
-                formControlName="entreprise" 
-                class="form-input" 
+              <input
+                id="entreprise-mentor"
+                type="text"
+                formControlName="entreprise"
+                class="form-input"
                 placeholder="Google, TechCorp, etc."
               />
             </div>
-            
-            <div class="form-group flex-1">
+
+            <div class="form-group">
               <label for="poste" class="form-label">Poste / Titre (Optionnel)</label>
-              <input 
-                id="poste" 
-                type="text" 
-                formControlName="poste" 
-                class="form-input" 
+              <input
+                id="poste"
+                type="text"
+                formControlName="poste"
+                class="form-input"
                 placeholder="Développeur Senior"
               />
             </div>
@@ -194,83 +192,90 @@
 
           <div class="form-group">
             <label for="bio" class="form-label">Biographie / Profil (Optionnel)</label>
-            <textarea 
-              id="bio" 
-              formControlName="bio" 
-              class="form-input text-area" 
+            <textarea
+              id="bio"
+              formControlName="bio"
+              class="form-input text-area"
               placeholder="Présentez-vous brièvement auprès des stagiaires..."
             ></textarea>
           </div>
         </div>
       }
 
-      <!-- Security row -->
-      <div class="form-row">
-        <div class="form-group flex-1">
-          <label for="password" class="form-label">Mot de passe</label>
-          <input 
-            id="password" 
-            type="password" 
-            formControlName="password" 
-            class="form-input" 
-            placeholder="••••••••"
-            [class.input-error]="passwordField.invalid && passwordField.touched"
-          />
-          @if (passwordField.invalid && passwordField.touched) {
-            <div class="field-error">
-              @if (passwordField.errors?.['required']) { Le mot de passe est requis. }
-              @if (passwordField.errors?.['minlength']) { Le mot de passe doit faire au moins 8 caractères. }
-              @if (passwordField.errors?.['pattern']) { Doit contenir une majuscule et un chiffre. }
+      <!-- Section 3: Security -->
+      <div class="form-section">
+        <div class="name-row">
+          <div class="form-group">
+            <label for="password" class="form-label">Mot de passe</label>
+            <div class="input-wrapper">
+              <input
+                id="password"
+                type="password"
+                formControlName="password"
+                class="form-input"
+                placeholder="••••••••"
+                [class.input-error]="passwordField.invalid && passwordField.touched"
+              />
             </div>
-          }
-        </div>
+            @if (passwordField.invalid && passwordField.touched) {
+              <div class="field-error">
+                @if (passwordField.errors?.['required']) { Le mot de passe est requis. }
+                @if (passwordField.errors?.['minlength']) { Le mot de passe doit faire au moins 8 caractères. }
+                @if (passwordField.errors?.['pattern']) { Doit contenir une majuscule et un chiffre. }
+              </div>
+            }
+          </div>
 
-        <div class="form-group flex-1">
-          <label for="confirmPassword" class="form-label">Confirmer</label>
-          <input 
-            id="confirmPassword" 
-            type="password" 
-            formControlName="confirmPassword" 
-            class="form-input" 
-            placeholder="••••••••"
-            [class.input-error]="confirmPasswordField.invalid && confirmPasswordField.touched"
-          />
-          @if (confirmPasswordField.invalid && confirmPasswordField.touched) {
-            <div class="field-error">
-              @if (confirmPasswordField.errors?.['required']) { La confirmation est requise. }
-              @if (confirmPasswordField.errors?.['passwordMismatch']) { Les mots de passe ne correspondent pas. }
-            </div>
-          }
+          <div class="form-group">
+            <label for="confirmPassword" class="form-label">Confirmer</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              formControlName="confirmPassword"
+              class="form-input"
+              placeholder="••••••••"
+              [class.input-error]="confirmPasswordField.invalid && confirmPasswordField.touched"
+            />
+            @if (confirmPasswordField.invalid && confirmPasswordField.touched) {
+              <div class="field-error">
+                @if (confirmPasswordField.errors?.['required']) { La confirmation est requise. }
+                @if (confirmPasswordField.errors?.['passwordMismatch']) { Les mots de passe ne correspondent pas. }
+              </div>
+            }
+          </div>
         </div>
       </div>
 
-      <div class="form-group checkbox-group">
-        <input 
-          id="consentGiven" 
-          type="checkbox" 
-          formControlName="consentGiven" 
+      <!-- Consent -->
+      <div class="consent-row">
+        <input
+          id="consentGiven"
+          type="checkbox"
+          formControlName="consentGiven"
           class="form-checkbox"
         />
         <label for="consentGiven" class="checkbox-label">
           J'accepte les conditions d'utilisation et la politique de confidentialité de StageGuide.
         </label>
-        @if (consentField.invalid && consentField.touched) {
-          <div class="field-error">Vous devez accepter les conditions pour continuer.</div>
-        }
       </div>
+      @if (consentField.invalid && consentField.touched) {
+        <div class="field-error" style="margin-top: -0.75rem; margin-bottom: 1rem;">Vous devez accepter les conditions pour continuer.</div>
+      }
 
-      <button type="submit" class="btn btn-primary w-full" [disabled]="isLoading()">
+      <!-- Submit -->
+      <button type="submit" class="btn-submit" [disabled]="isLoading()">
         @if (isLoading()) {
-          <div class="spinner"></div>
-          Inscription en cours...
+          <span class="material-symbols-outlined spin">progress_activity</span>
+          S'inscription...
         } @else {
           S'inscrire
+          <span class="material-symbols-outlined">arrow_forward</span>
         }
       </button>
     </form>
 
-    <div class="auth-footer">
+    <footer class="auth-footer">
       <p>Déjà inscrit ? <a routerLink="/login" class="auth-link">Se connecter</a></p>
-    </div>
+    </footer>
   </div>
-</div>
+</main>

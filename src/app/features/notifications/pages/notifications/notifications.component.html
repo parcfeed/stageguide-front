@@ -1,55 +1,59 @@
-<app-navbar></app-navbar>
-
-<main class="notifications-container">
-  <header class="page-header">
-    <button class="back-btn" type="button" (click)="goBack()">Retour</button>
-    <div>
-      <p class="eyebrow">Notifications</p>
+<div class="notifications-container">
+  <div class="notifications-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="back-label">Retour</span>
+      </button>
       <h1>Notifications</h1>
-      <p class="subtitle">
-        @if (unreadCount() > 0) {
-          {{ unreadCount() }} notification{{ unreadCount() > 1 ? 's' : '' }} non lue{{ unreadCount() > 1 ? 's' : '' }}
-        } @else {
-          Aucune notification non lue
-        }
-      </p>
+      <p class="header-subtitle">Consultez vos notifications et restez informé de votre activité.</p>
     </div>
-  </header>
+  </div>
 
   @if (errorMessage()) {
-    <div class="alert alert-error">{{ errorMessage() }}</div>
+    <div class="alert alert-error">
+      <span class="material-symbols-outlined" style="font-size: 1.25rem;">error</span>
+      {{ errorMessage() }}
+    </div>
   }
 
   @if (isLoading()) {
-    <section class="loading-state glass-card">
-      <div class="spinner"></div>
+    <div class="state-panel">
+      <span class="material-symbols-outlined spin" style="font-size: 2rem;">progress_activity</span>
       <p>Chargement des notifications...</p>
-    </section>
+    </div>
   } @else {
     @if (notifications().length === 0) {
       <div class="empty-state glass-card">
-        <span class="empty-icon">🔔</span>
+        <span class="empty-icon material-symbols-outlined">notifications</span>
         <h3>Aucune notification</h3>
-        <p class="muted">Vous n'avez pas encore de notifications.</p>
+        <p>Vous n'avez pas encore de notifications.</p>
       </div>
     } @else {
       <div class="notifications-list">
         @for (notif of sortedNotifications(); track notif.id) {
-          <div class="notification-card glass-card" [class.unread]="!notif.estLue">
-            <div class="notif-indicator"></div>
-            <div class="notif-content">
-              <div class="notif-header">
-                <strong class="notif-title">{{ notif.titre }}</strong>
-                <span class="notif-date">{{ notif.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          <div class="notification-card" [class.unread]="!notif.estLue">
+            <div class="card-glow"></div>
+            @if (!notif.estLue) {
+              <div class="unread-dot"></div>
+            }
+            <div class="notif-body">
+              <div class="notif-row">
+                <div class="notif-text">
+                  <h3 class="notif-title">{{ notif.titre }}</h3>
+                  <p class="notif-message">{{ notif.message }}</p>
+                </div>
+                <span class="notif-date">{{ notif.createdAt | date:'dd/MM/yyyy' }} <span class="notif-time">{{ notif.createdAt | date:'HH:mm' }}</span></span>
               </div>
-              <p class="notif-message">{{ notif.message }}</p>
-              <span class="notif-status" [class.read]="notif.estLue">
-                {{ notif.estLue ? 'Lu' : 'Non lu' }}
-              </span>
+              <div class="notif-footer">
+                <span class="notif-badge" [class.read]="notif.estLue">
+                  {{ notif.estLue ? 'Lu' : 'Non lu' }}
+                </span>
+              </div>
             </div>
           </div>
         }
       </div>
     }
   }
-</main>
+</div>

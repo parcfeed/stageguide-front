@@ -1,0 +1,64 @@
+<div class="certificats-container">
+  <div class="certificats-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="back-label">Retour</span>
+      </button>
+      <h1>Mes Certificats</h1>
+      <p class="header-subtitle">Retrouvez ici tous les certificats obtenus lors de vos formations.</p>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-panel">
+      <span class="material-symbols-outlined spin" style="font-size: 2rem;">progress_activity</span>
+      <p>Chargement des certificats...</p>
+    </div>
+  }
+
+  @if (errorMessage() && !isLoading()) {
+    <div class="alert alert-error">
+      <span class="material-symbols-outlined" style="font-size: 1.25rem;">error</span>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (!isLoading() && !errorMessage()) {
+    @if (certificats().length === 0) {
+      <div class="empty-state glass-card">
+        <span class="empty-icon material-symbols-outlined">verified</span>
+        <h3>Aucun certificat</h3>
+        <p>Vous n'avez pas encore obtenu de certificat. Suivez des formations pour en obtenir.</p>
+      </div>
+    } @else {
+      <div class="certificats-grid">
+        @for (cert of certificats(); track cert.id) {
+          <article class="glass-card certificat-card">
+            <div class="cert-ribbon">
+              <span class="material-symbols-outlined">verified</span>
+            </div>
+            <div class="cert-content">
+              <h3 class="cert-title">{{ cert.titre }}</h3>
+              <p class="cert-date">Obtenu le {{ formatDate(cert.createdAt) }}</p>
+              @if (cert.hashVerification) {
+                <div class="cert-hash">
+                  <span class="material-symbols-outlined" style="font-size: 0.85rem;">fingerprint</span>
+                  <code>{{ cert.hashVerification.slice(0, 16) }}...</code>
+                </div>
+              }
+            </div>
+            @if (cert.urlDocument) {
+              <div class="cert-footer">
+                <a [href]="cert.urlDocument" target="_blank" class="btn btn-primary" rel="noopener noreferrer">
+                  <span class="material-symbols-outlined">download</span>
+                  Télécharger
+                </a>
+              </div>
+            }
+          </article>
+        }
+      </div>
+    }
+  }
+</div>

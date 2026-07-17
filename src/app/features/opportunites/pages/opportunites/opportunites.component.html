@@ -1,62 +1,72 @@
 <div class="opportunites-container">
-  <app-navbar></app-navbar>
-  <!-- Header -->
   <div class="opportunites-header">
-    <button class="back-btn" (click)="goBack()" title="Retour au tableau de bord">
-      ← Retour
-    </button>
-    <h1>Opportunités de Carrière</h1>
-    <p class="subtitle">Découvrez les offres de stages et d'emplois publiées par nos partenaires</p>
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="back-label">Retour</span>
+      </button>
+      <h1>Opportunités de Carrière</h1>
+      <p class="header-subtitle">Découvrez les offres de stages et d'emplois publiées par nos partenaires</p>
+    </div>
   </div>
 
-  <!-- Tabs Selector -->
   <div class="tabs-container">
-    <button 
-      class="tab-btn" 
-      [class.active]="activeTab() === 'stage'" 
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'stage'"
       (click)="switchTab('stage')"
     >
-      🎓 Offres de Stage
+      <span class="material-symbols-outlined">school</span>
+      Offres de Stage
     </button>
-    <button 
-      class="tab-btn" 
-      [class.active]="activeTab() === 'emploi'" 
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'emploi'"
       (click)="switchTab('emploi')"
     >
-      🏢 Offres d'Emploi
+      <span class="material-symbols-outlined">work</span>
+      Offres d'Emploi
     </button>
   </div>
 
-  <!-- Filters Panel -->
   <div class="filters-card glass-card">
     <div class="filters-grid">
-      <div class="filter-group">
-        <label for="search">Recherche par mot-clé</label>
-        <input 
-          type="text" 
-          id="search" 
-          [(ngModel)]="searchQuery" 
-          placeholder="Ex: Angular, React, Java..." 
-          class="form-control"
+      <div class="field-group">
+        <label class="field-label" for="search">
+          <span class="material-symbols-outlined">search</span>
+          Recherche par mot-clé
+        </label>
+        <input
+          type="text"
+          id="search"
+          [(ngModel)]="searchQuery"
+          placeholder="Ex: Angular, React, Java..."
+          class="glass-input"
           (keyup.enter)="rechercher()"
         />
       </div>
 
-      <div class="filter-group">
-        <label for="ville">Ville</label>
-        <input 
-          type="text" 
-          id="ville" 
-          [(ngModel)]="villeQuery" 
-          placeholder="Ex: Douala, Yaoundé..." 
-          class="form-control"
+      <div class="field-group">
+        <label class="field-label" for="ville">
+          <span class="material-symbols-outlined">location_on</span>
+          Ville
+        </label>
+        <input
+          type="text"
+          id="ville"
+          [(ngModel)]="villeQuery"
+          placeholder="Ex: Douala, Yaoundé..."
+          class="glass-input"
           (keyup.enter)="rechercher()"
         />
       </div>
 
-      <div class="filter-group">
-        <label for="domaine">Domaine d'activité</label>
-        <select id="domaine" [(ngModel)]="domaineQuery" class="form-control">
+      <div class="field-group">
+        <label class="field-label" for="domaine">
+          <span class="material-symbols-outlined">category</span>
+          Domaine d'activité
+        </label>
+        <select id="domaine" [(ngModel)]="domaineQuery" class="glass-input">
           <option value="">Tous les domaines</option>
           @for (dom of domainsList; track dom) {
             <option [value]="dom">{{ dom }}</option>
@@ -64,9 +74,10 @@
         </select>
       </div>
 
-      <div class="filter-group checkbox-container">
+      <div class="field-group checkbox-group">
         <label class="checkbox-label">
           <input type="checkbox" [(ngModel)]="remoteQuery" class="form-checkbox" />
+          <span class="material-symbols-outlined" style="font-size: 1.1rem; font-variation-settings: 'wght' 300;">wifi</span>
           Télétravail autorisé
         </label>
       </div>
@@ -74,36 +85,35 @@
 
     <div class="filters-actions">
       <button class="btn btn-primary" (click)="rechercher()" [disabled]="isLoading()">
-        🔍 Rechercher
+        <span class="material-symbols-outlined">search</span>
+        Rechercher
       </button>
       <button class="btn btn-secondary" (click)="reinitialiser()" [disabled]="isLoading()">
+        <span class="material-symbols-outlined">tune</span>
         Réinitialiser
       </button>
     </div>
   </div>
 
-  <!-- Loading State -->
   @if (isLoading()) {
-    <div class="loading-state">
-      <div class="spinner"></div>
+    <div class="state-panel">
+      <span class="material-symbols-outlined spin" style="font-size: 2rem;">progress_activity</span>
       <p>Recherche d'opportunités en cours...</p>
     </div>
   }
 
-  <!-- Error Alerts -->
   @if (errorMessage() && !isLoading()) {
     <div class="alert alert-error">
+      <span class="material-symbols-outlined" style="font-size: 1.25rem;">error</span>
       {{ errorMessage() }}
     </div>
   }
 
-  <!-- Offers Grid / List -->
   @if (!isLoading() && !errorMessage()) {
-    <!-- Internship tab -->
     @if (activeTab() === 'stage') {
       @if (offresStage().length === 0) {
         <div class="empty-state glass-card">
-          <span class="empty-icon">📁</span>
+          <span class="empty-icon material-symbols-outlined">folder_open</span>
           <h3>Aucune offre de stage trouvée</h3>
           <p>Essayez de modifier vos critères de recherche ou de réinitialiser les filtres.</p>
         </div>
@@ -111,37 +121,51 @@
         <div class="offers-grid">
           @for (offre of offresStage(); track offre.id) {
             <div class="offer-card glass-card">
+              <div class="card-glow"></div>
               <div class="card-header">
                 <div class="company-logo">
                   @if (offre.logoUrl) {
-                    <img [src]="offre.logoUrl" [alt]="offre.partenaire?.nomEntreprise || 'Logo'" />
+                    <img [src]="offre.logoUrl" [alt]="offre.partenaire?.nomEntreprise || 'Logo'" (error)="offre.logoUrl = ''" />
                   } @else {
-                    <span class="logo-fallback">🏢</span>
+                    <span class="material-symbols-outlined logo-fallback">business</span>
                   }
                 </div>
                 <div class="company-info">
                   <h4 class="company-name">{{ offre.partenaire?.nomEntreprise || 'Partenaire StageGuide' }}</h4>
-                  <p class="location">{{ offre.ville }}</p>
+                  <p class="location">
+                    <span class="material-symbols-outlined" style="font-size: 0.75rem; vertical-align: middle;">location_on</span>
+                    {{ offre.ville }}
+                  </p>
                 </div>
               </div>
 
               <div class="card-body">
                 <h3 class="offer-title">{{ offre.titre }}</h3>
-                <p class="offer-domain">{{ offre.domaine || 'Général' }}</p>
+                <span class="domain-pill">
+                  <span class="material-symbols-outlined" style="font-size: 0.85rem;">folder</span>
+                  {{ offre.domaine || 'Général' }}
+                </span>
                 <p class="offer-snippet">{{ offre.description | slice:0:150 }}...</p>
               </div>
 
               <div class="card-footer">
                 <div class="badges">
                   @if (offre.duree) {
-                    <span class="badge badge-info">⏱️ {{ offre.duree }}</span>
+                    <span class="badge">
+                      <span class="material-symbols-outlined" style="font-size: 0.75rem;">schedule</span>
+                      {{ offre.duree }}
+                    </span>
                   }
                   @if (offre.remote) {
-                    <span class="badge badge-success">🏠 Distanciel</span>
+                    <span class="badge badge-success">
+                      <span class="material-symbols-outlined" style="font-size: 0.75rem;">wifi</span>
+                      Distanciel
+                    </span>
                   }
                 </div>
-                <button class="btn btn-secondary btn-small" (click)="ouvrirDetail(offre)">
-                  Détails
+                <button class="btn-details" (click)="ouvrirDetail(offre)">
+                  Voir les détails
+                  <span class="material-symbols-outlined">arrow_forward</span>
                 </button>
               </div>
             </div>
@@ -150,11 +174,10 @@
       }
     }
 
-    <!-- Employment tab -->
     @if (activeTab() === 'emploi') {
       @if (offresEmploi().length === 0) {
         <div class="empty-state glass-card">
-          <span class="empty-icon">📁</span>
+          <span class="empty-icon material-symbols-outlined">folder_open</span>
           <h3>Aucune offre d'emploi trouvée</h3>
           <p>Essayez de modifier vos critères de recherche ou de réinitialiser les filtres.</p>
         </div>
@@ -162,37 +185,51 @@
         <div class="offers-grid">
           @for (offre of offresEmploi(); track offre.id) {
             <div class="offer-card glass-card">
+              <div class="card-glow"></div>
               <div class="card-header">
                 <div class="company-logo">
                   @if (offre.logoUrl) {
-                    <img [src]="offre.logoUrl" [alt]="offre.partenaire?.nomEntreprise || 'Logo'" />
+                    <img [src]="offre.logoUrl" [alt]="offre.partenaire?.nomEntreprise || 'Logo'" (error)="offre.logoUrl = ''" />
                   } @else {
-                    <span class="logo-fallback">🏢</span>
+                    <span class="material-symbols-outlined logo-fallback">business</span>
                   }
                 </div>
                 <div class="company-info">
                   <h4 class="company-name">{{ offre.partenaire?.nomEntreprise || 'Partenaire StageGuide' }}</h4>
-                  <p class="location">{{ offre.ville }}</p>
+                  <p class="location">
+                    <span class="material-symbols-outlined" style="font-size: 0.75rem; vertical-align: middle;">location_on</span>
+                    {{ offre.ville }}
+                  </p>
                 </div>
               </div>
 
               <div class="card-body">
                 <h3 class="offer-title">{{ offre.titre }}</h3>
-                <p class="offer-domain">{{ offre.domaine || 'Général' }}</p>
+                <span class="domain-pill">
+                  <span class="material-symbols-outlined" style="font-size: 0.85rem;">folder</span>
+                  {{ offre.domaine || 'Général' }}
+                </span>
                 <p class="offer-snippet">{{ offre.description | slice:0:150 }}...</p>
               </div>
 
               <div class="card-footer">
                 <div class="badges">
                   @if (offre.typeContrat) {
-                    <span class="badge badge-info">📄 {{ offre.typeContrat }}</span>
+                    <span class="badge">
+                      <span class="material-symbols-outlined" style="font-size: 0.75rem;">description</span>
+                      {{ offre.typeContrat }}
+                    </span>
                   }
                   @if (offre.remote) {
-                    <span class="badge badge-success">🏠 Distanciel</span>
+                    <span class="badge badge-success">
+                      <span class="material-symbols-outlined" style="font-size: 0.75rem;">wifi</span>
+                      Distanciel
+                    </span>
                   }
                 </div>
-                <button class="btn btn-secondary btn-small" (click)="ouvrirDetail(offre)">
-                  Détails
+                <button class="btn-details" (click)="ouvrirDetail(offre)">
+                  Voir les détails
+                  <span class="material-symbols-outlined">arrow_forward</span>
                 </button>
               </div>
             </div>
@@ -202,27 +239,30 @@
     }
   }
 
-  <!-- Detail Modal -->
   @if (showDetailModal() && selectedOffer()) {
     <div class="modal-overlay" (click)="fermerDetail()">
       <div class="modal-card glass-card" (click)="$event.stopPropagation()">
-        <button class="modal-close" (click)="fermerDetail()">×</button>
-        
+        <button class="modal-close" (click)="fermerDetail()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+
         <div class="modal-header">
           <div class="company-logo-large">
-            @if (selectedOffer()?.logoUrl) {
-              <img [src]="selectedOffer()?.logoUrl" [alt]="selectedOffer()?.partenaire?.nomEntreprise || 'Logo'" />
+            @if (selectedOffer()?.logoUrl && !modalLogoError()) {
+              <img [src]="selectedOffer()?.logoUrl" [alt]="selectedOffer()?.partenaire?.nomEntreprise || 'Logo'" (error)="setLogoError()" />
             } @else {
-              <span class="logo-fallback-large">🏢</span>
+              <span class="material-symbols-outlined" style="font-size: 2rem;">business</span>
             }
           </div>
           <div class="modal-header-info">
             <h2>{{ selectedOffer()?.titre }}</h2>
             <h3>{{ selectedOffer()?.partenaire?.nomEntreprise || 'Partenaire StageGuide' }}</h3>
             <p class="modal-meta">
-              📍 {{ selectedOffer()?.ville }} 
+              <span class="material-symbols-outlined" style="font-size: 0.85rem; vertical-align: middle;">location_on</span>
+              {{ selectedOffer()?.ville }}
               @if (selectedOffer()?.domaine) {
-                | 📁 {{ selectedOffer()?.domaine }}
+                <span class="material-symbols-outlined" style="font-size: 0.85rem; vertical-align: middle; margin-left: 0.5rem;">folder</span>
+                {{ selectedOffer()?.domaine }}
               }
             </p>
           </div>
@@ -232,18 +272,30 @@
           <div class="modal-badges">
             @if (activeTab() === 'stage') {
               @if (selectedOfferAsAny.duree) {
-                <span class="badge badge-info">Durée : {{ selectedOfferAsAny.duree }}</span>
+                <span class="badge">
+                  <span class="material-symbols-outlined" style="font-size: 0.75rem;">schedule</span>
+                  Durée : {{ selectedOfferAsAny.duree }}
+                </span>
               }
             } @else {
               @if (selectedOfferAsAny.typeContrat) {
-                <span class="badge badge-info">Contrat : {{ selectedOfferAsAny.typeContrat }}</span>
+                <span class="badge">
+                  <span class="material-symbols-outlined" style="font-size: 0.75rem;">description</span>
+                  Contrat : {{ selectedOfferAsAny.typeContrat }}
+                </span>
               }
               @if (selectedOfferAsAny.experience) {
-                <span class="badge badge-secondary">Expérience : {{ selectedOfferAsAny.experience }}</span>
+                <span class="badge">
+                  <span class="material-symbols-outlined" style="font-size: 0.75rem;">workspace_premium</span>
+                  Expérience : {{ selectedOfferAsAny.experience }}
+                </span>
               }
             }
             @if (selectedOffer()?.remote) {
-              <span class="badge badge-success">Télétravail autorisé</span>
+              <span class="badge badge-success">
+                <span class="material-symbols-outlined" style="font-size: 0.75rem;">wifi</span>
+                Télétravail autorisé
+              </span>
             }
           </div>
 
@@ -252,16 +304,18 @@
             <p>{{ selectedOffer()?.description }}</p>
           </div>
 
-          <!-- Motivation Message Area -->
           @if (!applySuccessMessage()) {
-            <div class="motivation-section" style="margin-top: 1.5rem;">
-              <h4 style="font-size: 0.9rem; color: var(--primary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Message de motivation</h4>
-              <textarea 
-                [(ngModel)]="motivationMessage" 
-                class="form-control" 
-                placeholder="Écrivez un court message pour l'entreprise (facultatif)..." 
+            <div class="motivation-section">
+              <label class="field-label" for="motivation">
+                <span class="material-symbols-outlined">edit_note</span>
+                Message de motivation
+              </label>
+              <textarea
+                id="motivation"
+                [(ngModel)]="motivationMessage"
+                class="glass-input"
+                placeholder="Écrivez un court message pour l'entreprise (facultatif)..."
                 rows="3"
-                style="resize: vertical; min-height: 80px;"
                 [disabled]="isApplying()"
               ></textarea>
             </div>
@@ -269,17 +323,19 @@
 
           @if (applySuccessMessage()) {
             <div class="alert alert-success" style="margin-top: 1.5rem;">
+              <span class="material-symbols-outlined" style="font-size: 1.25rem;">check_circle</span>
               {{ applySuccessMessage() }}
             </div>
           }
 
           @if (applyErrorMessage()) {
             <div class="alert alert-error" style="margin-top: 1.5rem;">
+              <span class="material-symbols-outlined" style="font-size: 1.25rem;">error</span>
               {{ applyErrorMessage() }}
             </div>
           }
 
-          <div class="modal-date" style="margin-top: 1.5rem;">
+          <div class="modal-date">
             Publiée le {{ selectedOffer()?.datePublication | date:'dd/MM/yyyy' }}
           </div>
         </div>
@@ -287,7 +343,13 @@
         <div class="modal-footer">
           @if (!applySuccessMessage()) {
             <button class="btn btn-primary" (click)="postuler()" [disabled]="isApplying()">
-              @if (isApplying()) { Envoi... } @else { Postuler }
+              @if (isApplying()) {
+                <span class="spinner" style="width: 18px; height: 18px; border-width: 2px;"></span>
+                Envoi...
+              } @else {
+                <span class="material-symbols-outlined">send</span>
+                Postuler
+              }
             </button>
           }
           <button class="btn btn-secondary" (click)="fermerDetail()">Fermer</button>

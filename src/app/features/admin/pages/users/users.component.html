@@ -1,0 +1,194 @@
+<div class="users-container">
+  <div class="users-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="back-label">Retour</span>
+      </button>
+      <h1>Utilisateurs</h1>
+      <p class="header-subtitle">Gérez les utilisateurs de la plateforme.</p>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      <span class="material-symbols-outlined">check_circle</span>
+      <span>{{ successMessage() }}</span>
+    </div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      <span class="material-symbols-outlined">error</span>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <div class="toolbar">
+    <div class="search-bar">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text" placeholder="Rechercher un utilisateur..." (input)="rechercher($any($event.target).value)" />
+    </div>
+    <div class="filter-tabs">
+      <button type="button" class="filter-btn" [class.active]="roleFilter() === ''" (click)="filtrerParRole('')">Tous</button>
+      <button type="button" class="filter-btn" [class.active]="roleFilter() === 'STAGIAIRE'" (click)="filtrerParRole('STAGIAIRE')">Stagiaires</button>
+      <button type="button" class="filter-btn" [class.active]="roleFilter() === 'MENTOR'" (click)="filtrerParRole('MENTOR')">Mentors</button>
+      <button type="button" class="filter-btn" [class.active]="roleFilter() === 'ENTREPRISE'" (click)="filtrerParRole('ENTREPRISE')">Entreprises</button>
+      <button type="button" class="filter-btn" [class.active]="roleFilter() === 'ADMIN'" (click)="filtrerParRole('ADMIN')">Admins</button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-panel">
+      <span class="material-symbols-outlined spin" style="font-size: 2rem;">progress_activity</span>
+      <p>Chargement des utilisateurs...</p>
+    </div>
+  } @else if (users().length === 0) {
+    <div class="empty-state glass-card">
+      <span class="material-symbols-outlined empty-icon">group_off</span>
+      <h3>Aucun utilisateur</h3>
+      <p>Aucun utilisateur trouvé.</p>
+    </div>
+  } @else {
+    <div class="table-wrapper glass-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Utilisateur</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Statut</th>
+            <th>Inscrit le</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.id) {
+            <tr>
+              <td class="cell-user">
+                <div class="avatar-mini">{{ user.prenom.charAt(0) }}{{ user.nom.charAt(0) }}</div>
+                <div>
+                  <div class="cell-name">{{ user.prenom }} {{ user.nom }}</div>
+                </div>
+              </td>
+              <td class="cell-email">{{ user.email }}</td>
+              <td><span class="role-badge {{ getRoleClass(user.role) }}">{{ getRoleLabel(user.role) }}</span></td>
+              <td>
+                <span class="status-badge" [class.active]="user.isActive" [class.inactive]="!user.isActive">
+                  {{ user.isActive ? 'Actif' : 'Suspendu' }}
+                </span>
+              </td>
+              <td class="cell-date">{{ user.createdAt | date:'shortDate' }}</td>
+              <td class="cell-actions">
+                <button type="button" class="icon-btn-sm" (click)="openEdit(user)" title="Modifier">
+                  <span class="material-symbols-outlined">edit</span>
+                </button>
+                <button type="button" class="icon-btn-sm" (click)="toggleStatus(user)" [title]="user.isActive ? 'Suspendre' : 'Réactiver'">
+                  <span class="material-symbols-outlined">{{ user.isActive ? 'block' : 'check_circle' }}</span>
+                </button>
+                <button type="button" class="icon-btn-sm" (click)="confirmDelete(user)" title="Supprimer">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button type="button" class="page-btn" [disabled]="page() <= 1" (click)="changerPage(page() - 1)">Précédent</button>
+        <span class="page-info">Page {{ page() }} / {{ totalPages() }}</span>
+        <button type="button" class="page-btn" [disabled]="page() >= totalPages()" (click)="changerPage(page() + 1)">Suivant</button>
+      </div>
+    }
+  }
+</div>
+
+@if (showEditModal() && selectedUser(); as user) {
+  <div class="modal-overlay" (click)="closeEdit()">
+    <div class="modal glass-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Modifier l'utilisateur</h2>
+        <button type="button" class="icon-btn" (click)="closeEdit()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form [formGroup]="editForm" (ngSubmit)="saveUser()" novalidate>
+        <div class="modal-body">
+          <div class="field-group">
+            <label class="field-label">Prénom</label>
+            <input type="text" formControlName="prenom" class="glass-input" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Nom</label>
+            <input type="text" formControlName="nom" class="glass-input" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Email</label>
+            <input type="email" formControlName="email" class="glass-input" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Rôle</label>
+            <select formControlName="role" class="glass-input">
+              <option value="STAGIAIRE">Stagiaire</option>
+              <option value="MENTOR">Mentor</option>
+              <option value="ENTREPRISE">Entreprise</option>
+              <option value="ADMIN">Admin</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Statut</label>
+            <button type="button" class="btn btn-secondary status-toggle" (click)="editForm.patchValue({ isActive: !editForm.getRawValue().isActive })">
+              <span class="material-symbols-outlined">{{ editForm.getRawValue().isActive ? 'check_circle' : 'block' }}</span>
+              {{ editForm.getRawValue().isActive ? 'Actif' : 'Suspendu' }}
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeEdit()">
+            <span class="material-symbols-outlined">close</span>
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+            @if (isSaving()) {
+              <span class="material-symbols-outlined spin">progress_activity</span>
+            }
+            <span class="material-symbols-outlined">save</span>
+            Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (showDeleteModal() && userToDelete(); as user) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal glass-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Confirmer la suppression</h2>
+        <button type="button" class="icon-btn" (click)="cancelDelete()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{{ user.prenom }} {{ user.nom }}</strong> ?</p>
+        <p>Cette action ne peut pas être annulée.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cancelDelete()" [disabled]="isDeleting()">
+          <span class="material-symbols-outlined">close</span>
+          Annuler
+        </button>
+        <button type="button" class="btn btn-primary" (click)="deleteUser()" [disabled]="isDeleting()">
+          @if (isDeleting()) {
+            <span class="material-symbols-outlined spin">progress_activity</span>
+          }
+          <span class="material-symbols-outlined">delete_forever</span>
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}

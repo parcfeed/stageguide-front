@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -7,13 +7,12 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { OffreStage, OffreEmploi } from '../../../../core/interfaces/opportunites.interface';
 import { Candidature } from '../../../../core/interfaces/candidature.interface';
 import { Entretien } from '../../../../core/interfaces/entreprise.interface';
-import { NavbarComponent } from '../../../../core/components/navbar/navbar.component';
 import { Observable, catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-entreprise',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './entreprise.component.html',
   styleUrls: ['./entreprise.component.css']
 })

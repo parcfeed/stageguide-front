@@ -6,12 +6,11 @@ import { signal, computed } from '@angular/core';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { StagiaireProfile, MentorProfile, UpdateStagiaireProfilePayload, UpdateMentorProfilePayload } from '../../../../core/interfaces/profile.interface';
-import { NavbarComponent } from '../../../../core/components/navbar/navbar.component';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })

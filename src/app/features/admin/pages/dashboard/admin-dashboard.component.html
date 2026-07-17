@@ -1,0 +1,56 @@
+<div class="admin-container">
+  <div class="admin-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="back-label">Retour</span>
+      </button>
+      <h1>Tableau de bord</h1>
+      <p class="header-subtitle">Gérez les utilisateurs et partenaires de la plateforme.</p>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-panel">
+      <span class="material-symbols-outlined spin" style="font-size: 2rem;">progress_activity</span>
+      <p>Chargement...</p>
+    </div>
+  } @else {
+    <div class="stats-grid">
+      <a class="stat-link" routerLink="/admin/users">
+        <div class="glass-card stat-card">
+          <div class="stat-body">
+            <p class="stat-label">Utilisateurs</p>
+            <h3 class="stat-value">{{ userCount() }}</h3>
+          </div>
+          <div class="stat-icon">
+            <span class="material-symbols-outlined">group</span>
+          </div>
+        </div>
+      </a>
+      <a class="stat-link" routerLink="/admin/partners">
+        <div class="glass-card stat-card">
+          <div class="stat-body">
+            <p class="stat-label">Partenaires</p>
+            <h3 class="stat-value">{{ partnerCount() }}</h3>
+          </div>
+          <div class="stat-icon">
+            <span class="material-symbols-outlined">business</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <h2 class="section-title">Accès rapide</h2>
+    <div class="quick-links">
+      <a class="glass-card quick-link" routerLink="/admin/users">
+        <span class="material-symbols-outlined">group</span>
+        <span>Gérer les utilisateurs</span>
+      </a>
+      <a class="glass-card quick-link" routerLink="/admin/partners">
+        <span class="material-symbols-outlined">business</span>
+        <span>Gérer les partenaires</span>
+      </a>
+    </div>
+  }
+</div>

@@ -1,234 +1,318 @@
 <div class="profile-container">
-  <app-navbar></app-navbar>
-  <!-- Header -->
   <div class="profile-header">
-    <button class="back-btn" (click)="goBack()" title="Retour">
-      ← Retour
+    <button class="back-btn" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+      <span class="back-label">Retour</span>
     </button>
     <h1>Mon Profil</h1>
-    <div style="width: 40px;"></div> <!-- Spacer for centering -->
+    <div class="header-spacer"></div>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading()" class="loading">
-    <p>Chargement du profil...</p>
-  </div>
-
-  <!-- Error Message -->
-  <div *ngIf="errorMessage() && !isLoading()" class="alert alert-error">
-    {{ errorMessage() }}
-  </div>
-
-  <!-- Success Message -->
-  <div *ngIf="successMessage() && !isLoading()" class="alert alert-success">
-    {{ successMessage() }}
-  </div>
-
-  <!-- Profile Content -->
-  <div *ngIf="!isLoading()" class="profile-content">
-    <!-- Stagiaire Profile -->
-    <div *ngIf="isStagiaire() && stagiaireProfile()" class="profile-card">
-      <div class="profile-header-info">
-        <div class="profile-name">
-          <h2>{{ stagiaireProfile()!.prenom }} {{ stagiaireProfile()!.nom }}</h2>
-          <span class="role-badge">Stagiaire</span>
-        </div>
-      </div>
-
-      <!-- View Mode -->
-      <div *ngIf="!isEditMode()" class="profile-view">
-        <div class="profile-section">
-          <div class="profile-field">
-            <label>Téléphone:</label>
-            <p>{{ stagiaireProfile()!.telephone || 'Non renseigné' }}</p>
-          </div>
-          <div class="profile-field">
-            <label>École:</label>
-            <p>{{ stagiaireProfile()!.ecole || 'Non renseignée' }}</p>
-          </div>
-          <div class="profile-field">
-            <label>Niveau d'études:</label>
-            <p>{{ stagiaireProfile()!.niveauEtudes || 'Non renseigné' }}</p>
-          </div>
-          <div class="profile-field">
-            <label>Bio:</label>
-            <p>{{ stagiaireProfile()!.bio || 'Aucune bio' }}</p>
-          </div>
-        </div>
-
-        <button class="btn btn-primary" (click)="toggleEditMode()">
-          Modifier le profil
-        </button>
-      </div>
-
-      <!-- Edit Mode -->
-      <form *ngIf="isEditMode()" [formGroup]="stagiaireForm" (ngSubmit)="saveStagiaireProfile()" class="profile-form">
-        <div class="form-group">
-          <label for="telephone">Téléphone:</label>
-          <input
-            type="tel"
-            id="telephone"
-            formControlName="telephone"
-            class="form-control"
-            placeholder="Ex: +33 6 12 34 56 78"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="ecole">École <span class="required">*</span>:</label>
-          <input
-            type="text"
-            id="ecole"
-            formControlName="ecole"
-            class="form-control"
-            placeholder="Ex: Université de Douala"
-            [class.is-invalid]="stagiaireForm.get('ecole')?.invalid && stagiaireForm.get('ecole')?.touched"
-          />
-          <div *ngIf="stagiaireForm.get('ecole')?.invalid && stagiaireForm.get('ecole')?.touched" class="error-text">
-            L'école est obligatoire
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="niveauEtudes">Niveau d'études <span class="required">*</span>:</label>
-          <input
-            type="text"
-            id="niveauEtudes"
-            formControlName="niveauEtudes"
-            class="form-control"
-            placeholder="Ex: Master 1"
-            [class.is-invalid]="stagiaireForm.get('niveauEtudes')?.invalid && stagiaireForm.get('niveauEtudes')?.touched"
-          />
-          <div *ngIf="stagiaireForm.get('niveauEtudes')?.invalid && stagiaireForm.get('niveauEtudes')?.touched" class="error-text">
-            Le niveau d'études est obligatoire
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="bio">Bio:</label>
-          <textarea
-            id="bio"
-            formControlName="bio"
-            class="form-control textarea"
-            placeholder="Parlez de vous..."
-            rows="4"
-          ></textarea>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-success" [disabled]="isSaving()">
-            {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
-          </button>
-          <button type="button" class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isSaving()">
-            Annuler
-          </button>
-        </div>
-      </form>
+  @if (isLoading()) {
+    <div class="state-panel">
+      <span class="material-symbols-outlined spin" style="font-size: 2rem;">progress_activity</span>
+      <p>Chargement du profil...</p>
     </div>
+  }
+
+  @if (errorMessage() && !isLoading()) {
+    <div class="alert alert-error">
+      <span class="material-symbols-outlined" style="font-size: 1.25rem;">error</span>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (successMessage() && !isLoading()) {
+    <div class="alert alert-success">
+      <span class="material-symbols-outlined" style="font-size: 1.25rem;">check_circle</span>
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (!isLoading()) {
+    <!-- Stagiaire Profile -->
+    @if (isStagiaire() && stagiaireProfile(); as profile) {
+      <div class="profile-card glass-card">
+        <div class="profile-card-header">
+          <div class="profile-avatar">
+            <span class="material-symbols-outlined avatar-icon filled">account_circle</span>
+          </div>
+          <div class="profile-title-area">
+            <div class="profile-name-row">
+              <h2>{{ profile.prenom }} {{ profile.nom }}</h2>
+              <span class="role-badge">Stagiaire</span>
+            </div>
+            <p class="profile-subtitle">Gérer vos informations personnelles</p>
+          </div>
+        </div>
+
+        @if (!isEditMode()) {
+          <div class="profile-fields">
+            <div class="field-group">
+              <label class="field-label">
+                <span class="material-symbols-outlined">phone</span>
+                Téléphone
+              </label>
+              <div class="field-value">{{ profile.telephone || 'Non renseigné' }}</div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                <span class="material-symbols-outlined">school</span>
+                École
+              </label>
+              <div class="field-value">{{ profile.ecole || 'Non renseignée' }}</div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                <span class="material-symbols-outlined">history_edu</span>
+                Niveau d'études
+              </label>
+              <div class="field-value">{{ profile.niveauEtudes || 'Non renseigné' }}</div>
+            </div>
+            <div></div>
+            <div class="field-group field-full">
+              <label class="field-label">
+                <span class="material-symbols-outlined">description</span>
+                Bio
+              </label>
+              <div class="field-value bio-text">{{ profile.bio || 'Aucune bio' }}</div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary" (click)="toggleEditMode()">
+              <span class="material-symbols-outlined">edit</span>
+              Modifier le profil
+            </button>
+          </div>
+        }
+
+        @if (isEditMode()) {
+          <form [formGroup]="stagiaireForm" (ngSubmit)="saveStagiaireProfile()" class="profile-form">
+            <div class="field-group">
+              <label class="field-label" for="telephone">
+                <span class="material-symbols-outlined">phone</span>
+                Téléphone
+              </label>
+              <input
+                type="tel"
+                id="telephone"
+                formControlName="telephone"
+                class="glass-input"
+                placeholder="Ex: +33 6 12 34 56 78"
+              />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="ecole">
+                <span class="material-symbols-outlined">school</span>
+                École <span class="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="ecole"
+                formControlName="ecole"
+                class="glass-input"
+                placeholder="Ex: Université de Douala"
+                [class.input-error]="stagiaireForm.get('ecole')?.invalid && stagiaireForm.get('ecole')?.touched"
+              />
+              @if (stagiaireForm.get('ecole')?.invalid && stagiaireForm.get('ecole')?.touched) {
+                <span class="error-text">L'école est obligatoire</span>
+              }
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="niveauEtudes">
+                <span class="material-symbols-outlined">history_edu</span>
+                Niveau d'études <span class="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="niveauEtudes"
+                formControlName="niveauEtudes"
+                class="glass-input"
+                placeholder="Ex: Master 1"
+                [class.input-error]="stagiaireForm.get('niveauEtudes')?.invalid && stagiaireForm.get('niveauEtudes')?.touched"
+              />
+              @if (stagiaireForm.get('niveauEtudes')?.invalid && stagiaireForm.get('niveauEtudes')?.touched) {
+                <span class="error-text">Le niveau d'études est obligatoire</span>
+              }
+            </div>
+            <div></div>
+            <div class="field-group field-full">
+              <label class="field-label" for="bio">
+                <span class="material-symbols-outlined">description</span>
+                Bio
+              </label>
+              <textarea
+                id="bio"
+                formControlName="bio"
+                class="glass-input"
+                placeholder="Parlez de vous..."
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+                @if (isSaving()) {
+                  <span class="spinner" style="width: 18px; height: 18px; border-width: 2px;"></span>
+                  Enregistrement...
+                } @else {
+                  <span class="material-symbols-outlined">save</span>
+                  Enregistrer
+                }
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isSaving()">
+                <span class="material-symbols-outlined">close</span>
+                Annuler
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+    }
 
     <!-- Mentor Profile -->
-    <div *ngIf="isMentor() && mentorProfile()" class="profile-card">
-      <div class="profile-header-info">
-        <div class="profile-name">
-          <h2>{{ mentorProfile()!.prenom }} {{ mentorProfile()!.nom }}</h2>
-          <span class="role-badge role-mentor">Mentor</span>
+    @if (isMentor() && mentorProfile(); as profile) {
+      <div class="profile-card glass-card">
+        <div class="profile-card-header">
+          <div class="profile-avatar">
+            <span class="material-symbols-outlined avatar-icon filled">account_circle</span>
+          </div>
+          <div class="profile-title-area">
+            <div class="profile-name-row">
+              <h2>{{ profile.prenom }} {{ profile.nom }}</h2>
+              <span class="role-badge role-mentor">Mentor</span>
+            </div>
+            <p class="profile-subtitle">Gérer vos informations professionnelles</p>
+          </div>
         </div>
+
+        @if (!isEditMode()) {
+          <div class="profile-fields">
+            <div class="field-group">
+              <label class="field-label">
+                <span class="material-symbols-outlined">phone</span>
+                Téléphone
+              </label>
+              <div class="field-value">{{ profile.telephone || 'Non renseigné' }}</div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                <span class="material-symbols-outlined">business</span>
+                Entreprise
+              </label>
+              <div class="field-value">{{ profile.entreprise || 'Non renseignée' }}</div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">
+                <span class="material-symbols-outlined">badge</span>
+                Poste
+              </label>
+              <div class="field-value">{{ profile.poste || 'Non renseigné' }}</div>
+            </div>
+            <div></div>
+            <div class="field-group field-full">
+              <label class="field-label">
+                <span class="material-symbols-outlined">description</span>
+                Bio
+              </label>
+              <div class="field-value bio-text">{{ profile.bio || 'Aucune bio' }}</div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-primary" (click)="toggleEditMode()">
+              <span class="material-symbols-outlined">edit</span>
+              Modifier le profil
+            </button>
+          </div>
+        }
+
+        @if (isEditMode()) {
+          <form [formGroup]="mentorForm" (ngSubmit)="saveMentorProfile()" class="profile-form">
+            <div class="field-group">
+              <label class="field-label" for="telephone-mentor">
+                <span class="material-symbols-outlined">phone</span>
+                Téléphone
+              </label>
+              <input
+                type="tel"
+                id="telephone-mentor"
+                formControlName="telephone"
+                class="glass-input"
+                placeholder="Ex: +33 6 12 34 56 78"
+              />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="entreprise">
+                <span class="material-symbols-outlined">business</span>
+                Entreprise <span class="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="entreprise"
+                formControlName="entreprise"
+                class="glass-input"
+                placeholder="Ex: StageGuide"
+                [class.input-error]="mentorForm.get('entreprise')?.invalid && mentorForm.get('entreprise')?.touched"
+              />
+              @if (mentorForm.get('entreprise')?.invalid && mentorForm.get('entreprise')?.touched) {
+                <span class="error-text">L'entreprise est obligatoire</span>
+              }
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="poste">
+                <span class="material-symbols-outlined">badge</span>
+                Poste <span class="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="poste"
+                formControlName="poste"
+                class="glass-input"
+                placeholder="Ex: Développeur senior"
+                [class.input-error]="mentorForm.get('poste')?.invalid && mentorForm.get('poste')?.touched"
+              />
+              @if (mentorForm.get('poste')?.invalid && mentorForm.get('poste')?.touched) {
+                <span class="error-text">Le poste est obligatoire</span>
+              }
+            </div>
+            <div></div>
+            <div class="field-group field-full">
+              <label class="field-label" for="bio-mentor">
+                <span class="material-symbols-outlined">description</span>
+                Bio
+              </label>
+              <textarea
+                id="bio-mentor"
+                formControlName="bio"
+                class="glass-input"
+                placeholder="Parlez de vous..."
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+                @if (isSaving()) {
+                  <span class="spinner" style="width: 18px; height: 18px; border-width: 2px;"></span>
+                  Enregistrement...
+                } @else {
+                  <span class="material-symbols-outlined">save</span>
+                  Enregistrer
+                }
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isSaving()">
+                <span class="material-symbols-outlined">close</span>
+                Annuler
+              </button>
+            </div>
+          </form>
+        }
       </div>
+    }
 
-      <!-- View Mode -->
-      <div *ngIf="!isEditMode()" class="profile-view">
-        <div class="profile-section">
-          <div class="profile-field">
-            <label>Téléphone:</label>
-            <p>{{ mentorProfile()!.telephone || 'Non renseigné' }}</p>
-          </div>
-          <div class="profile-field">
-            <label>Entreprise:</label>
-            <p>{{ mentorProfile()!.entreprise || 'Non renseignée' }}</p>
-          </div>
-          <div class="profile-field">
-            <label>Poste:</label>
-            <p>{{ mentorProfile()!.poste || 'Non renseigné' }}</p>
-          </div>
-          <div class="profile-field">
-            <label>Bio:</label>
-            <p>{{ mentorProfile()!.bio || 'Aucune bio' }}</p>
-          </div>
-        </div>
-
-        <button class="btn btn-primary" (click)="toggleEditMode()">
-          Modifier le profil
-        </button>
+    @if (!isStagiaire() && !isMentor()) {
+      <div class="alert alert-error">
+        <span class="material-symbols-outlined" style="font-size: 1.25rem;">info</span>
+        Votre rôle n'a pas de profil disponible actuellement.
       </div>
-
-      <!-- Edit Mode -->
-      <form *ngIf="isEditMode()" [formGroup]="mentorForm" (ngSubmit)="saveMentorProfile()" class="profile-form">
-        <div class="form-group">
-          <label for="telephone-mentor">Téléphone:</label>
-          <input
-            type="tel"
-            id="telephone-mentor"
-            formControlName="telephone"
-            class="form-control"
-            placeholder="Ex: +33 6 12 34 56 78"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="entreprise">Entreprise <span class="required">*</span>:</label>
-          <input
-            type="text"
-            id="entreprise"
-            formControlName="entreprise"
-            class="form-control"
-            placeholder="Ex: StageGuide"
-            [class.is-invalid]="mentorForm.get('entreprise')?.invalid && mentorForm.get('entreprise')?.touched"
-          />
-          <div *ngIf="mentorForm.get('entreprise')?.invalid && mentorForm.get('entreprise')?.touched" class="error-text">
-            L'entreprise est obligatoire
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="poste">Poste <span class="required">*</span>:</label>
-          <input
-            type="text"
-            id="poste"
-            formControlName="poste"
-            class="form-control"
-            placeholder="Ex: Développeur senior"
-            [class.is-invalid]="mentorForm.get('poste')?.invalid && mentorForm.get('poste')?.touched"
-          />
-          <div *ngIf="mentorForm.get('poste')?.invalid && mentorForm.get('poste')?.touched" class="error-text">
-            Le poste est obligatoire
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="bio-mentor">Bio:</label>
-          <textarea
-            id="bio-mentor"
-            formControlName="bio"
-            class="form-control textarea"
-            placeholder="Parlez de vous..."
-            rows="4"
-          ></textarea>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-success" [disabled]="isSaving()">
-            {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
-          </button>
-          <button type="button" class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isSaving()">
-            Annuler
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <!-- Unsupported Role -->
-    <div *ngIf="!isStagiaire() && !isMentor()" class="alert alert-error">
-      <p>Votre rôle n'a pas de profil disponible actuellement.</p>
-    </div>
-  </div>
+    }
+  }
 </div>

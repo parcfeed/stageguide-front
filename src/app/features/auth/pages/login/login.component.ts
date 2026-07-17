@@ -17,19 +17,19 @@ export class LoginComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  // Signals for state management
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly passwordVisible = signal(false);
 
-  // Login form group
   protected readonly loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]]
   });
 
-  /**
-   * Submit credentials to login
-   */
+  protected togglePassword(): void {
+    this.passwordVisible.update(v => !v);
+  }
+
   onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
@@ -39,11 +39,10 @@ export class LoginComponent {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    const credentials = this.loginForm.getRawValue();
+    const { email, password } = this.loginForm.getRawValue();
 
-    this.authService.login(credentials).pipe(
+    this.authService.login({ email, password }).pipe(
       catchError(err => {
-        // Show proper error messages
         const msg = this.authService.getErrorMessage(
           err,
           'Une erreur est survenue lors de la connexion.'
@@ -62,7 +61,6 @@ export class LoginComponent {
     });
   }
 
-  // Getters for form validation display
   protected get emailField() { return this.loginForm.controls.email; }
   protected get passwordField() { return this.loginForm.controls.password; }
 }

@@ -3,7 +3,6 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
-import { NavbarComponent } from '../../../../core/components/navbar/navbar.component';
 import {
   MentorDemandesResponse,
   MentorStagiairesResponse,
@@ -21,7 +20,7 @@ import { ProfileService } from '../../../../core/services/profile.service';
 @Component({
   selector: 'app-mentorat',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './mentorat.component.html',
   styleUrl: './mentorat.component.css'
 })

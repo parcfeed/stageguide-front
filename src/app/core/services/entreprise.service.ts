@@ -11,13 +11,14 @@ import {
   PlanifierEntretienPayload, 
   Entretien 
 } from '../interfaces/entreprise.interface';
+import { API_BASE_URL } from '../constants/api.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EntrepriseService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/entreprise';
+  private readonly apiUrl = `${API_BASE_URL}/entreprise`;
 
   // --- Offres de Stage ---
   listerOffresStage(): Observable<OffreStage[]> {

@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CandidatureService } from '../../../../core/services/candidature.service';
 import { Candidature, StatutCandidature } from '../../../../core/interfaces/candidature.interface';
-import { NavbarComponent } from '../../../../core/components/navbar/navbar.component';
 
 @Component({
   selector: 'app-candidatures-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, NavbarComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './candidatures-list.component.html',
   styleUrls: ['./candidatures-list.component.css']
 })
@@ -78,9 +77,14 @@ export class CandidaturesListComponent implements OnInit {
     }
   }
 
-  /**
-   * Navigate back to dashboard
-   */
+  handleStageLogoError(candidature: Candidature): void {
+    if (candidature.offreStage) candidature.offreStage.logoUrl = '';
+  }
+
+  handleEmploiLogoError(candidature: Candidature): void {
+    if (candidature.offreEmploi) candidature.offreEmploi.logoUrl = '';
+  }
+
   goBack(): void {
     this.router.navigate(['/dashboard']);
   }

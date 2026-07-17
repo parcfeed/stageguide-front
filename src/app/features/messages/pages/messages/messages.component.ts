@@ -1,9 +1,8 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
-import { NavbarComponent } from '../../../../core/components/navbar/navbar.component';
 import { MessagesService } from '../../../../core/services/messages.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import {
@@ -14,7 +13,7 @@ import {
 @Component({
   selector: 'app-messages',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './messages.component.html',
   styleUrl: './messages.component.css'
 })
@@ -33,6 +32,8 @@ export class MessagesComponent implements OnInit {
   protected readonly conversations = signal<ConversationListItem[]>([]);
   protected readonly selectedConversation = signal<ConversationListItem | null>(null);
   protected readonly messages = signal<MessageItem[]>([]);
+
+  @ViewChild('messagesContainer') private messagesContainer?: ElementRef<HTMLElement>;
 
   protected readonly messageForm = this.fb.nonNullable.group({
     contenu: ['', [Validators.required, Validators.minLength(1)]]
@@ -79,6 +80,7 @@ export class MessagesComponent implements OnInit {
     ).subscribe({
       next: response => {
         this.messages.set(response.messages ?? []);
+        this.scrollToBottom();
       },
       error: error => {
         this.errorMessage.set(
@@ -105,6 +107,7 @@ export class MessagesComponent implements OnInit {
     ).subscribe({
       next: newMessage => {
         this.messages.update(current => [...current, newMessage]);
+        this.scrollToBottom();
         this.messageForm.reset();
         this.successMessage.set('Message envoye avec succes.');
         setTimeout(() => this.successMessage.set(null), 3000);
@@ -122,13 +125,23 @@ export class MessagesComponent implements OnInit {
   }
 
   protected conversationTitle(conv: ConversationListItem): string {
-    if (conv.titre) return conv.titre;
     const others = conv.participants.filter(p => p.id !== this.currentUserId());
     return others.map(p => `${p.prenom} ${p.nom}`).join(', ') || 'Conversation';
   }
 
   protected participantNames(conv: ConversationListItem): string {
     return conv.participants.map(p => `${p.prenom} ${p.nom}`).join(', ');
+  }
+
+  protected dernierMessageText(conv: ConversationListItem): string {
+    const msg = (conv as any).dernierMessage;
+    if (!msg) return 'Aucun message';
+    if (typeof msg === 'string') return msg;
+    return msg.contenu || 'Aucun message';
+  }
+
+  protected expediteurNom(message: MessageItem): string {
+    return (message as any).expediteurNom || '';
   }
 
   protected goBack(): void {
@@ -138,6 +151,15 @@ export class MessagesComponent implements OnInit {
   protected goBackToList(): void {
     this.selectedConversation.set(null);
     this.messages.set([]);
+  }
+
+  private scrollToBottom(): void {
+    setTimeout(() => {
+      const el = this.messagesContainer?.nativeElement;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
+      }
+    });
   }
 
   private loadConversations(): void {

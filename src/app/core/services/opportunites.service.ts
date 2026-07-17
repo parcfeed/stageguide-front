@@ -7,13 +7,14 @@ import {
   OffresStageResponse, 
   OffresEmploiResponse 
 } from '../interfaces/opportunites.interface';
+import { API_BASE_URL } from '../constants/api.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OpportunitesService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/opportunites';
+  private readonly apiUrl = `${API_BASE_URL}/opportunites`;
 
   /**
    * Fetch internship offers matching optional filters

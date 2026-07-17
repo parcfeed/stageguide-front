@@ -6,12 +6,11 @@ import { signal, computed } from '@angular/core';
 import { PortfolioService } from '../../../../core/services/portfolio.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ProjetPortfolio, CreerProjetPayload, ModifierProjetPayload, PortfolioListResponse } from '../../../../core/interfaces/portfolio.interface';
-import { NavbarComponent } from '../../../../core/components/navbar/navbar.component';
 
 @Component({
   selector: 'app-portfolio',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './portfolio.component.html',
   styleUrls: ['./portfolio.component.css']
 })

@@ -1,56 +1,101 @@
 <nav class="navbar">
   <div class="navbar-container">
-    <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
-      <span class="nav-icon">🏠</span>
-      <span class="nav-text">Tableau de bord</span>
+    <!-- Brand Logo -->
+    <a [routerLink]="currentUser()?.role === 'stagiaire' ? '/dashboard' : (currentUser()?.role === 'mentor' ? '/mentor/mentorat' : '/entreprise')" class="navbar-brand" (click)="closeMenu()">
+      <span class="brand-logo">⚡</span>
+      <span class="brand-text">StageGuide</span>
     </a>
-    <a routerLink="/profile" routerLinkActive="active" class="nav-link">
-      <span class="nav-icon">👤</span>
-      <span class="nav-text">Profil</span>
-    </a>
-    @if (currentUser()?.role === 'stagiaire') {
-      <a routerLink="/portfolio" routerLinkActive="active" class="nav-link">
-        <span class="nav-icon">📁</span>
-        <span class="nav-text">Portfolio</span>
-      </a>
-      <a routerLink="/opportunites" routerLinkActive="active" class="nav-link">
-        <span class="nav-icon">💼</span>
-        <span class="nav-text">Opportunités</span>
-      </a>
-      <a routerLink="/candidatures" routerLinkActive="active" class="nav-link">
-        <span class="nav-icon">📄</span>
-        <span class="nav-text">Candidatures</span>
-      </a>
-      <a routerLink="/mentorat" routerLinkActive="active" class="nav-link">
-        <span class="nav-icon">🤝</span>
-        <span class="nav-text">Mentorat</span>
-      </a>
-    }
-    @if (currentUser()?.role === 'mentor') {
-      <a routerLink="/mentorat" routerLinkActive="active" class="nav-link">
-        <span class="nav-icon">🤝</span>
-        <span class="nav-text">Mentorat</span>
-      </a>
-    }
-    @if (currentUser()?.role === 'stagiaire' || currentUser()?.role === 'mentor' || currentUser()?.role === 'entreprise') {
-      <a routerLink="/messages" routerLinkActive="active" class="nav-link">
-        <span class="nav-icon">💬</span>
-        <span class="nav-text">Messages</span>
-      </a>
-      <a routerLink="/fichiers" routerLinkActive="active" class="nav-link">
-        <span class="nav-icon">📂</span>
-        <span class="nav-text">Fichiers</span>
-      </a>
-      <a routerLink="/notifications" routerLinkActive="active" class="nav-link">
-        <span class="nav-icon">🔔</span>
-        <span class="nav-text">Notifications</span>
-      </a>
-    }
-    @if (currentUser()?.role === 'entreprise') {
-      <a routerLink="/entreprise" routerLinkActive="active" class="nav-link">
-        <span class="nav-icon">🏢</span>
-        <span class="nav-text">Recruteur</span>
-      </a>
-    }
+
+    <!-- Hamburger menu button -->
+    <button class="menu-toggle" (click)="toggleMenu()" aria-label="Toggle menu" [class.open]="isMenuOpen()">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
+    <!-- Nav Links & Actions Container -->
+    <div class="navbar-menu" [class.open]="isMenuOpen()">
+      <div class="nav-links">
+        <!-- Stagiaire specific links -->
+        @if (currentUser()?.role === 'stagiaire') {
+          <a routerLink="/dashboard" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">Tableau de bord</span>
+          </a>
+          <a routerLink="/profile" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">Profil</span>
+          </a>
+          <a routerLink="/portfolio" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+            <span class="nav-icon">📁</span>
+            <span class="nav-text">Portfolio</span>
+          </a>
+          <a routerLink="/opportunites" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+            <span class="nav-icon">💼</span>
+            <span class="nav-text">Opportunités</span>
+          </a>
+          <a routerLink="/candidatures" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+            <span class="nav-icon">📄</span>
+            <span class="nav-text">Candidatures</span>
+          </a>
+          <a routerLink="/stagiaire/mentorat" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+            <span class="nav-icon">🤝</span>
+            <span class="nav-text">Mentorat</span>
+          </a>
+        }
+
+        <!-- Mentor specific links -->
+        @if (currentUser()?.role === 'mentor') {
+          <a routerLink="/mentor/mentorat" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+            <span class="nav-icon">🤝</span>
+            <span class="nav-text">Mentorat</span>
+          </a>
+          <a routerLink="/profile" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">Profil</span>
+          </a>
+        }
+
+        <!-- Entreprise specific links -->
+        @if (currentUser()?.role === 'entreprise') {
+          <a routerLink="/entreprise" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+            <span class="nav-icon">🏢</span>
+            <span class="nav-text">Recruteur</span>
+          </a>
+        }
+
+        <!-- Common links for all roles (Messages, Fichiers, Notifications) -->
+        @if (currentUser()) {
+          <a routerLink="/messages" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+            <span class="nav-icon">💬</span>
+            <span class="nav-text">Messages</span>
+          </a>
+          <a routerLink="/fichiers" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+            <span class="nav-icon">📂</span>
+            <span class="nav-text">Fichiers</span>
+          </a>
+          <a routerLink="/notifications" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+            <span class="nav-icon">🔔</span>
+            <span class="nav-text">Notifications</span>
+          </a>
+        }
+      </div>
+
+      <!-- User Profile & Disconnect -->
+      <div class="user-section" *ngIf="currentUser()">
+        <div class="user-info">
+          <span class="user-name">{{ currentUser()?.prenom }} {{ currentUser()?.nom }}</span>
+          <span class="user-role-tag" [class]="currentUser()?.role?.toLowerCase()">{{ currentUser()?.role }}</span>
+        </div>
+        <button class="btn-logout" (click)="logout()" [disabled]="isLoggingOut()">
+          @if (isLoggingOut()) {
+            <span class="spinner logout-spinner"></span>
+          } @else {
+            <span class="logout-icon">➔</span>
+            <span>Déconnexion</span>
+          }
+        </button>
+      </div>
+    </div>
   </div>
 </nav>

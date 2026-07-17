@@ -1,14 +1,9 @@
-<app-navbar></app-navbar>
-
 <main class="fichiers-container">
   <header class="page-header">
     <button class="back-btn" type="button" (click)="goBack()">Retour</button>
     <div class="header-info">
-      <p class="eyebrow">Fichiers</p>
       <h1>Mes fichiers</h1>
-      <p class="subtitle">
-        {{ fichiers().length }} fichier{{ fichiers().length > 1 ? 's' : '' }}
-      </p>
+      <p class="subtitle">Gérez et retrouvez l'ensemble de vos documents et fichiers importants.</p>
     </div>
     <button
       class="btn btn-primary upload-toggle"
@@ -127,7 +122,7 @@
   } @else {
     @if (fichiers().length === 0) {
       <div class="empty-state glass-card">
-        <span class="empty-icon">📁</span>
+        <span class="material-symbols-outlined empty-icon">folder_open</span>
         <h3>Aucun fichier</h3>
         <p class="muted">Vous n'avez pas encore de fichiers.</p>
         <button

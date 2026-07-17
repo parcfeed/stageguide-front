@@ -1,16 +1,15 @@
 <div class="candidatures-container">
-  <app-navbar></app-navbar>
-
-  <!-- Header -->
   <div class="candidatures-header">
-    <button class="back-btn" (click)="goBack()" title="Retour au tableau de bord">
-      ← Retour
-    </button>
-    <h1>Suivi de mes Candidatures</h1>
-    <p class="subtitle">Consultez et suivez l'avancement de vos demandes de stages et d'emplois</p>
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="back-label">Retour</span>
+      </button>
+      <h1>Suivi de mes Candidatures</h1>
+      <p class="header-subtitle">Consultez et suivez l'avancement de vos demandes de stages et d'emplois</p>
+    </div>
   </div>
 
-  <!-- Stats Grid -->
   <div class="stats-grid">
     <div class="stat-card glass-card">
       <span class="stat-num">{{ totalCount() }}</span>
@@ -30,60 +29,69 @@
     </div>
   </div>
 
-  <!-- Loading State -->
   @if (isLoading()) {
-    <div class="loading-state">
-      <div class="spinner"></div>
+    <div class="state-panel">
+      <span class="material-symbols-outlined spin" style="font-size: 2rem;">progress_activity</span>
       <p>Chargement de vos candidatures...</p>
     </div>
   }
 
-  <!-- Error Alert -->
   @if (errorMessage() && !isLoading()) {
     <div class="alert alert-error">
+      <span class="material-symbols-outlined" style="font-size: 1.25rem;">error</span>
       {{ errorMessage() }}
     </div>
   }
 
-  <!-- Applications List -->
   @if (!isLoading() && !errorMessage()) {
     @if (candidatures().length === 0) {
       <div class="empty-state glass-card">
-        <span class="empty-icon">✉️</span>
+        <span class="empty-icon material-symbols-outlined">mail</span>
         <h3>Aucune candidature soumise</h3>
         <p>Vous n'avez pas encore postulé à des offres de stages ou d'emplois.</p>
         <button class="btn btn-primary" routerLink="/opportunites" style="margin-top: 1rem;">
-          💼 Parcourir les opportunités
+          <span class="material-symbols-outlined">work</span>
+          Parcourir les opportunités
         </button>
       </div>
     } @else {
       <div class="candidatures-list">
         @for (candidature of candidatures(); track candidature.id) {
           <div class="candidature-card glass-card">
+            <div class="card-glow"></div>
             <div class="card-header">
-              <div class="company-logo">
-                @if (isStage(candidature) && candidature.offreStage?.logoUrl) {
-                  <img [src]="candidature.offreStage?.logoUrl" [alt]="candidature.offreStage?.partenaire?.nomEntreprise || 'Logo'" />
-                } @else if (!isStage(candidature) && candidature.offreEmploi?.logoUrl) {
-                  <img [src]="candidature.offreEmploi?.logoUrl" [alt]="candidature.offreEmploi?.partenaire?.nomEntreprise || 'Logo'" />
-                } @else {
-                  <span class="logo-fallback">🏢</span>
-                }
+              <div class="company-logo-wrap">
+                <div class="company-logo">
+                  @if (isStage(candidature) && candidature.offreStage?.logoUrl) {
+                    <img [src]="candidature.offreStage?.logoUrl" [alt]="candidature.offreStage?.partenaire?.nomEntreprise || 'Logo'" (error)="handleStageLogoError(candidature)" />
+                  } @else if (!isStage(candidature) && candidature.offreEmploi?.logoUrl) {
+                    <img [src]="candidature.offreEmploi?.logoUrl" [alt]="candidature.offreEmploi?.partenaire?.nomEntreprise || 'Logo'" (error)="handleEmploiLogoError(candidature)" />
+                  } @else {
+                    <span class="material-symbols-outlined" style="font-size: 1.5rem; color: var(--on-surface-variant); opacity: 0.5;">business</span>
+                  }
+                </div>
               </div>
               <div class="company-info">
-                <h4 class="company-name">
-                  {{ isStage(candidature) ? (candidature.offreStage?.partenaire?.nomEntreprise || 'Partenaire') : (candidature.offreEmploi?.partenaire?.nomEntreprise || 'Partenaire') }}
-                </h4>
-                <p class="meta">
-                  📍 {{ isStage(candidature) ? candidature.offreStage?.ville : candidature.offreEmploi?.ville }}
-                  | 🗓️ Postulé le {{ candidature.createdAt | date:'dd/MM/yyyy' }}
+                <div class="company-name-row">
+                  <h4 class="company-name">
+                    {{ isStage(candidature) ? (candidature.offreStage?.partenaire?.nomEntreprise || 'Partenaire') : (candidature.offreEmploi?.partenaire?.nomEntreprise || 'Partenaire') }}
+                  </h4>
+                  <div class="active-dot"></div>
+                </div>
+                <p class="location">
+                  <span class="material-symbols-outlined" style="font-size: 0.75rem;">location_on</span>
+                  {{ isStage(candidature) ? candidature.offreStage?.ville : candidature.offreEmploi?.ville }}
+                  <span class="material-symbols-outlined" style="font-size: 0.75rem; margin-left: 0.75rem;">calendar_today</span>
+                  Postulé le {{ candidature.createdAt | date:'dd/MM/yyyy' }}
                 </p>
               </div>
-              <div class="type-badge">
+              <div class="type-pill">
                 @if (isStage(candidature)) {
-                  <span class="badge badge-info">🎓 Stage</span>
+                  <span class="material-symbols-outlined">school</span>
+                  Stage
                 } @else {
-                  <span class="badge badge-secondary">🏢 Emploi</span>
+                  <span class="material-symbols-outlined">work</span>
+                  Emploi
                 }
               </div>
             </div>
@@ -92,22 +100,21 @@
               <h3 class="offer-title">
                 {{ isStage(candidature) ? candidature.offreStage?.titre : candidature.offreEmploi?.titre }}
               </h3>
-              <p class="offer-domain">
-                📁 {{ isStage(candidature) ? candidature.offreStage?.domaine : candidature.offreEmploi?.domaine }}
-              </p>
-              
+              <span class="domain-pill">
+                <span class="material-symbols-outlined" style="font-size: 0.85rem;">folder</span>
+                {{ isStage(candidature) ? candidature.offreStage?.domaine : candidature.offreEmploi?.domaine || 'Général' }}
+              </span>
+
               @if (candidature.message) {
                 <div class="motivation-message">
-                  <strong>Votre message de motivation :</strong>
-                  <p class="message-text">"{{ candidature.message }}"</p>
+                  <span class="material-symbols-outlined quote-icon">format_quote</span>
+                  <p>"{{ candidature.message }}"</p>
                 </div>
               }
             </div>
 
             <div class="card-footer">
-              <span class="status-label">Statut :</span>
-              <span 
-                class="status-badge"
+              <span class="status-badge"
                 [class.status-pending]="candidature.statut === 'EN_ATTENTE'"
                 [class.status-inprogress]="candidature.statut === 'EN_COURS'"
                 [class.status-accepted]="candidature.statut === 'ACCEPTEE'"

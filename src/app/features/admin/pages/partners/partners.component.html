@@ -1,0 +1,160 @@
+<div class="partners-container">
+  <div class="partners-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="back-label">Retour</span>
+      </button>
+      <h1>Partenaires</h1>
+      <p class="header-subtitle">Gérez les entreprises partenaires de la plateforme.</p>
+    </div>
+    <button class="btn btn-primary" (click)="openCreate()">
+      <span class="material-symbols-outlined">add</span>
+      Ajouter un partenaire
+    </button>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      <span class="material-symbols-outlined">check_circle</span>
+      <span>{{ successMessage() }}</span>
+    </div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert-error">
+      <span class="material-symbols-outlined">error</span>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="state-panel">
+      <span class="material-symbols-outlined spin" style="font-size: 2rem;">progress_activity</span>
+      <p>Chargement des partenaires...</p>
+    </div>
+  } @else if (partners().length === 0) {
+    <div class="empty-state glass-card">
+      <span class="material-symbols-outlined empty-icon">business</span>
+      <h3>Aucun partenaire</h3>
+      <p>Aucun partenaire enregistré.</p>
+      <button class="btn btn-primary" (click)="openCreate()">
+        <span class="material-symbols-outlined">add</span>
+        Ajouter un partenaire
+      </button>
+    </div>
+  } @else {
+    <div class="partner-list">
+      @for (partner of partners(); track partner.id) {
+        <div class="glass-card partner-card">
+          <div class="partner-icon">
+            <span class="material-symbols-outlined">business</span>
+          </div>
+          <div class="partner-info">
+            <h3 class="partner-name">{{ partner.nomEntreprise }}</h3>
+            <p class="partner-detail">{{ partner.ville }}</p>
+            <p class="partner-detail">{{ partner.email }}</p>
+            @if (partner.lienSiteWeb) {
+              <a [href]="partner.lienSiteWeb" target="_blank" class="partner-link">{{ partner.lienSiteWeb }}</a>
+            }
+          </div>
+          <div class="partner-actions">
+            <button type="button" class="icon-btn-sm" (click)="openEdit(partner)" title="Modifier">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button type="button" class="icon-btn-sm" (click)="confirmDelete(partner)" title="Supprimer">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (showModal()) {
+  <div class="modal-overlay" (click)="cancelForm()">
+    <div class="modal glass-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ editingPartner() ? 'Modifier' : 'Ajouter' }} un partenaire</h2>
+        <button type="button" class="icon-btn" (click)="cancelForm()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <form [formGroup]="partnerForm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="modal-body">
+          <div class="field-group">
+            <label class="field-label">Nom de l'entreprise <span class="required">*</span></label>
+            <input type="text" formControlName="nomEntreprise" class="glass-input" placeholder="StageGuide Inc."
+              [class.input-error]="partnerForm.controls.nomEntreprise.invalid && partnerForm.controls.nomEntreprise.touched" />
+            @if (partnerForm.controls.nomEntreprise.invalid && partnerForm.controls.nomEntreprise.touched) {
+              <span class="error-text">Requis.</span>
+            }
+          </div>
+          <div class="field-group">
+            <label class="field-label">Ville <span class="required">*</span></label>
+            <input type="text" formControlName="ville" class="glass-input" placeholder="Douala"
+              [class.input-error]="partnerForm.controls.ville.invalid && partnerForm.controls.ville.touched" />
+            @if (partnerForm.controls.ville.invalid && partnerForm.controls.ville.touched) {
+              <span class="error-text">Requis.</span>
+            }
+          </div>
+          <div class="field-group">
+            <label class="field-label">Email <span class="required">*</span></label>
+            <input type="email" formControlName="email" class="glass-input" placeholder="contact@entreprise.com"
+              [class.input-error]="partnerForm.controls.email.invalid && partnerForm.controls.email.touched" />
+            @if (partnerForm.controls.email.invalid && partnerForm.controls.email.touched) {
+              <span class="error-text">Email valide requis.</span>
+            }
+          </div>
+          <div class="field-group">
+            <label class="field-label">Site web</label>
+            <input type="url" formControlName="lienSiteWeb" class="glass-input" placeholder="https://..." />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()">
+            <span class="material-symbols-outlined">close</span>
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+            @if (isSaving()) {
+              <span class="material-symbols-outlined spin">progress_activity</span>
+            }
+            <span class="material-symbols-outlined">{{ editingPartner() ? 'save' : 'add_circle' }}</span>
+            {{ editingPartner() ? 'Mettre à jour' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (showDeleteModal() && partnerToDelete(); as partner) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal glass-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Confirmer la suppression</h2>
+        <button type="button" class="icon-btn" (click)="cancelDelete()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer le partenaire <strong>{{ partner.nomEntreprise }}</strong> ?</p>
+        <p>Cette action ne peut pas être annulée.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cancelDelete()" [disabled]="isDeleting()">
+          <span class="material-symbols-outlined">close</span>
+          Annuler
+        </button>
+        <button type="button" class="btn btn-primary" (click)="deletePartner()" [disabled]="isDeleting()">
+          @if (isDeleting()) {
+            <span class="material-symbols-outlined spin">progress_activity</span>
+          }
+          <span class="material-symbols-outlined">delete_forever</span>
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,178 @@
+<div class="conventions-container">
+  <div class="conventions-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="back-label">Retour</span>
+      </button>
+      <h1>Mes Conventions</h1>
+      <p class="header-subtitle">Gérez vos conventions de stage et suivez leur état d'avancement.</p>
+    </div>
+    <button class="btn btn-primary" (click)="openForm()" *ngIf="!showCreateModal()" [disabled]="isLoading()">
+      <span class="material-symbols-outlined">add</span>
+      Nouvelle convention
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-panel">
+      <span class="material-symbols-outlined spin" style="font-size: 2rem;">progress_activity</span>
+      <p>Chargement des conventions...</p>
+    </div>
+  }
+
+  @if (errorMessage() && !isLoading()) {
+    <div class="alert alert-error">
+      <span class="material-symbols-outlined" style="font-size: 1.25rem;">error</span>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (successMessage() && !isLoading()) {
+    <div class="alert alert-success">
+      <span class="material-symbols-outlined" style="font-size: 1.25rem;">check_circle</span>
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (!isLoading() && !showCreateModal()) {
+    @if (conventions().length === 0) {
+      <div class="empty-state glass-card">
+        <span class="empty-icon material-symbols-outlined">description</span>
+        <h3>Aucune convention</h3>
+        <p>Une convention de stage est un document officiel qui formalise votre stage en entreprise. Elle définit les termes, les dates, et les responsabilités de chaque partie.</p>
+        <p style="font-size: 0.85rem; opacity: 0.7;">Créez votre première convention pour commencer le processus.</p>
+        <button class="btn btn-primary" (click)="openForm()">
+          <span class="material-symbols-outlined">add</span>
+          Créer votre première convention
+        </button>
+      </div>
+    }
+
+    @if (conventions().length > 0) {
+      <div class="conventions-grid">
+        @for (conv of conventions(); track conv.id) {
+          <div class="convention-card glass-card">
+            <div class="card-header">
+              <div class="conv-icon">
+                <span class="material-symbols-outlined">description</span>
+              </div>
+              <div class="conv-info">
+                <h3 class="conv-company">{{ conv.entrepriseNom }}</h3>
+                @if (conv.partenaire) {
+                  <p class="conv-partner">{{ conv.partenaire.nomEntreprise }} · {{ conv.partenaire.ville }}</p>
+                }
+              </div>
+            </div>
+            <div class="conv-body">
+              <div class="conv-dates">
+                <div class="conv-date">
+                  <span class="material-symbols-outlined" style="font-size: 1rem;">calendar_today</span>
+                  <span>Début : {{ formatDate(conv.dateDebut) }}</span>
+                </div>
+                <div class="conv-date">
+                  <span class="material-symbols-outlined" style="font-size: 1rem;">calendar_month</span>
+                  <span>Fin : {{ formatDate(conv.dateFin) }}</span>
+                </div>
+                @if (conv.mentorNom) {
+                  <div class="conv-date">
+                    <span class="material-symbols-outlined" style="font-size: 1rem;">handshake</span>
+                    <span>Mentor : {{ conv.mentorNom }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="status-badge"
+                [class.status-pending]="conv.statut === 'BROUILLON'"
+                [class.status-inprogress]="conv.statut === 'EN_ATTENTE_SIGNATURE'"
+                [class.status-accepted]="conv.statut === 'SIGNEE'"
+                [class.status-refused]="conv.statut === 'REFUSEE'"
+                [class.status-cancelled]="conv.statut === 'ANNULEE'"
+                [title]="getStatutDescription(conv.statut)"
+              >
+                {{ getStatutLabel(conv.statut) }}
+              </span>
+              @if (conv.statut === 'BROUILLON') {
+                <span class="status-helper" [title]="getStatutDescription(conv.statut)">
+                  <span class="material-symbols-outlined" style="font-size: 0.85rem;">info</span>
+                  Non finalisée
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- Create Convention Modal -->
+  @if (showCreateModal()) {
+    <div class="modal-overlay" (click)="closeForm()">
+      <div class="modal-card glass-card" (click)="$event.stopPropagation()">
+        <h2>Nouvelle convention</h2>
+        <form [formGroup]="conventionForm" (ngSubmit)="onSubmit()" class="modal-form">
+          <div class="field-group">
+            <label class="field-label" for="entrepriseNom">Nom de l'entreprise <span class="required">*</span></label>
+            <input
+              type="text"
+              id="entrepriseNom"
+              formControlName="entrepriseNom"
+              class="glass-input"
+              placeholder="Ex: StageGuide Inc."
+              [class.input-error]="conventionForm.get('entrepriseNom')?.invalid && conventionForm.get('entrepriseNom')?.touched"
+            />
+            @if (conventionForm.get('entrepriseNom')?.invalid && conventionForm.get('entrepriseNom')?.touched) {
+              <span class="error-text">Le nom de l'entreprise est requis</span>
+            }
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="mentorNom">Nom du mentor</label>
+            <input
+              type="text"
+              id="mentorNom"
+              formControlName="mentorNom"
+              class="glass-input"
+              placeholder="Ex: Jean Dupont"
+            />
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="dateDebut">Date de début</label>
+              <input
+                type="date"
+                id="dateDebut"
+                formControlName="dateDebut"
+                class="glass-input"
+              />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="dateFin">Date de fin</label>
+              <input
+                type="date"
+                id="dateFin"
+                formControlName="dateFin"
+                class="glass-input"
+              />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+              @if (isSaving()) {
+                <span class="spinner" style="width: 18px; height: 18px; border-width: 2px;"></span>
+                Création...
+              } @else {
+                <span class="material-symbols-outlined">add_circle</span>
+                Créer la convention
+              }
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="closeForm()" [disabled]="isSaving()">
+              <span class="material-symbols-outlined">close</span>
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

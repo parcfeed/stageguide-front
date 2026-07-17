@@ -12,73 +12,72 @@
 }
 
 .back-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
-  font-family: 'Outfit', sans-serif;
-  font-weight: 500;
-  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--midnight-accent);
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 1.25rem;
+  font: 700 0.75rem/1 'Hanken Grotesk', sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.25rem 0;
+  transition: color 0.2s ease;
+  margin-bottom: 1rem;
 }
 
 .back-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateX(-4px);
+  color: var(--primary);
 }
 
 .entreprise-header h1 {
   font-size: 2.25rem;
   font-weight: 800;
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
 }
 
 .subtitle {
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   font-size: 1rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 /* Tabs */
 .tabs-container {
   display: flex;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 0.35rem;
+  gap: 0.5rem;
   margin-bottom: 2.5rem;
-  max-width: 550px;
+  flex-wrap: wrap;
 }
 
 .tab-btn {
-  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
   background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  padding: 0.75rem 1rem;
-  font-family: 'Outfit', sans-serif;
-  font-weight: 600;
-  font-size: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--on-surface-variant);
+  font: 700 0.85rem/1 'Hanken Grotesk', sans-serif;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  border-radius: calc(var(--radius-md) - 2px);
+  border-radius: 9999px;
   transition: all 0.2s ease;
 }
 
 .tab-btn:hover {
-  color: var(--text-primary);
   background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--on-surface);
 }
 
 .tab-btn.active {
-  background: var(--primary-gradient);
-  color: white;
-  box-shadow: var(--shadow-sm);
+  background: rgba(124, 93, 250, 0.15);
+  border-color: rgba(124, 93, 250, 0.3);
+  color: var(--midnight-accent);
+  box-shadow: 0 0 15px rgba(124, 93, 250, 0.1);
 }
 
 /* Tab Header Actions */
@@ -92,7 +91,7 @@
 .tab-header h2 {
   font-size: 1.5rem;
   font-weight: 800;
-  color: var(--text-primary);
+  color: var(--on-surface);
 }
 
 .btn-small {
@@ -102,12 +101,11 @@
 
 /* Offer Section Title */
 .offer-section-title {
-  font-family: 'Outfit', sans-serif;
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--on-surface);
   margin-bottom: 1.25rem;
-  border-left: 3px solid var(--primary);
+  border-left: 3px solid var(--midnight-accent);
   padding-left: 0.75rem;
 }
 
@@ -127,7 +125,8 @@
 
 .offer-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.05);
+  border-color: rgba(124, 93, 250, 0.4);
+  box-shadow: 0 0 30px rgba(124, 93, 250, 0.08);
 }
 
 .offer-card h3 {
@@ -138,7 +137,7 @@
 
 .domain {
   font-size: 0.8rem;
-  color: var(--primary);
+  color: var(--midnight-accent);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 600;
@@ -150,13 +149,13 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   font-size: 0.825rem;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   margin-bottom: 1.25rem;
 }
 
 .desc-snippet {
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   line-height: 1.5;
   margin-bottom: 1.5rem;
   flex-grow: 1;
@@ -165,7 +164,7 @@
 .card-actions {
   display: flex;
   gap: 1rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 1.25rem;
   margin-top: auto;
 }
@@ -198,19 +197,19 @@
 
 .candidate-contact {
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   margin-bottom: 0.5rem;
 }
 
 .candidate-meta, .job-relation {
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
 }
 
 .motivation-box, .message-box {
   background: rgba(255, 255, 255, 0.015);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
   padding: 1rem;
   margin-top: 1rem;
 }
@@ -218,13 +217,13 @@
 .motivation-box strong, .message-box strong {
   display: block;
   font-size: 0.8rem;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   margin-bottom: 0.35rem;
 }
 
 .message-text {
   font-size: 0.9rem;
-  color: var(--text-primary);
+  color: var(--on-surface);
   font-style: italic;
 }
 
@@ -233,7 +232,7 @@
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.25rem 0.6rem;
-  border-radius: var(--radius-full);
+  border-radius: 9999px;
 }
 
 .badge-success {
@@ -242,13 +241,13 @@
 }
 
 .status-badge {
-  font-family: 'Outfit', sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0.35rem 0.85rem;
-  border-radius: var(--radius-full);
+  border-radius: 9999px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-family: 'Hanken Grotesk', sans-serif;
 }
 
 .status-en_attente {
@@ -272,14 +271,14 @@
 }
 
 .entretien-date-badge {
-  background: rgba(99, 102, 241, 0.15);
-  color: #a5b4fc;
-  border: 1px solid rgba(99, 102, 241, 0.25);
-  font-family: 'Outfit', sans-serif;
+  background: rgba(124, 93, 250, 0.15);
+  color: var(--midnight-accent);
+  border: 1px solid rgba(124, 93, 250, 0.25);
   font-weight: 600;
   font-size: 0.85rem;
   padding: 0.4rem 0.85rem;
-  border-radius: var(--radius-md);
+  border-radius: 0.5rem;
+  font-family: 'Hanken Grotesk', sans-serif;
 }
 
 /* Modal form designs */
@@ -317,15 +316,19 @@
   right: 1.25rem;
   background: transparent;
   border: none;
-  color: var(--text-secondary);
-  font-size: 2rem;
+  color: var(--on-surface-variant);
+  font-size: 1.5rem;
   line-height: 1;
   cursor: pointer;
   transition: color 0.2s ease;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-close:hover {
-  color: var(--text-primary);
+  color: var(--on-surface);
 }
 
 .form-grid {
@@ -342,10 +345,12 @@
 }
 
 .form-group label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  font-family: 'Outfit', sans-serif;
-  font-weight: 500;
+  font-size: 0.8rem;
+  color: var(--on-surface-variant);
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .required {
@@ -354,21 +359,22 @@
 
 .form-control {
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  color: var(--on-surface);
+  padding: 0.7rem 1rem;
   font-size: 0.9rem;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   outline: none;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .form-control:focus {
-  border-color: var(--primary);
+  border-color: var(--midnight-accent);
   background: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 3px rgba(124, 93, 250, 0.15);
 }
 
 textarea.form-control {
@@ -391,7 +397,7 @@ textarea.form-control {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   cursor: pointer;
 }
 
@@ -412,7 +418,7 @@ textarea.form-control {
 .empty-state-inline {
   padding: 1.5rem;
   text-align: center;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   font-size: 0.9rem;
 }
 
@@ -427,7 +433,7 @@ textarea.form-control {
 }
 
 .loading-state p {
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
 }
 
 .empty-state {
@@ -450,7 +456,7 @@ textarea.form-control {
 }
 
 .empty-state p {
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   font-size: 0.95rem;
   max-width: 400px;
 }

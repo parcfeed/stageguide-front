@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.layout-main {
+  margin-left: 260px;
+  min-height: 100vh;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (max-width: 1023px) {
+  .layout-main {
+    margin-left: 0;
+  }
+}

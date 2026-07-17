@@ -1,137 +1,207 @@
-<main class="dashboard-shell">
-  <app-navbar></app-navbar>
+<main class="dashboard-main">
   <header class="dashboard-header">
-    <div>
-      <p class="eyebrow">Tableau de bord</p>
-      <h1>{{ displayName() }}</h1>
-      <p class="subtitle">Vue d'ensemble de votre progression, de vos candidatures et de vos prochaines actions.</p>
+    <div class="header-left">
+      <span class="eyebrow">Tableau de bord</span>
+      <h1 class="header-title">{{ displayName() }}</h1>
+      <p class="header-subtitle">Vue d'ensemble de votre progression, de vos candidatures et de vos prochaines actions.</p>
     </div>
-
-    <button type="button" class="btn btn-secondary" (click)="logout()" [disabled]="isLoggingOut()">
-      @if (isLoggingOut()) {
-        <span class="spinner small-spinner"></span>
-        Deconnexion...
-      } @else {
-        Se deconnecter
+    <div class="header-right">
+      <button class="icon-btn" routerLink="/notifications">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      @if (user(); as u) {
+        <div class="avatar" routerLink="/profile">
+          @if (u.avatar_url) {
+            <img [src]="u.avatar_url" [alt]="u.prenom" class="avatar-img" />
+          } @else {
+            {{ u.prenom.charAt(0) }}{{ u.nom.charAt(0) }}
+          }
+        </div>
       }
-    </button>
+    </div>
   </header>
 
   @if (isLoading()) {
     <section class="state-panel">
-      <span class="spinner"></span>
+      <span class="material-symbols-outlined spin" style="font-size: 2rem;">progress_activity</span>
       <p>Chargement du tableau de bord...</p>
     </section>
   } @else if (errorMessage()) {
-    <section class="state-panel error-state">
+    <section class="state-panel error">
+      <span class="material-symbols-outlined" style="font-size: 2rem;">error</span>
       <p>{{ errorMessage() }}</p>
     </section>
   } @else if (dashboard(); as data) {
-    <section class="stats-grid" aria-label="Statistiques">
+    <section class="stats-grid">
       @for (stat of data.stats; track stat.label) {
-        <article class="stat-card">
-          <span>{{ stat.label }}</span>
-          <strong>{{ stat.value }}</strong>
-          <small>{{ stat.trend }}</small>
-        </article>
+        @let link = stat.label === 'Formations en cours' ? '/formations' : stat.label === 'Candidatures' ? '/candidatures' : stat.label === 'Certificats' ? '/certificats' : null;
+        @if (link) {
+          <a class="stat-card-link" [routerLink]="link">
+            <article class="stat-card" [class.highlight]="stat.label === 'Candidatures'">
+              <div class="stat-body">
+                <p class="stat-label">{{ stat.label }}</p>
+                <h3 class="stat-value">{{ stat.value }}</h3>
+              </div>
+              <div class="stat-icon">
+                <span class="material-symbols-outlined">
+                  @switch (stat.label) {
+                    @case ('Formations en cours') { school }
+                    @case ('Candidatures') { assignment_turned_in }
+                    @case ('Certificats') { verified }
+                    @default { dashboard }
+                  }
+                </span>
+              </div>
+            </article>
+          </a>
+        } @else {
+          <article class="stat-card">
+            <div class="stat-body">
+              <p class="stat-label">{{ stat.label }}</p>
+              <h3 class="stat-value">{{ stat.value }}</h3>
+            </div>
+            <div class="stat-icon">
+              <span class="material-symbols-outlined">dashboard</span>
+            </div>
+          </article>
+        }
       }
     </section>
 
-    <section class="content-grid">
-      <article class="panel progress-panel">
+    <section class="bento-grid">
+      <article class="panel panel-progression">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Profil</p>
+            <span class="eyebrow">Profil</span>
             <h2>Progression</h2>
           </div>
-          <strong>{{ data.progressionProfil.pourcentage }}%</strong>
+          <strong class="progress-pct">{{ adjustedProgressPct() }}%</strong>
         </div>
 
         <div class="progress-track">
-          <div class="progress-value" [style.width.%]="data.progressionProfil.pourcentage"></div>
+          <div class="progress-glow" [style.width.%]="adjustedProgressPct()"></div>
         </div>
 
-        <ul class="check-list">
-          @for (step of data.progressionProfil.etapes; track step.label) {
-            <li [class.done]="step.done">
-              <span class="check-dot"></span>
-              {{ step.label }}
-            </li>
+        <div class="check-grid">
+          @for (step of filteredSteps(); track step.label) {
+            <div class="check-item" [class.done]="step.done">
+              @if (step.done) {
+                <span class="material-symbols-outlined check-icon filled">check_circle</span>
+              } @else {
+                <span class="material-symbols-outlined check-icon">radio_button_unchecked</span>
+              }
+              <span>{{ step.label }}</span>
+            </div>
           }
-        </ul>
+        </div>
 
-        <button type="button" class="btn btn-secondary btn-small" routerLink="/profile" style="margin-top: 16px; width: 100%;">
-          Voir/Modifier mon profil
+        <div class="panel-footer">
+          <button type="button" class="action-btn" routerLink="/profile">
+            Voir/Modifier mon profil
+          </button>
+        </div>
+      </article>
+
+      <article class="panel panel-mentor">
+        <div class="mentor-bg-icon">
+          <span class="material-symbols-outlined">handshake</span>
+        </div>
+        <span class="eyebrow">Mentorat</span>
+        <h2>Mentor suggéré</h2>
+
+        <div class="mentor-content">
+          @if (data.mentorSuggere.name) {
+            <div class="mentor-avatar-wrapper">
+              <div class="mentor-avatar">
+                {{ data.mentorSuggere.name.charAt(0) }}{{ (data.mentorSuggere.name.split(' ')[1] || '').charAt(0) }}
+              </div>
+            </div>
+            <h3 class="mentor-name">{{ data.mentorSuggere.name }}</h3>
+            <p class="mentor-title">{{ data.mentorSuggere.title }}</p>
+            @if (data.mentorSuggere.expertise.length) {
+              <div class="mentor-tags">
+                @for (skill of data.mentorSuggere.expertise; track skill) {
+                  <span class="tag">{{ skill }}</span>
+                }
+              </div>
+            }
+          } @else {
+            <div class="mentor-empty">
+              <p>Aucun mentor suggéré pour le moment.</p>
+            </div>
+          }
+        </div>
+
+        <button type="button" class="outline-btn" routerLink="/stagiaire/mentorat">
+          Contacter le mentor
         </button>
       </article>
 
-      <article class="panel mentor-panel">
-        <p class="eyebrow">Mentorat</p>
-        <h2>Mentor suggere</h2>
-
-        @if (data.mentorSuggere.name) {
-          <div class="mentor-details">
-            <strong>{{ data.mentorSuggere.name }}</strong>
-            <span>{{ data.mentorSuggere.title }}</span>
+      <div class="widgets-grid">
+        <article class="widget">
+          <div class="widget-header">
+            <h5>Formations</h5>
+            <span class="material-symbols-outlined widget-icon">auto_stories</span>
           </div>
-        } @else {
-          <p class="empty-text">Aucun mentor suggere pour le moment.</p>
-        }
-      </article>
-    </section>
+          @if (data.formations.length) {
+            <ul class="widget-list">
+              @for (f of data.formations; track f) {
+                <li>{{ f.title || f.label || f.name }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="widget-empty">Aucune formation en cours.</p>
+          }
+        </article>
 
-    <section class="list-grid">
-      <article class="panel">
-        <h2>Formations</h2>
-        @if (data.formations.length) {
-          <ul class="plain-list">
-            @for (formation of data.formations; track formation.id || formation.title || formation.label) {
-              <li>{{ formation.title || formation.label || formation.name }}</li>
-            }
-          </ul>
-        } @else {
-          <p class="empty-text">Aucune formation en cours.</p>
-        }
-      </article>
+        <article class="widget">
+          <div class="widget-header">
+            <h5>Sessions à venir</h5>
+            <span class="material-symbols-outlined widget-icon">calendar_month</span>
+          </div>
+          @if (data.sessionsAVenir.length) {
+            <ul class="widget-list">
+              @for (s of data.sessionsAVenir; track s) {
+                <li>{{ s.title || s.label || s.name }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="widget-empty">Aucune session planifiée.</p>
+          }
+        </article>
 
-      <article class="panel">
-        <h2>Sessions a venir</h2>
-        @if (data.sessionsAVenir.length) {
-          <ul class="plain-list">
-            @for (session of data.sessionsAVenir; track session.id || session.title || session.label) {
-              <li>{{ session.title || session.label || session.name }}</li>
-            }
-          </ul>
-        } @else {
-          <p class="empty-text">Aucune session planifiee.</p>
-        }
-      </article>
+        <article class="widget">
+          <div class="widget-header">
+            <h5>Activités récentes</h5>
+            <span class="material-symbols-outlined widget-icon">history</span>
+          </div>
+          @if (data.activitesRecentes.length) {
+            <ul class="widget-list">
+              @for (a of data.activitesRecentes; track a) {
+                <li>{{ a.title || a.label || a.name }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="widget-empty">Aucune activité récente.</p>
+          }
+        </article>
 
-      <article class="panel">
-        <h2>Activites recentes</h2>
-        @if (data.activitesRecentes.length) {
-          <ul class="plain-list">
-            @for (activity of data.activitesRecentes; track activity.id || activity.title || activity.label) {
-              <li>{{ activity.title || activity.label || activity.description }}</li>
-            }
-          </ul>
-        } @else {
-          <p class="empty-text">Aucune activite recente.</p>
-        }
-      </article>
-
-      <article class="panel">
-        <h2>Messages</h2>
-        @if (data.messages.length) {
-          <ul class="plain-list">
-            @for (message of data.messages; track message.id || message.title || message.label) {
-              <li>{{ message.title || message.label || message.description }}</li>
-            }
-          </ul>
-        } @else {
-          <p class="empty-text">Aucun message recent.</p>
-        }
-      </article>
+        <article class="widget">
+          <div class="widget-header">
+            <h5>Messages</h5>
+            <span class="material-symbols-outlined widget-icon">chat_bubble</span>
+          </div>
+          @if (data.messages.length) {
+            <ul class="widget-list">
+              @for (m of data.messages; track m) {
+                <li>{{ m.title || m.label || m.name }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="widget-empty">Aucun message récent.</p>
+          }
+        </article>
+      </div>
     </section>
   }
 </main>

@@ -1,0 +1,103 @@
+<!-- Desktop sidebar -->
+<aside class="sidebar" [class.collapsed]="isCollapsed()">
+  <div class="sidebar-header">
+    <div class="logo-area" [class.centered]="isCollapsed()">
+      <span class="material-symbols-outlined logo-icon">school</span>
+      @if (!isCollapsed()) {
+        <span class="logo-text">Stage<span class="logo-accent">Guide</span></span>
+      }
+    </div>
+    <button class="collapse-btn" (click)="toggleCollapse()" [class.rotated]="isCollapsed()">
+      <span class="material-symbols-outlined">chevron_left</span>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    @for (item of navItems; track item.route) {
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        (click)="closeMobile()"
+        class="nav-item"
+      >
+        <span class="material-symbols-outlined nav-icon">{{ item.icon }}</span>
+        @if (!isCollapsed()) {
+          <span class="nav-label">{{ item.label }}</span>
+        }
+      </a>
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    @if (currentUser(); as user) {
+      <div class="user-card" [class.centered]="isCollapsed()">
+        <div class="user-avatar">{{ user.prenom.charAt(0) }}{{ user.nom.charAt(0) }}</div>
+        @if (!isCollapsed()) {
+          <div class="user-info">
+            <span class="user-name">{{ user.prenom }} {{ user.nom }}</span>
+            <span class="user-role">{{ user.role }}</span>
+          </div>
+        }
+      </div>
+    }
+    <button class="logout-btn" [class.centered]="isCollapsed()" (click)="logout()" [disabled]="isLoggingOut()">
+      <span class="material-symbols-outlined">logout</span>
+      @if (!isCollapsed()) {
+        <span>Se d&eacute;connecter</span>
+      }
+    </button>
+  </div>
+</aside>
+
+<!-- Mobile overlay -->
+@if (isMobileOpen()) {
+  <div class="mobile-overlay" (click)="closeMobile()"></div>
+}
+
+<!-- Mobile drawer -->
+<aside class="mobile-drawer" [class.open]="isMobileOpen()">
+  <div class="drawer-header">
+    <div class="logo-area">
+      <span class="material-symbols-outlined logo-icon">school</span>
+      <span class="logo-text">Stage<span class="logo-accent">Guide</span></span>
+    </div>
+    <button class="close-drawer" (click)="closeMobile()">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+
+  <nav class="drawer-nav">
+    @for (item of navItems; track item.route) {
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        (click)="closeMobile()"
+        class="nav-item"
+      >
+        <span class="material-symbols-outlined nav-icon">{{ item.icon }}</span>
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <div class="drawer-footer">
+    @if (currentUser(); as user) {
+      <div class="user-card">
+        <div class="user-avatar">{{ user.prenom.charAt(0) }}{{ user.nom.charAt(0) }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ user.prenom }} {{ user.nom }}</span>
+          <span class="user-role">{{ user.role }}</span>
+        </div>
+      </div>
+    }
+    <button class="logout-btn" (click)="logout()" [disabled]="isLoggingOut()">
+      <span class="material-symbols-outlined">logout</span>
+      <span>Se d&eacute;connecter</span>
+    </button>
+  </div>
+</aside>
+
+<!-- Mobile hamburger button -->
+<button class="mobile-hamburger" (click)="toggleMobile()">
+  <span class="material-symbols-outlined">menu</span>
+</button>

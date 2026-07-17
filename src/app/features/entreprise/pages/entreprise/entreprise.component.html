@@ -1,37 +1,41 @@
 <div class="entreprise-container">
-  <app-navbar></app-navbar>
 
   <!-- Header -->
   <div class="entreprise-header">
-    <button class="back-btn" (click)="goBack()" title="Retour au tableau de bord">
-      ← Retour
-    </button>
-    <h1>Espace Recruteur</h1>
-    <p class="subtitle">Gérez vos offres de recrutement, suivez les candidatures reçues et organisez vos entretiens</p>
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="back-label">Retour</span>
+      </button>
+      <h1>Espace Recruteur</h1>
+      <p class="header-subtitle">Gérez vos offres de recrutement, suivez les candidatures reçues et organisez vos entretiens</p>
+    </div>
   </div>
 
-  <!-- Tabs Selector -->
   <div class="tabs-container">
-    <button 
-      class="tab-btn" 
-      [class.active]="activeTab() === 'offres'" 
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'offres'"
       (click)="switchTab('offres')"
     >
-      💼 Nos Offres
+      <span class="material-symbols-outlined">work</span>
+      Nos Offres
     </button>
-    <button 
-      class="tab-btn" 
-      [class.active]="activeTab() === 'candidatures'" 
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'candidatures'"
       (click)="switchTab('candidatures')"
     >
-      ✉️ Candidatures reçues
+      <span class="material-symbols-outlined">assignment</span>
+      Candidatures reçues
     </button>
-    <button 
-      class="tab-btn" 
-      [class.active]="activeTab() === 'entretiens'" 
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'entretiens'"
       (click)="switchTab('entretiens')"
     >
-      🗓️ Entretiens planifiés
+      <span class="material-symbols-outlined">calendar_month</span>
+      Entretiens planifiés
     </button>
   </div>
 
@@ -65,8 +69,10 @@
         </button>
       </div>
 
-      <!-- Internship section -->
-      <div class="offer-section-title">🎓 Offres de Stages ({{ offresStage().length }})</div>
+      <div class="offer-section-title">
+        <span class="material-symbols-outlined">school</span>
+        Offres de Stages ({{ offresStage().length }})
+      </div>
       @if (offresStage().length === 0) {
         <div class="empty-state-inline glass-card">
           <p>Aucune offre de stage en cours de publication.</p>
@@ -79,25 +85,33 @@
                 <h3>{{ offre.titre }}</h3>
                 <p class="domain">{{ offre.domaine || 'Général' }}</p>
                 <div class="metadata">
-                  <span>📍 {{ offre.ville }}</span>
-                  <span>⏱️ {{ offre.duree }}</span>
+                  <span><span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">location_on</span> {{ offre.ville }}</span>
+                  <span><span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">schedule</span> {{ offre.duree }}</span>
                   @if (offre.remote) {
-                    <span class="badge badge-success">🏠 Distanciel</span>
+                    <span class="tag"><span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">home</span> Distanciel</span>
                   }
                 </div>
                 <p class="desc-snippet">{{ offre.description | slice:0:120 }}...</p>
               </div>
               <div class="card-actions">
-                <button class="btn btn-secondary btn-small" (click)="openEditOffer(offre, 'stage')">Modifier</button>
-                <button class="btn btn-danger btn-small" (click)="archiveOffer(offre, 'stage')">Archiver</button>
+                <button class="btn btn-secondary btn-small" (click)="openEditOffer(offre, 'stage')">
+                  <span class="material-symbols-outlined">edit</span>
+                  Modifier
+                </button>
+                <button class="btn btn-secondary btn-small" (click)="archiveOffer(offre, 'stage')">
+                  <span class="material-symbols-outlined">archive</span>
+                  Archiver
+                </button>
               </div>
             </div>
           }
         </div>
       }
 
-      <!-- Job section -->
-      <div class="offer-section-title" style="margin-top: 2.5rem;">💼 Offres d'Emplois ({{ offresEmploi().length }})</div>
+      <div class="offer-section-title" style="margin-top: 2.5rem;">
+        <span class="material-symbols-outlined">work_history</span>
+        Offres d'Emplois ({{ offresEmploi().length }})
+      </div>
       @if (offresEmploi().length === 0) {
         <div class="empty-state-inline glass-card">
           <p>Aucune offre d'emploi en cours de publication.</p>
@@ -110,18 +124,24 @@
                 <h3>{{ offre.titre }}</h3>
                 <p class="domain">{{ offre.domaine || 'Général' }}</p>
                 <div class="metadata">
-                  <span>📍 {{ offre.ville }}</span>
-                  <span>📄 {{ offre.typeContrat }}</span>
-                  <span>💼 Exp: {{ offre.experience }}</span>
+                  <span><span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">location_on</span> {{ offre.ville }}</span>
+                  <span><span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">description</span> {{ offre.typeContrat }}</span>
+                  <span><span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">workspace_premium</span> Exp: {{ offre.experience }}</span>
                   @if (offre.remote) {
-                    <span class="badge badge-success">🏠 Distanciel</span>
+                    <span class="tag"><span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">home</span> Distanciel</span>
                   }
                 </div>
                 <p class="desc-snippet">{{ offre.description | slice:0:120 }}...</p>
               </div>
               <div class="card-actions">
-                <button class="btn btn-secondary btn-small" (click)="openEditOffer(offre, 'emploi')">Modifier</button>
-                <button class="btn btn-danger btn-small" (click)="archiveOffer(offre, 'emploi')">Archiver</button>
+                <button class="btn btn-secondary btn-small" (click)="openEditOffer(offre, 'emploi')">
+                  <span class="material-symbols-outlined">edit</span>
+                  Modifier
+                </button>
+                <button class="btn btn-secondary btn-small" (click)="archiveOffer(offre, 'emploi')">
+                  <span class="material-symbols-outlined">archive</span>
+                  Archiver
+                </button>
               </div>
             </div>
           }
@@ -137,7 +157,7 @@
 
       @if (candidatures().length === 0) {
         <div class="empty-state glass-card">
-          <span class="empty-icon">✉️</span>
+          <span class="material-symbols-outlined empty-icon">assignment</span>
           <h3>Aucune candidature</h3>
           <p>Vous n'avez pas encore reçu de candidatures pour vos offres.</p>
         </div>
@@ -149,9 +169,11 @@
                 <div class="candidate-details">
                   <h3>{{ candidature.utilisateur?.prenom }} {{ candidature.utilisateur?.nom }}</h3>
                   <p class="candidate-contact">
-                    📧 {{ candidature.utilisateur?.email }} 
+                    <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">mail</span>
+                    {{ candidature.utilisateur?.email }}
                     @if (candidature.utilisateur?.telephone) {
-                      | 📞 {{ candidature.utilisateur?.telephone }}
+                      <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">phone</span>
+                      {{ candidature.utilisateur?.telephone }}
                     }
                   </p>
                   <p class="candidate-meta">
@@ -176,7 +198,8 @@
               <div class="candidature-actions" style="margin-top: 1.25rem;">
                 @if (candidature.statut === 'EN_ATTENTE' || candidature.statut === 'EN_COURS') {
                   <button class="btn btn-primary btn-small" (click)="openPlanInterview(candidature)">
-                    🗓️ Planifier un entretien
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    Planifier un entretien
                   </button>
                 }
               </div>
@@ -194,7 +217,7 @@
 
       @if (entretiens().length === 0) {
         <div class="empty-state glass-card">
-          <span class="empty-icon">🗓️</span>
+          <span class="material-symbols-outlined empty-icon">calendar_month</span>
           <h3>Aucun entretien</h3>
           <p>Aucun entretien n'est planifié pour le moment.</p>
         </div>
@@ -210,12 +233,13 @@
                   </p>
                 </div>
                 <div class="entretien-date-badge">
-                  📅 {{ entretien.dateProposee | date:'dd/MM/yyyy à HH:mm' }}
+                  <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">calendar_today</span>
+                  {{ entretien.dateProposee | date:'dd/MM/yyyy à HH:mm' }}
                 </div>
               </div>
 
               <div class="entretien-body" style="margin-top: 1rem;">
-                <p>📍 <strong>Lieu / Lien :</strong> {{ entretien.lieu }}</p>
+                <p><span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">location_on</span> <strong>Lieu / Lien :</strong> {{ entretien.lieu }}</p>
                 @if (entretien.message) {
                   <div class="message-box" style="margin-top: 0.5rem;">
                     <strong>Instructions / Message :</strong>
@@ -234,7 +258,9 @@
   @if (showOfferForm()) {
     <div class="modal-overlay" (click)="closeOfferForm()">
       <div class="modal-card glass-card" (click)="$event.stopPropagation()">
-        <button class="modal-close" (click)="closeOfferForm()">×</button>
+        <button type="button" class="icon-btn" (click)="closeOfferForm()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
         
         <h2>{{ isEditingOffer() ? 'Modifier l\'offre' : 'Publier une nouvelle offre' }}</h2>
 
@@ -244,8 +270,8 @@
             <div class="form-group">
               <label for="type">Type d'offre <span class="required">*</span></label>
               <select id="type" formControlName="type" class="form-control">
-                <option value="stage">🎓 Offre de Stage</option>
-                <option value="emploi">💼 Offre d'Emploi</option>
+                <option value="stage">Offre de Stage</option>
+                <option value="emploi">Offre d'Emploi</option>
               </select>
             </div>
           }
@@ -398,7 +424,9 @@
   @if (showInterviewForm() && selectedCandidature()) {
     <div class="modal-overlay" (click)="closeInterviewForm()">
       <div class="modal-card glass-card" (click)="$event.stopPropagation()">
-        <button class="modal-close" (click)="closeInterviewForm()">×</button>
+        <button type="button" class="icon-btn" (click)="closeInterviewForm()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
         
         <h2>Planifier un entretien</h2>
         <p class="subtitle" style="margin-top: 0.25rem;">

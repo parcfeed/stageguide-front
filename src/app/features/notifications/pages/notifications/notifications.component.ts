@@ -2,7 +2,6 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
-import { NavbarComponent } from '../../../../core/components/navbar/navbar.component';
 import { NotificationsService } from '../../../../core/services/notifications.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { NotificationItem } from '../../../../core/interfaces/notification.interface';
@@ -10,7 +9,7 @@ import { NotificationItem } from '../../../../core/interfaces/notification.inter
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [CommonModule, NavbarComponent],
+  imports: [CommonModule],
   templateUrl: './notifications.component.html',
   styleUrl: './notifications.component.css'
 })

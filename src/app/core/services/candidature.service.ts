@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Candidature, CreerCandidatureDto } from '../interfaces/candidature.interface';
+import { API_BASE_URL } from '../constants/api.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CandidatureService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/stagiaire/candidatures';
+  private readonly apiUrl = `${API_BASE_URL}/stagiaire/candidatures`;
 
   /**
    * Get the logged-in student's applications

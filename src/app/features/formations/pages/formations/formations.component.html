@@ -1,0 +1,125 @@
+<div class="formations-container">
+  <div class="formations-header">
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="back-label">Retour</span>
+      </button>
+      <h1>Mes Formations</h1>
+      <p class="header-subtitle">Suivez votre apprentissage et découvrez de nouvelles formations.</p>
+    </div>
+    <div class="tab-bar">
+      <button class="btn btn-primary" (click)="switchTab('mes-formations')" [class.btn-secondary]="activeTab() !== 'mes-formations'">
+        <span class="material-symbols-outlined">auto_stories</span>
+        Mes formations
+      </button>
+      <button class="btn btn-primary" (click)="switchTab('catalogue')" [class.btn-secondary]="activeTab() !== 'catalogue'">
+        <span class="material-symbols-outlined">library_books</span>
+        Catalogue
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="state-panel">
+      <span class="material-symbols-outlined spin" style="font-size: 2rem;">progress_activity</span>
+      <p>Chargement des formations...</p>
+    </div>
+  }
+
+  @if (errorMessage() && !isLoading()) {
+    <div class="alert alert-error">
+      <span class="material-symbols-outlined" style="font-size: 1.25rem;">error</span>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (!isLoading() && activeTab() === 'mes-formations') {
+    @if (mesInscriptions().length === 0) {
+      <div class="empty-state glass-card">
+        <span class="empty-icon material-symbols-outlined">auto_stories</span>
+        <h3>Aucune inscription</h3>
+        <p>Vous n'êtes inscrit à aucune formation pour le moment.</p>
+        <button class="btn btn-primary" (click)="switchTab('catalogue')">
+          <span class="material-symbols-outlined">library_books</span>
+          Parcourir le catalogue
+        </button>
+      </div>
+    } @else {
+      <div class="formations-grid">
+        @for (inscription of mesInscriptions(); track inscription.id) {
+          <article class="glass-card formation-card">
+            @if (inscription.formation.thumbnailUrl) {
+              <img [src]="inscription.formation.thumbnailUrl" [alt]="inscription.formation.titre" class="formation-img" />
+            } @else {
+              <div class="formation-img-placeholder">
+                <span class="material-symbols-outlined" style="font-size: 2.5rem;">auto_stories</span>
+              </div>
+            }
+            <div class="formation-content">
+              <h3 class="formation-title">{{ inscription.formation.titre }}</h3>
+              @if (inscription.formation.description) {
+                <p class="formation-desc">{{ inscription.formation.description }}</p>
+              }
+              <div class="formation-tags">
+                @if (inscription.formation.domaine) {
+                  <span class="tag">{{ inscription.formation.domaine }}</span>
+                }
+                <span class="tag">{{ getNiveauLabel(inscription.formation.niveau) }}</span>
+              </div>
+              <div class="formation-progress">
+                <div class="progress-track-mini">
+                  <div class="progress-fill" [style.width.%]="inscription.progression"></div>
+                </div>
+                <span class="progress-label">{{ getStatutLabel(inscription.progression) }}</span>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  }
+
+  @if (!isLoading() && activeTab() === 'catalogue') {
+    <div class="search-bar">
+      <span class="material-symbols-outlined search-icon">search</span>
+      <input type="text" class="glass-input search-input" placeholder="Rechercher une formation..." (input)="rechercher($any($event.target).value)" />
+    </div>
+    @if (catalogueFiltre().length === 0) {
+      <div class="empty-state glass-card">
+        <span class="empty-icon material-symbols-outlined">search_off</span>
+        <h3>Aucune formation trouvée</h3>
+        <p>Essayez de modifier votre recherche ou parcourez toutes les formations disponibles.</p>
+      </div>
+    } @else {
+      <div class="formations-grid">
+        @for (formation of catalogueFiltre(); track formation.id) {
+          <article class="glass-card formation-card">
+            @if (formation.thumbnailUrl) {
+              <img [src]="formation.thumbnailUrl" [alt]="formation.titre" class="formation-img" />
+            } @else {
+              <div class="formation-img-placeholder">
+                <span class="material-symbols-outlined" style="font-size: 2.5rem;">school</span>
+              </div>
+            }
+            <div class="formation-content">
+              <h3 class="formation-title">{{ formation.titre }}</h3>
+              @if (formation.description) {
+                <p class="formation-desc">{{ formation.description }}</p>
+              }
+              <div class="formation-tags">
+                @if (formation.domaine) {
+                  <span class="tag">{{ formation.domaine }}</span>
+                }
+                <span class="tag">{{ getNiveauLabel(formation.niveau) }}</span>
+                @if (formation.dureeHeures) {
+                  <span class="tag">{{ formation.dureeHeures }}h</span>
+                }
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  }
+</div>

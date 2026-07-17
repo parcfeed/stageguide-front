@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { NavbarComponent } from '../../../../core/components/navbar/navbar.component';
 import { FichiersService } from '../../../../core/services/fichiers.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import {
@@ -14,7 +13,7 @@ import {
 @Component({
   selector: 'app-fichiers',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './fichiers.component.html',
   styleUrl: './fichiers.component.css',
 })

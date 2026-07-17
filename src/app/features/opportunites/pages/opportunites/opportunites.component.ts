@@ -5,13 +5,12 @@ import { Router } from '@angular/router';
 import { OpportunitesService } from '../../../../core/services/opportunites.service';
 import { CandidatureService } from '../../../../core/services/candidature.service';
 import { OffreStage, OffreEmploi } from '../../../../core/interfaces/opportunites.interface';
-import { NavbarComponent } from '../../../../core/components/navbar/navbar.component';
 import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-opportunites',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './opportunites.component.html',
   styleUrls: ['./opportunites.component.css']
 })
@@ -33,7 +32,6 @@ export class OpportunitesComponent implements OnInit {
 
   // Filter models
   searchQuery = signal('');
-  valueQuery = signal(''); // Wait, earlier it was villeQuery, let's keep search variables as before to not break anything
   villeQuery = signal('');
   domaineQuery = signal('');
   remoteQuery = signal(false);
@@ -47,6 +45,9 @@ export class OpportunitesComponent implements OnInit {
   isApplying = signal(false);
   applySuccessMessage = signal<string | null>(null);
   applyErrorMessage = signal<string | null>(null);
+
+  // Modal logo error state
+  modalLogoError = signal(false);
 
   // Getter helper to bypass template strict typing for union types
   get selectedOfferAsAny(): any {
@@ -140,6 +141,7 @@ export class OpportunitesComponent implements OnInit {
   ouvrirDetail(offre: OffreStage | OffreEmploi): void {
     this.selectedOffer.set(offre);
     this.showDetailModal.set(true);
+    this.modalLogoError.set(false);
     // Reset apply states
     this.motivationMessage.set('');
     this.applySuccessMessage.set(null);
@@ -197,6 +199,13 @@ export class OpportunitesComponent implements OnInit {
         this.isApplying.set(false);
       }
     });
+  }
+
+  /**
+   * Handle broken modal logo image
+   */
+  setLogoError(): void {
+    this.modalLogoError.set(true);
   }
 
   /**

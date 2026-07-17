@@ -1,317 +1,63 @@
-.candidatures-container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-  animation: fadeIn 0.4s ease-out;
+.candidatures-container { padding: 2rem 2.5rem; }
+.candidatures-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5rem; margin-bottom: 2.5rem; }
+.header-left { display: flex; flex-direction: column; gap: 0.75rem; }
+.back-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: transparent; border: none; color: var(--primary); cursor: pointer; font: 700 0.75rem/1 'Hanken Grotesk', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.25rem; width: fit-content; }
+.back-btn .material-symbols-outlined { font-size: 1.1rem; }
+.back-btn:hover .material-symbols-outlined { transform: translateX(-4px); }
+.candidatures-header h1 { font: 800 2.5rem/1.1 'Hanken Grotesk', sans-serif; letter-spacing: -0.02em; margin: 0; }
+.header-subtitle { font: 400 1.125rem/1 'Plus Jakarta Sans', sans-serif; color: var(--on-surface-variant); max-width: 640px; margin: 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem; }
+.stat-card { padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.stat-num { font: 800 2.5rem/1.1 'Hanken Grotesk', sans-serif; color: var(--on-surface); margin-bottom: 0.25rem; }
+.stat-num.pending { color: var(--tertiary); }
+.stat-num.in-progress { color: var(--on-surface-variant); }
+.stat-num.accepted { color: var(--primary); }
+.stat-label { font: 600 0.8rem/1 'Hanken Grotesk', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; color: var(--on-surface-variant); }
+.state-panel { min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; color: var(--on-surface-variant); }
+.spin { animation: spin 0.8s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 5rem 2rem; gap: 1rem; border: 2px dashed rgba(255,255,255,0.1); }
+.empty-icon { font-size: 3rem; color: var(--on-surface-variant); opacity: 0.5; }
+.empty-state h3 { font: 700 1.25rem/1 'Hanken Grotesk', sans-serif; margin: 0; }
+.empty-state p { font: 400 0.95rem/1 'Plus Jakarta Sans', sans-serif; color: var(--on-surface-variant); margin: 0; max-width: 400px; }
+.candidatures-list { display: flex; flex-direction: column; gap: 1.5rem; }
+.candidature-card { padding: 2rem; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+.candidature-card:hover { border-color: rgba(124,93,250,0.4); box-shadow: 0 0 30px rgba(124,93,250,0.08); }
+.card-glow { position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, #7c5dfa0f 0%, transparent 70%); pointer-events: none; }
+.card-header { display: flex; gap: 1.25rem; align-items: center; }
+.company-logo-wrap { flex-shrink: 0; }
+.company-logo { width: 56px; height: 56px; border-radius: 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; overflow: hidden; transition: transform 0.3s ease; }
+.candidature-card:hover .company-logo { transform: scale(1.05); }
+.company-logo img { width: 100%; height: 100%; object-fit: cover; }
+.company-info { flex-grow: 1; display: flex; flex-direction: column; gap: 0.25rem; }
+.company-name-row { display: flex; align-items: center; gap: 0.5rem; }
+.active-dot { width: 8px; height: 8px; background: var(--midnight-accent); border-radius: 50%; box-shadow: 0 0 8px var(--midnight-accent); flex-shrink: 0; }
+.company-name { font: 700 1rem/1 'Hanken Grotesk', sans-serif; margin: 0; }
+.location { font: 400 0.8rem/1 'Plus Jakarta Sans', sans-serif; color: var(--on-surface-variant); margin: 0; display: flex; align-items: center; gap: 0.2rem; flex-wrap: wrap; }
+.location .material-symbols-outlined { font-size: 0.75rem; }
+.type-pill { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; font: 700 0.7rem/1 'Hanken Grotesk', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; color: var(--on-surface-variant); flex-shrink: 0; }
+.type-pill .material-symbols-outlined { font-size: 1.1rem; }
+.card-body { margin-top: 1.5rem; }
+.offer-title { font: 700 1.35rem/1.3 'Hanken Grotesk', sans-serif; margin: 0 0 0.5rem; }
+.domain-pill { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.75rem; background: rgba(196,198,228,0.1); border: 1px solid rgba(196,198,228,0.2); border-radius: 9999px; font: 600 0.7rem/1 'Hanken Grotesk', sans-serif; color: var(--secondary); width: fit-content; }
+.motivation-message { position: relative; margin-top: 1.25rem; padding: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.75rem; }
+.quote-icon { position: absolute; top: -0.5rem; left: -0.25rem; font-size: 2rem; color: var(--primary); opacity: 0.2; }
+.motivation-message p { font: 400 0.9rem/1.5 'Plus Jakarta Sans', sans-serif; color: var(--on-surface-variant); font-style: italic; margin: 0; }
+.card-footer { display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.25rem; margin-top: 1.25rem; }
+.status-badge { font: 700 0.7rem/1 'Hanken Grotesk', sans-serif; letter-spacing: 0.05em; text-transform: uppercase; padding: 0.4rem 1rem; border-radius: 9999px; border: 1px solid; }
+.status-pending { background: rgba(76,214,255,0.1); color: var(--tertiary); border-color: rgba(76,214,255,0.2); }
+.status-inprogress { background: rgba(202,190,255,0.1); color: var(--primary); border-color: rgba(202,190,255,0.25); }
+.status-accepted { background: rgba(16,185,129,0.1); color: #34d399; border-color: rgba(16,185,129,0.2); }
+.status-refused { background: rgba(239,68,68,0.1); color: #f87171; border-color: rgba(239,68,68,0.2); }
+.status-cancelled { background: rgba(107,114,128,0.1); color: #9ca3af; border-color: rgba(107,114,128,0.2); }
+@media (max-width: 1023px) {
+  .candidatures-container { padding: 1.5rem; }
+  .candidatures-header { flex-direction: column; align-items: flex-start; }
+  .candidatures-header h1 { font-size: 1.75rem; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .type-pill { display: none; }
 }
-
-/* Header & Back Button */
-.candidatures-header {
-  margin-bottom: 2.5rem;
-  position: relative;
-}
-
-.back-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
-  font-family: 'Outfit', sans-serif;
-  font-weight: 500;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 1.25rem;
-}
-
-.back-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateX(-4px);
-}
-
-.candidatures-header h1 {
-  font-size: 2.25rem;
-  font-weight: 800;
-  background: var(--primary-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
-}
-
-.subtitle {
-  color: var(--text-secondary);
-  font-size: 1rem;
-}
-
-/* Stats Dashboard */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 2.5rem;
-}
-
-.stat-card {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.stat-num {
-  font-family: 'Outfit', sans-serif;
-  font-size: 2.5rem;
-  font-weight: 800;
-  line-height: 1.1;
-  margin-bottom: 0.25rem;
-  color: var(--text-primary);
-}
-
-.stat-num.pending {
-  color: #fbbf24;
-}
-
-.stat-num.in-progress {
-  color: #60a5fa;
-}
-
-.stat-num.accepted {
-  color: #34d399;
-}
-
-.stat-label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-/* Loading & Empty States */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  gap: 1rem;
-}
-
-.loading-state p {
-  color: var(--text-secondary);
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 5rem 2rem;
-  border-style: dashed;
-}
-
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 1.25rem;
-}
-
-.empty-state h3 {
-  font-size: 1.35rem;
-  margin-bottom: 0.5rem;
-}
-
-.empty-state p {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  max-width: 400px;
-}
-
-/* Applications List */
-.candidatures-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.candidature-card {
-  padding: 1.75rem;
-  display: flex;
-  flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.candidature-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.card-header {
-  display: flex;
-  gap: 1.25rem;
-  align-items: center;
-  margin-bottom: 1.25rem;
-  position: relative;
-}
-
-.company-logo {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.04);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border-color);
-  overflow: hidden;
-}
-
-.company-logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.logo-fallback {
-  font-size: 1.6rem;
-}
-
-.company-info {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-
-.company-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.meta {
-  font-size: 0.825rem;
-  color: var(--text-secondary);
-}
-
-.type-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-.card-body {
-  margin-bottom: 1.5rem;
-}
-
-.offer-title {
-  font-size: 1.35rem;
-  font-weight: 800;
-  margin-bottom: 0.25rem;
-  color: var(--text-primary);
-}
-
-.offer-domain {
-  font-size: 0.85rem;
-  color: var(--primary);
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.motivation-message {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 1rem;
-  margin-top: 1rem;
-}
-
-.motivation-message strong {
-  display: block;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin-bottom: 0.35rem;
-}
-
-.message-text {
-  font-size: 0.9rem;
-  color: var(--text-primary);
-  font-style: italic;
-  line-height: 1.5;
-}
-
-.card-footer {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  border-top: 1px solid var(--border-color);
-  padding-top: 1.25rem;
-  margin-top: auto;
-}
-
-.status-label {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-/* Status Badges styling */
-.status-badge {
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 0.35rem 0.85rem;
-  border-radius: var(--radius-full);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.status-pending {
-  background: rgba(245, 158, 11, 0.1);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.2);
-}
-
-.status-inprogress {
-  background: rgba(59, 130, 246, 0.1);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-}
-
-.status-accepted {
-  background: rgba(16, 185, 129, 0.1);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.status-refused {
-  background: rgba(239, 68, 68, 0.1);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
-.status-cancelled {
-  background: rgba(107, 114, 128, 0.1);
-  color: #9ca3af;
-  border: 1px solid rgba(107, 114, 128, 0.2);
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@media screen and (max-width: 600px) {
-  .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-  
-  .type-badge {
-    position: static;
-    margin-top: 0.25rem;
-  }
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .card-header { flex-direction: column; align-items: flex-start; }
 }

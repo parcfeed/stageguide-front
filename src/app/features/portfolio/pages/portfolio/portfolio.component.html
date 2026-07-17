@@ -1,244 +1,294 @@
 <div class="portfolio-container">
-  <app-navbar></app-navbar>
-  <!-- Header -->
   <div class="portfolio-header">
-    <button class="back-btn" (click)="goBack()" title="Retour">
-      ← Retour
+    <div class="header-left">
+      <button class="back-btn" (click)="goBack()">
+        <span class="material-symbols-outlined">arrow_back</span>
+        <span class="back-label">Retour</span>
+      </button>
+      <h1>Mon Portfolio</h1>
+      <p class="header-subtitle">Gérez et présentez vos projets pour vous démarquer auprès des recruteurs.</p>
+    </div>
+    <button class="btn btn-primary" (click)="showCreate()" *ngIf="!showCreateModal()" [disabled]="isLoading()">
+      <span class="material-symbols-outlined">add</span>
+      Ajouter un projet
     </button>
-    <h1>Mon Portfolio</h1>
-    <button class="btn btn-primary btn-small" (click)="showCreate()" *ngIf="!showCreateModal()" [disabled]="isLoading()">
-      + Ajouter un projet
-    </button>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading()" class="loading">
-    <p>Chargement du portfolio...</p>
+  <div class="progress-track">
+    <div class="progress-bar" [style.width.%]="projects().length > 0 ? 100 : 0"></div>
   </div>
 
-  <!-- Error Message -->
-  <div *ngIf="errorMessage() && !isLoading()" class="alert alert-error">
-    {{ errorMessage() }}
-  </div>
-
-  <!-- Success Message -->
-  <div *ngIf="successMessage() && !isLoading()" class="alert alert-success">
-    {{ successMessage() }}
-  </div>
-
-
-
-  <!-- Projects List -->
-  <div *ngIf="!isLoading() && !showCreateModal() && !showEditModal() && !showDeleteModal()" class="projects-section">
-    <div *ngIf="projects().length === 0" class="empty-state">
-      <p>Aucun projet dans votre portfolio pour le moment.</p>
-      <button class="btn btn-primary" (click)="showCreate()">Créer votre premier projet</button>
+  @if (isLoading()) {
+    <div class="state-panel">
+      <span class="material-symbols-outlined spin" style="font-size: 2rem;">progress_activity</span>
+      <p>Chargement du portfolio...</p>
     </div>
+  }
 
-    <div *ngIf="projects().length > 0" class="projects-grid">
-      <div *ngFor="let project of projects()" class="project-card">
-        <div class="project-image" *ngIf="project.imageUrl">
-          <img [src]="project.imageUrl" [alt]="project.titre" />
-        </div>
-        <div class="project-image empty-image" *ngIf="!project.imageUrl">
-          <span>Sans image</span>
-        </div>
-
-        <div class="project-content">
-          <h3>{{ project.titre }}</h3>
-
-          <p *ngIf="project.description" class="project-description">
-            {{ project.description }}
-          </p>
-
-          <div *ngIf="project.tags && project.tags.length > 0" class="tags">
-            <span *ngFor="let tag of project.tags" class="tag">{{ tag }}</span>
-          </div>
-
-          <div class="project-links">
-            <a *ngIf="project.lienProjet" [href]="project.lienProjet" target="_blank" class="link">
-              Voir le projet →
-            </a>
-          </div>
-
-           <div class="project-actions">
-             <button class="btn btn-secondary btn-small" (click)="showEdit(project)" [disabled]="showEditModal() || showDeleteModal()">
-               Modifier
-             </button>
-             <button class="btn btn-danger btn-small" (click)="confirmDelete(project)" [disabled]="showEditModal() || showDeleteModal()">
-               Supprimer
-             </button>
-           </div>
-         </div>
-       </div>
+  @if (errorMessage() && !isLoading()) {
+    <div class="alert alert-error">
+      <span class="material-symbols-outlined" style="font-size: 1.25rem;">error</span>
+      {{ errorMessage() }}
     </div>
-  </div>
+  }
 
-  <!-- Create Project Modal -->
-  <div *ngIf="showCreateModal()" class="modal-overlay" (click)="cancelCreate()">
-    <div class="modal-card" (click)="$event.stopPropagation()">
-      <h3>Créer un nouveau projet</h3>
-      <form [formGroup]="createForm" (ngSubmit)="createProject()" class="project-form">
-        <div class="form-group">
-          <label for="create-titre">Titre <span class="required">*</span>:</label>
-          <input
-            type="text"
-            id="create-titre"
-            formControlName="titre"
-            class="form-control"
-            placeholder="Ex: Application de gestion de stages"
-            [class.is-invalid]="createForm.get('titre')?.invalid && createForm.get('titre')?.touched"
-          />
-          <div *ngIf="createForm.get('titre')?.invalid && createForm.get('titre')?.touched" class="error-text">
-            Le titre est obligatoire
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="create-description">Description:</label>
-          <textarea
-            id="create-description"
-            formControlName="description"
-            class="form-control textarea"
-            placeholder="Décrivez votre projet..."
-            rows="4"
-          ></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="create-tags">Tags:</label>
-          <input
-            type="text"
-            id="create-tags"
-            formControlName="tags"
-            class="form-control"
-            placeholder="Ex: React, Node.js, Stripe (séparés par des virgules)"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="create-imageUrl">URL Image:</label>
-          <input
-            type="url"
-            id="create-imageUrl"
-            formControlName="imageUrl"
-            class="form-control"
-            placeholder="https://..."
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="create-lienProjet">Lien du projet:</label>
-          <input
-            type="url"
-            id="create-lienProjet"
-            formControlName="lienProjet"
-            class="form-control"
-            placeholder="https://portfolio.example.com/projets/..."
-          />
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-success" [disabled]="isCreating()">
-            {{ isCreating() ? 'Création...' : 'Créer le projet' }}
-          </button>
-          <button type="button" class="btn btn-secondary" (click)="cancelCreate()" [disabled]="isCreating()">
-            Annuler
-          </button>
-        </div>
-      </form>
+  @if (successMessage() && !isLoading()) {
+    <div class="alert alert-success">
+      <span class="material-symbols-outlined" style="font-size: 1.25rem;">check_circle</span>
+      {{ successMessage() }}
     </div>
-  </div>
+  }
 
-  <!-- Edit Project Modal -->
-  <div *ngIf="showEditModal() && selectedProject()" class="modal-overlay" (click)="cancelEdit()">
-    <div class="modal-card" (click)="$event.stopPropagation()">
-      <h3>Modifier le projet</h3>
-      <form [formGroup]="editForm" (ngSubmit)="updateProject()" class="project-form">
-        <div class="form-group">
-          <label for="edit-titre">Titre:</label>
-          <input
-            type="text"
-            id="edit-titre"
-            formControlName="titre"
-            class="form-control"
-            placeholder="Titre du projet"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="edit-description">Description:</label>
-          <textarea
-            id="edit-description"
-            formControlName="description"
-            class="form-control textarea"
-            placeholder="Description..."
-            rows="3"
-          ></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="edit-tags">Tags:</label>
-          <input
-            type="text"
-            id="edit-tags"
-            formControlName="tags"
-            class="form-control"
-            placeholder="Tags..."
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="edit-imageUrl">URL Image:</label>
-          <input
-            type="url"
-            id="edit-imageUrl"
-            formControlName="imageUrl"
-            class="form-control"
-            placeholder="https://..."
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="edit-lienProjet">Lien du projet:</label>
-          <input
-            type="url"
-            id="edit-lienProjet"
-            formControlName="lienProjet"
-            class="form-control"
-            placeholder="https://..."
-          />
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-success" [disabled]="isEditing()">
-            {{ isEditing() ? 'Mise à jour...' : 'Enregistrer' }}
-          </button>
-          <button type="button" class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isEditing()">
-            Annuler
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Delete Confirmation Modal -->
-  <div *ngIf="showDeleteModal()" class="delete-modal-overlay" (click)="cancelDelete()">
-    <div class="delete-modal-card" (click)="$event.stopPropagation()">
-      <h3>Confirmer la suppression</h3>
-      <p>
-        Êtes-vous sûr de vouloir supprimer le projet "<strong>{{ projectToDelete()?.titre }}</strong>"?
-      </p>
-      <p class="warning-text">Cette action ne peut pas être annulée.</p>
-
-      <div class="delete-modal-actions">
-        <button class="btn btn-danger" (click)="deleteProject()" [disabled]="isDeleting()">
-          {{ isDeleting() ? 'Suppression...' : 'Supprimer' }}
-        </button>
-        <button class="btn btn-secondary" (click)="cancelDelete()" [disabled]="isDeleting()">
-          Annuler
+  @if (!isLoading() && !showCreateModal() && !showEditModal() && !showDeleteModal()) {
+    @if (projects().length === 0) {
+      <div class="empty-state glass-card">
+        <span class="empty-icon material-symbols-outlined">folder_open</span>
+        <h3>Aucun projet</h3>
+        <p>Vous n'avez pas encore de projet dans votre portfolio.</p>
+        <button class="btn btn-primary" (click)="showCreate()">
+          <span class="material-symbols-outlined">add</span>
+          Créer votre premier projet
         </button>
       </div>
+    }
+
+    @if (projects().length > 0) {
+      <div class="projects-grid">
+        @for (project of projects(); track project.id) {
+          <div class="project-card glass-card">
+            <div class="project-image-wrap">
+              @if (project.imageUrl) {
+                <img [src]="project.imageUrl" [alt]="project.titre" class="project-img" />
+                <div class="img-overlay"></div>
+              } @else {
+                <div class="project-img-placeholder">
+                  <span class="material-symbols-outlined" style="font-size: 3rem; opacity: 0.2;">image</span>
+                </div>
+              }
+            </div>
+            <div class="project-content">
+              <h3 class="project-title">{{ project.titre }}</h3>
+              @if (project.description) {
+                <p class="project-desc">{{ project.description }}</p>
+              }
+              @if (project.tags && project.tags.length > 0) {
+                <div class="project-tags">
+                  @for (tag of project.tags; track tag) {
+                    <span class="tag">{{ tag }}</span>
+                  }
+                </div>
+              }
+              <div class="project-footer">
+                @if (project.lienProjet) {
+                  <a [href]="project.lienProjet" target="_blank" class="project-link" rel="noopener noreferrer">
+                    Voir le projet
+                    <span class="material-symbols-outlined" style="font-size: 1rem;">trending_flat</span>
+                  </a>
+                }
+                <div class="project-actions">
+                  <button class="action-btn edit-btn" (click)="showEdit(project)" [disabled]="showEditModal() || showDeleteModal()">
+                    <span class="material-symbols-outlined">edit</span>
+                    Modifier
+                  </button>
+                  <button class="action-btn delete-btn" (click)="confirmDelete(project)" [disabled]="showEditModal() || showDeleteModal()">
+                    <span class="material-symbols-outlined">delete</span>
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- Create Project Modal -->
+  @if (showCreateModal()) {
+    <div class="modal-overlay" (click)="cancelCreate()">
+      <div class="modal-card glass-card" (click)="$event.stopPropagation()">
+        <h2>Créer un nouveau projet</h2>
+        <form [formGroup]="createForm" (ngSubmit)="createProject()" class="modal-form">
+          <div class="field-group">
+            <label class="field-label" for="create-titre">Titre <span class="required">*</span></label>
+            <input
+              type="text"
+              id="create-titre"
+              formControlName="titre"
+              class="glass-input"
+              placeholder="Ex: Application de gestion de stages"
+              [class.input-error]="createForm.get('titre')?.invalid && createForm.get('titre')?.touched"
+            />
+            @if (createForm.get('titre')?.invalid && createForm.get('titre')?.touched) {
+              <span class="error-text">Le titre est obligatoire</span>
+            }
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="create-description">Description</label>
+            <textarea
+              id="create-description"
+              formControlName="description"
+              class="glass-input"
+              placeholder="Décrivez votre projet..."
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="create-tags">Tags</label>
+              <input
+                type="text"
+                id="create-tags"
+                formControlName="tags"
+                class="glass-input"
+                placeholder="React, Node.js, Stripe"
+              />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="create-imageUrl">URL Image</label>
+              <input
+                type="url"
+                id="create-imageUrl"
+                formControlName="imageUrl"
+                class="glass-input"
+                placeholder="https://..."
+              />
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="create-lienProjet">Lien du projet</label>
+            <input
+              type="url"
+              id="create-lienProjet"
+              formControlName="lienProjet"
+              class="glass-input"
+              placeholder="https://..."
+            />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" [disabled]="isCreating()">
+              @if (isCreating()) {
+                <span class="spinner" style="width: 18px; height: 18px; border-width: 2px;"></span>
+                Création...
+              } @else {
+                <span class="material-symbols-outlined">add_circle</span>
+                Créer le projet
+              }
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="cancelCreate()" [disabled]="isCreating()">
+              <span class="material-symbols-outlined">close</span>
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
+  }
+
+  <!-- Edit Project Modal -->
+  @if (showEditModal() && selectedProject()) {
+    <div class="modal-overlay" (click)="cancelEdit()">
+      <div class="modal-card glass-card" (click)="$event.stopPropagation()">
+        <h2>Modifier le projet</h2>
+        <form [formGroup]="editForm" (ngSubmit)="updateProject()" class="modal-form">
+          <div class="field-group">
+            <label class="field-label" for="edit-titre">Titre</label>
+            <input
+              type="text"
+              id="edit-titre"
+              formControlName="titre"
+              class="glass-input"
+              placeholder="Titre du projet"
+            />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="edit-description">Description</label>
+            <textarea
+              id="edit-description"
+              formControlName="description"
+              class="glass-input"
+              placeholder="Description..."
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label" for="edit-tags">Tags</label>
+              <input
+                type="text"
+                id="edit-tags"
+                formControlName="tags"
+                class="glass-input"
+                placeholder="Tags..."
+              />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="edit-imageUrl">URL Image</label>
+              <input
+                type="url"
+                id="edit-imageUrl"
+                formControlName="imageUrl"
+                class="glass-input"
+                placeholder="https://..."
+              />
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="edit-lienProjet">Lien du projet</label>
+            <input
+              type="url"
+              id="edit-lienProjet"
+              formControlName="lienProjet"
+              class="glass-input"
+              placeholder="https://..."
+            />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" [disabled]="isEditing()">
+              @if (isEditing()) {
+                <span class="spinner" style="width: 18px; height: 18px; border-width: 2px;"></span>
+                Mise à jour...
+              } @else {
+                <span class="material-symbols-outlined">save</span>
+                Enregistrer
+              }
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isEditing()">
+              <span class="material-symbols-outlined">close</span>
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (showDeleteModal()) {
+    <div class="modal-overlay" (click)="cancelDelete()">
+      <div class="modal-card glass-card delete-modal" (click)="$event.stopPropagation()">
+        <span class="material-symbols-outlined delete-icon">warning</span>
+        <h2>Confirmer la suppression</h2>
+        <p class="delete-text">
+          Êtes-vous sûr de vouloir supprimer le projet <strong>"{{ projectToDelete()?.titre }}"</strong>&nbsp;?
+        </p>
+        <p class="delete-warning">Cette action ne peut pas être annulée.</p>
+        <div class="form-actions">
+          <button class="btn btn-danger" (click)="deleteProject()" [disabled]="isDeleting()">
+            @if (isDeleting()) {
+              <span class="spinner" style="width: 18px; height: 18px; border-width: 2px;"></span>
+              Suppression...
+            } @else {
+              <span class="material-symbols-outlined">delete_forever</span>
+              Supprimer
+            }
+          </button>
+          <button class="btn btn-secondary" (click)="cancelDelete()" [disabled]="isDeleting()">
+            <span class="material-symbols-outlined">close</span>
+            Annuler
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>
