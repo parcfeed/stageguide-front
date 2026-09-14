@@ -1,4 +1,4 @@
-export type MentoratDecision = 'ACCEPTEE' | 'REFUSEE';
+﻿export type MentoratDecision = 'ACCEPTEE' | 'REFUSEE';
 export type MentoratStatut = 'EN_ATTENTE' | 'ACCEPTEE' | 'REFUSEE' | 'ACTIF' | string;
 
 export interface MentorSummary {
@@ -51,6 +51,44 @@ export interface MentoratListItem {
   description?: string;
   date?: string;
   status?: string;
+}
+
+export interface ObjectifMentorat {
+  id: string;
+  utilisateurId: string;
+  titre: string;
+  statut: 'pending' | 'in_progress' | 'completed' | string;
+  creePar?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SessionMentoratItem {
+  id: string;
+  stagiaireId: string;
+  mentorId: string;
+  sujet: string;
+  commenceLe: string;
+  termineLe?: string | null;
+  statut: 'PLANIFIEE' | 'TERMINEE' | 'ANNULEE' | string;
+  stagiaire?: MentoratPerson;
+  mentor?: MentoratPerson;
+}
+
+export interface PlanifierSessionPayload {
+  stagiaireId: string;
+  sujet: string;
+  commenceLe: string;
+  termineLe?: string;
+}
+
+export interface EvaluerSoftSkillsPayload {
+  stagiaireId: string;
+  communication?: number;
+  resolutionProblemes?: number;
+  adaptabilite?: number;
+  travailEquipe?: number;
+  commentaires?: string;
 }
 
 export interface MentoratStagiaireOverview {

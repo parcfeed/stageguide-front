@@ -23,6 +23,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/profile/pages/profile/profile.component').then(m => m.ProfileComponent)
       },
       {
+        path: 'cv',
+        canActivate: [roleGuard],
+        data: { roles: ['stagiaire'] },
+        loadComponent: () => import('./features/cv/pages/cv-view/cv-view.component').then(m => m.CvViewComponent)
+      },
+      {
         path: 'portfolio',
         canActivate: [roleGuard],
         data: { roles: ['stagiaire'] },
@@ -83,6 +89,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/mentorat/pages/mentorat/mentorat.component').then(m => m.MentoratComponent)
       },
       {
+        path: 'reseau',
+        canActivate: [roleGuard],
+        data: { roles: ['stagiaire', 'mentor', 'entreprise'] },
+        loadComponent: () => import('./features/reseau/pages/reseau/reseau.component').then(m => m.ReseauComponent)
+      },
+      {
         path: 'messages',
         canActivate: [roleGuard],
         data: { roles: ['stagiaire', 'mentor', 'entreprise'] },
@@ -117,8 +129,18 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { roles: ['admin'] },
         loadComponent: () => import('./features/admin/pages/partners/partners.component').then(m => m.AdminPartnersComponent)
+      },
+      {
+        path: 'admin/offres',
+        canActivate: [roleGuard],
+        data: { roles: ['admin'] },
+        loadComponent: () => import('./features/admin/pages/offres/admin-offres.component').then(m => m.AdminOffresComponent)
       }
     ]
+  },
+  {
+    path: 'cv/partage/:token',
+    loadComponent: () => import('./features/cv/pages/cv-public/cv-public.component').then(m => m.CvPublicComponent)
   },
   {
     path: 'login',

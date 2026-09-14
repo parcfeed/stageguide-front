@@ -1,11 +1,16 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { 
   ListerOffresStageDto, 
   ListerOffresEmploiDto, 
   OffresStageResponse, 
-  OffresEmploiResponse 
+  OffresEmploiResponse,
+  OffreStage,
+  OffreEmploi,
+  OffreSauvegardee,
+  AlerteRecherche,
+  CreerAlerteDto
 } from '../interfaces/opportunites.interface';
 import { API_BASE_URL } from '../constants/api.constants';
 
@@ -15,6 +20,7 @@ import { API_BASE_URL } from '../constants/api.constants';
 export class OpportunitesService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${API_BASE_URL}/opportunites`;
+  private readonly alertesUrl = `${API_BASE_URL}/stagiaire/alertes`;
 
   /**
    * Fetch internship offers matching optional filters
@@ -25,11 +31,81 @@ export class OpportunitesService {
   }
 
   /**
+   * Get detail of an internship offer
+   */
+  getOffreStage(id: string): Observable<OffreStage> {
+    return this.http.get<OffreStage>(`${this.apiUrl}/offres-stage/${id}`);
+  }
+
+  /**
+   * Recommandations intelligentes de stages pour le profil stagiaire
+   */
+  getRecommandationsStage(): Observable<OffreStage[]> {
+    return this.http.get<OffreStage[]>(`${this.apiUrl}/offres-stage/recommandations`);
+  }
+
+  /**
    * Fetch job offers matching optional filters
    */
   listerOffresEmploi(filtres?: ListerOffresEmploiDto): Observable<OffresEmploiResponse> {
     const params = this.buildParams(filtres);
     return this.http.get<OffresEmploiResponse>(`${this.apiUrl}/offres-emploi`, { params });
+  }
+
+  /**
+   * Get detail of a job offer
+   */
+  getOffreEmploi(id: string): Observable<OffreEmploi> {
+    return this.http.get<OffreEmploi>(`${this.apiUrl}/offres-emploi/${id}`);
+  }
+
+  /**
+   * Recommandations intelligentes d'emplois pour le profil
+   */
+  getRecommandationsEmploi(): Observable<OffreEmploi[]> {
+    return this.http.get<OffreEmploi[]>(`${this.apiUrl}/offres-emploi/recommandations`);
+  }
+
+  /**
+   * Lister les offres sauvegardées en favoris
+   */
+  listerOffresSauvegardees(): Observable<OffreSauvegardee[]> {
+    return this.http.get<OffreSauvegardee[]>(`${this.apiUrl}/offres-sauvegardees`);
+  }
+
+  /**
+   * Sauvegarder une offre
+   */
+  sauvegarderOffre(payload: { offreStageId?: string; offreEmploiId?: string }): Observable<OffreSauvegardee> {
+    return this.http.post<OffreSauvegardee>(`${this.apiUrl}/offres-sauvegardees`, payload);
+  }
+
+  /**
+   * Supprimer une offre sauvegardée
+   */
+  supprimerOffreSauvegardee(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/offres-sauvegardees/${id}`);
+  }
+
+  /**
+   * Lister les alertes de recherche du stagiaire
+   */
+  listerAlertes(): Observable<AlerteRecherche[]> {
+    return this.http.get<AlerteRecherche[]>(this.alertesUrl);
+  }
+
+  /**
+   * Créer une alerte de recherche
+   */
+  creerAlerte(payload: CreerAlerteDto): Observable<AlerteRecherche> {
+    return this.http.post<AlerteRecherche>(this.alertesUrl, payload);
+  }
+
+  /**
+   * Supprimer une alerte
+   */
+  supprimerAlerte(id: string): Observable<any> {
+    return this.http.delete(`${this.alertesUrl}/${id}`);
   }
 
   /**

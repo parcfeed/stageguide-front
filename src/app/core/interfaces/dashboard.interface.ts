@@ -1,4 +1,4 @@
-export interface DashboardStat {
+﻿export interface DashboardStat {
   label: string;
   value: string;
   trend: string;
@@ -31,6 +31,23 @@ export interface DashboardListItem {
   status?: string;
 }
 
+export interface EvenementCalendrier {
+  id: string;
+  type: 'MENTORAT' | 'ENTRETIEN' | 'FORMATION' | 'RAPPEL' | string;
+  titre: string;
+  description?: string;
+  dateDebut: string;
+  dateFin?: string;
+  lieu?: string;
+  interlocuteur?: string;
+  statut?: string;
+}
+
+export interface CalendrierResponse {
+  total: number;
+  evenements: EvenementCalendrier[];
+}
+
 export interface StagiaireDashboard {
   utilisateurId: string;
   stats: DashboardStat[];
@@ -40,4 +57,5 @@ export interface StagiaireDashboard {
   sessionsAVenir: DashboardListItem[];
   activitesRecentes: DashboardListItem[];
   messages: DashboardListItem[];
+  calendrier?: EvenementCalendrier[];
 }

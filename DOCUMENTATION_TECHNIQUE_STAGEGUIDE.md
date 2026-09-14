@@ -1229,6 +1229,8 @@ Vérifications manuelles documentées dans `FRONTEND_INTEGRATION_REPORT.md` :
 
 **Contournement** : Les tests confirment qu'après création d'une première offre, tous les GET fonctionnent correctement.
 
+
+
 ### 16.2 Problème : Fichiers DTO portfolio manquants
 
 **Symptôme** : `POST /stagiaire/portfolio/projets` retourne 400. Le contrôleur importe `CreerProjetDto` et `ModifierProjetDto` mais les fichiers correspondants n'existent pas dans `src/stagiaire/portfolio/dto/`.

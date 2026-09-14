@@ -1,0 +1,196 @@
+﻿<div class="cv-page-container">
+  <!-- Top bar -->
+  <div class="cv-top-bar">
+    <div class="top-left">
+      <span class="category-tag">ESPACE STAGIAIRE</span>
+      <h1>Mon CV Dynamique</h1>
+      <p class="subtitle">Généré automatiquement à partir de vos compétences validées, projets portfolio et certificats.</p>
+    </div>
+    <div class="top-actions">
+      <button class="btn-secondary" (click)="editerPortfolio()">
+        <span class="material-symbols-outlined">edit</span>
+        Éditer Portfolio
+      </button>
+      <button class="btn-primary" [disabled]="isDownloading()" (click)="telechargerPdf()">
+        <span class="material-symbols-outlined">download</span>
+        {{ isDownloading() ? 'Génération...' : 'Télécharger PDF' }}
+      </button>
+      <button class="btn-accent" [disabled]="isGeneratingLink()" (click)="genererLienPartage()">
+        <span class="material-symbols-outlined">share</span>
+        Partager publiquement
+      </button>
+    </div>
+  </div>
+
+  @if (partageInfo()) {
+    <div class="share-box">
+      <div class="share-header">
+        <span class="material-symbols-outlined">link</span>
+        <strong>Lien de consultation public sécurisé généré :</strong>
+      </div>
+      <div class="share-input-row">
+        <input type="text" readonly [value]="partageInfo()?.lienPublic" class="share-input" />
+        <button class="btn-copy" (click)="copierLien()">
+          <span class="material-symbols-outlined">{{ copied() ? 'check' : 'content_copy' }}</span>
+          {{ copied() ? 'Copié !' : 'Copier le lien' }}
+        </button>
+      </div>
+      <small class="share-expire">Ce lien permet aux recruteurs et tuteurs d'accéder à votre CV sans identifiant.</small>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert-error">
+      <span class="material-symbols-outlined">error</span>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="material-symbols-outlined spin">progress_activity</span>
+      <p>Chargement de votre CV dynamique...</p>
+    </div>
+  } @else if (cvData(); as cv) {
+    <!-- Modern CV Paper -->
+    <div class="cv-paper">
+      <aside class="cv-sidebar">
+        <div class="profile-header">
+          <div class="avatar-large">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+          <h2>{{ cv.prenom }} {{ cv.nom }}</h2>
+          <span class="tagline">{{ cv.titre || 'Stagiaire' }}</span>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Contact</h3>
+          <ul class="contact-list">
+            <li>
+              <span class="material-symbols-outlined">mail</span>
+              <span>{{ cv.email }}</span>
+            </li>
+            @if (cv.telephone) {
+              <li>
+                <span class="material-symbols-outlined">call</span>
+                <span>{{ cv.telephone }}</span>
+              </li>
+            }
+            @if (cv.ecole) {
+              <li>
+                <span class="material-symbols-outlined">school</span>
+                <span>{{ cv.ecole }} ({{ cv.niveauEtudes || 'Étudiant' }})</span>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <!-- Compétences -->
+        <div class="sidebar-section">
+          <h3>Compétences</h3>
+          <div class="skills-badges">
+            @for (c of cv.competences; track c.nom) {
+              <span class="skill-badge">{{ c.nom }}</span>
+            } @empty {
+              <p class="empty-hint">Aucune compétence renseignée.</p>
+            }
+          </div>
+        </div>
+
+        <!-- Certificats -->
+        @if (cv.certificats && cv.certificats.length > 0) {
+          <div class="sidebar-section">
+            <h3>Certifications</h3>
+            <ul class="certifs-list">
+              @for (cert of cv.certificats; track cert.id) {
+                <li>
+                  <span class="material-symbols-outlined cert-icon">verified</span>
+                  <div>
+                    <strong>{{ cert.titre }}</strong>
+                    <small>Vérifié · {{ cert.createdAt | date:'shortDate' }}</small>
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </aside>
+
+      <main class="cv-body">
+        <!-- Résumé / Profil -->
+        <section class="cv-section">
+          <h3 class="section-title">
+            <span class="material-symbols-outlined">badge</span>
+            Profil Professionnel
+          </h3>
+          <p class="bio-text">
+            {{ cv.bio || cv.resume || 'Stagiaire motivé et investi, développant des compétences pratiques et théoriques adaptées aux exigences des projets d’entreprise.' }}
+          </p>
+        </section>
+
+        <!-- Expériences -->
+        <section class="cv-section">
+          <h3 class="section-title">
+            <span class="material-symbols-outlined">work</span>
+            Expériences Professionnelles
+          </h3>
+          @if (cv.experiences && cv.experiences.length > 0) {
+            <div class="timeline">
+              @for (exp of cv.experiences; track exp.id) {
+                <div class="timeline-item">
+                  <div class="timeline-dot"></div>
+                  <div class="timeline-content">
+                    <h4>{{ exp.titrePoste }} · <span class="company">{{ exp.entrepriseNom }}</span></h4>
+                    @if (exp.dateDebut) {
+                      <span class="period">{{ exp.dateDebut | date:'MM/yyyy' }} - {{ exp.dateFin ? (exp.dateFin | date:'MM/yyyy') : 'Actuel' }}</span>
+                    }
+                    @if (exp.description) {
+                      <p>{{ exp.description }}</p>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="empty-hint">Ajoutez des expériences dans votre profil.</p>
+          }
+        </section>
+
+        <!-- Projets Réalisés -->
+        <section class="cv-section">
+          <h3 class="section-title">
+            <span class="material-symbols-outlined">folder_special</span>
+            Projets & Réalisations (Portfolio)
+          </h3>
+          @if (cv.projets && cv.projets.length > 0) {
+            <div class="projects-grid">
+              @for (p of cv.projets; track p.id) {
+                <div class="project-mini-card">
+                  <h4>{{ p.titre }}</h4>
+                  @if (p.description) {
+                    <p>{{ p.description }}</p>
+                  }
+                  @if (p.tags && p.tags.length > 0) {
+                    <div class="tags-row">
+                      @for (t of p.tags; track t) {
+                        <span class="tag-pill">{{ t }}</span>
+                      }
+                    </div>
+                  }
+                  @if (p.lienProjet) {
+                    <a [href]="p.lienProjet" target="_blank" class="link-project">
+                      <span class="material-symbols-outlined">open_in_new</span>
+                      Voir le projet
+                    </a>
+                  }
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="empty-hint">Aucun projet dans le portfolio pour le moment.</p>
+          }
+        </section>
+      </main>
+    </div>
+  }
+</div>

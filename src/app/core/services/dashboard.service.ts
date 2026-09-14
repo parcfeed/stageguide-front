@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../constants/api.constants';
-import { StagiaireDashboard } from '../interfaces/dashboard.interface';
+import { StagiaireDashboard, CalendrierResponse } from '../interfaces/dashboard.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -12,5 +12,9 @@ export class DashboardService {
 
   getStagiaireDashboard(): Observable<StagiaireDashboard> {
     return this.http.get<StagiaireDashboard>(`${API_BASE_URL}/stagiaire/tableau-de-bord`);
+  }
+
+  getCalendrier(): Observable<CalendrierResponse> {
+    return this.http.get<CalendrierResponse>(`${API_BASE_URL}/stagiaire/tableau-de-bord/calendrier`);
   }
 }

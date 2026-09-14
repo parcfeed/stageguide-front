@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../constants/api.constants';
@@ -12,5 +12,13 @@ export class NotificationsService {
 
   listerNotifications(): Observable<NotificationsListResponse> {
     return this.http.get<NotificationsListResponse>(`${API_BASE_URL}/notifications`);
+  }
+
+  marquerCommeLue(id: string): Observable<any> {
+    return this.http.patch(`${API_BASE_URL}/notifications/${id}/lire`, {});
+  }
+
+  marquerToutCommeLue(): Observable<any> {
+    return this.http.patch(`${API_BASE_URL}/notifications/lire-tout`, {});
   }
 }

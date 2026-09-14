@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../constants/api.constants';
@@ -10,7 +10,11 @@ import {
   MentorSuggestionsResponse,
   MentoratStagiaireOverview,
   RepondreDemandeMentoratPayload,
-  RepondreDemandeMentoratResponse
+  RepondreDemandeMentoratResponse,
+  ObjectifMentorat,
+  PlanifierSessionPayload,
+  SessionMentoratItem,
+  EvaluerSoftSkillsPayload
 } from '../interfaces/mentorat.interface';
 
 @Injectable({
@@ -50,5 +54,36 @@ export class MentoratService {
 
   listerStagiairesMentor(): Observable<MentorStagiairesResponse> {
     return this.http.get<MentorStagiairesResponse>(`${API_BASE_URL}/mentor/stagiaires`);
+  }
+
+  // --- Sessions & iCal ---
+  planifierSession(payload: PlanifierSessionPayload): Observable<SessionMentoratItem> {
+    return this.http.post<SessionMentoratItem>(`${API_BASE_URL}/mentor/mentorat/sessions`, payload);
+  }
+
+  telechargerIcal(sessionId: string): Observable<Blob> {
+    return this.http.get(`${API_BASE_URL}/mentor/mentorat/sessions/${sessionId}/ical`, { responseType: 'blob' });
+  }
+
+  // --- Évaluation Soft Skills ---
+  evaluerSoftSkills(payload: EvaluerSoftSkillsPayload): Observable<any> {
+    return this.http.post(`${API_BASE_URL}/mentor/mentorat/evaluations`, payload);
+  }
+
+  // --- Objectifs Mentorat (Stagiaire) ---
+  listerObjectifs(): Observable<ObjectifMentorat[]> {
+    return this.http.get<ObjectifMentorat[]>(`${API_BASE_URL}/stagiaire/mentorat/objectifs`);
+  }
+
+  creerObjectif(payload: { titre: string; statut?: string }): Observable<ObjectifMentorat> {
+    return this.http.post<ObjectifMentorat>(`${API_BASE_URL}/stagiaire/mentorat/objectifs`, payload);
+  }
+
+  modifierObjectif(id: string, payload: { titre?: string; statut?: string }): Observable<ObjectifMentorat> {
+    return this.http.patch<ObjectifMentorat>(`${API_BASE_URL}/stagiaire/mentorat/objectifs/${id}`, payload);
+  }
+
+  supprimerObjectif(id: string): Observable<any> {
+    return this.http.delete(`${API_BASE_URL}/stagiaire/mentorat/objectifs/${id}`);
   }
 }

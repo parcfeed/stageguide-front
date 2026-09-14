@@ -1,4 +1,4 @@
-export interface ParticipantInfo {
+﻿export interface ParticipantInfo {
   id: string;
   prenom: string;
   nom: string;
@@ -11,6 +11,8 @@ export interface MessageItem {
   conversationId: string;
   expediteurId: string;
   contenu: string;
+  fichierId?: string | null;
+  lienRessource?: string | null;
   estSysteme?: boolean;
   creeLe: string;
   expediteur?: ParticipantInfo;
@@ -40,6 +42,8 @@ export interface ConversationDetailResponse {
 
 export interface EnvoyerMessagePayload {
   contenu: string;
+  lienRessource?: string;
+  fichierId?: string;
 }
 
 export interface EnvoyerMessageResponse {
@@ -47,5 +51,13 @@ export interface EnvoyerMessageResponse {
   conversationId: string;
   expediteurId: string;
   contenu: string;
+  fichierId?: string | null;
+  lienRessource?: string | null;
   creeLe: string;
+}
+
+export interface CreerConversationPayload {
+  participantIds: string[];
+  titre?: string;
+  premierMessage?: string;
 }

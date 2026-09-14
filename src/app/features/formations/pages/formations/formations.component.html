@@ -71,7 +71,20 @@
                 <div class="progress-track-mini">
                   <div class="progress-fill" [style.width.%]="inscription.progression"></div>
                 </div>
-                <span class="progress-label">{{ getStatutLabel(inscription.progression) }}</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                  <span class="progress-label">{{ getStatutLabel(inscription.progression) }}</span>
+                  <div style="display: flex; gap: 0.35rem;">
+                    @if (inscription.progression < 100) {
+                      <button class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" (click)="avancerProgression(inscription, 25)">
+                        +25%
+                      </button>
+                    }
+                    <button class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" (click)="ouvrirForum(inscription)">
+                      <span class="material-symbols-outlined" style="font-size: 0.85rem;">forum</span>
+                      Forum
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </article>
@@ -116,10 +129,85 @@
                   <span class="tag">{{ formation.dureeHeures }}h</span>
                 }
               </div>
+
+              <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                <button class="btn btn-primary" style="flex: 1; padding: 0.5rem;" (click)="inscrire(formation)">
+                  <span class="material-symbols-outlined" style="font-size: 1rem;">add_circle</span>
+                  S'inscrire
+                </button>
+                <button class="btn btn-secondary" style="padding: 0.5rem;" (click)="ouvrirForum(formation)" title="Forum de discussion">
+                  <span class="material-symbols-outlined" style="font-size: 1rem;">forum</span>
+                </button>
+              </div>
             </div>
           </article>
         }
       </div>
     }
+  }
+
+  <!-- MODAL FORUM D'ENTRAIDE -->
+  @if (showForumModal()) {
+    <div class="modal-backdrop" (click)="fermerForum()" style="position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+      <div class="glass-card" (click)="$event.stopPropagation()" style="background: #181824; border: 1px solid rgba(255,255,255,0.12); border-radius: 1rem; width: 90%; max-width: 650px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h3 style="margin: 0; font-size: 1.15rem;">Forum : {{ selectedFormationForum()?.titre }}</h3>
+            <p style="color: #94a3b8; font-size: 0.8rem; margin: 0.2rem 0 0;">Échangez avec les autres apprenants et les formateurs.</p>
+          </div>
+          <button (click)="fermerForum()" style="background: transparent; border: none; color: #94a3b8; cursor: pointer;">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div style="padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem;">
+          <!-- Nouveau sujet -->
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem;">
+            <h4 style="margin: 0 0 0.5rem; font-size: 0.95rem;">Poser une question / Nouveau sujet</h4>
+            <input type="text" [(ngModel)]="nouveauSujetTitre" placeholder="Titre de votre question..." class="glass-input" style="width: 100%; box-sizing: border-box; margin-bottom: 0.5rem; padding: 0.5rem;" />
+            <textarea [(ngModel)]="nouveauSujetContenu" placeholder="Détaillez votre question ou remarque..." class="glass-input" rows="2" style="width: 100%; box-sizing: border-box; margin-bottom: 0.5rem; padding: 0.5rem;"></textarea>
+            <button class="btn btn-primary" (click)="creerSujet()" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Publier</button>
+          </div>
+
+          <!-- Liste des sujets -->
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <h4 style="margin: 0; font-size: 0.95rem;">Discussions récentes ({{ sujetsForum().length }})</h4>
+            @for (sujet of sujetsForum(); track sujet.id) {
+              <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.75rem; padding: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem;">
+                  <strong style="color: #fff; font-size: 0.95rem;">{{ sujet.titre }}</strong>
+                  <small style="color: #64748b;">{{ sujet.createdAt | date:'short' }}</small>
+                </div>
+                <p style="color: #cbd5e1; font-size: 0.85rem; margin: 0 0 0.75rem;">{{ sujet.contenu }}</p>
+
+                <!-- Réponses -->
+                @if (sujet.reponses && sujet.reponses.length > 0) {
+                  <div style="border-left: 2px solid rgba(124,93,250,0.3); padding-left: 0.75rem; margin-bottom: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                    @for (rep of sujet.reponses; track rep.id) {
+                      <div style="font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 0.4rem 0.6rem; border-radius: 0.35rem;">
+                        <span style="color: #38bdf8; font-weight: 600;">{{ rep.auteur?.prenom || 'Membre' }} :</span>
+                        <span style="color: #cbd5e1; margin-left: 0.3rem;">{{ rep.contenu }}</span>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Champ réponse -->
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="text" [value]="nouvelleReponseContenu()[sujet.id] || ''" (input)="setReponseTexte(sujet.id, $any($event.target).value)" placeholder="Répondre à ce sujet..." class="glass-input" style="flex: 1; padding: 0.35rem 0.6rem; font-size: 0.8rem;" />
+                  <button class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" (click)="repondreSujet(sujet.id)">Répondre</button>
+                </div>
+              </div>
+            } @empty {
+              <p style="color: #64748b; font-size: 0.85rem; text-align: center;">Aucun sujet pour le moment. Soyez le premier à poser une question !</p>
+            }
+          </div>
+        </div>
+
+        <div style="padding: 1rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: flex-end;">
+          <button class="btn btn-secondary" (click)="fermerForum()">Fermer</button>
+        </div>
+      </div>
+    </div>
   }
 </div>

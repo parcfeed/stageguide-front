@@ -1,8 +1,15 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../constants/api.constants';
-import { AdminUser, AdminPartner, ListUsersResponse, CreatePartnerPayload, UpdatePartnerPayload } from '../interfaces/admin.interface';
+import { 
+  AdminUser, 
+  AdminPartner, 
+  ListUsersResponse, 
+  CreatePartnerPayload, 
+  UpdatePartnerPayload,
+  AdminOffresResponse 
+} from '../interfaces/admin.interface';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -55,5 +62,25 @@ export class AdminService {
 
   deletePartner(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/partners/${id}`);
+  }
+
+  // --- Modération des Offres ---
+  listerOffres(params?: { type?: string; search?: string }): Observable<AdminOffresResponse> {
+    let hp = new HttpParams();
+    if (params?.type) hp = hp.set('type', params.type);
+    if (params?.search) hp = hp.set('search', params.search);
+    return this.http.get<AdminOffresResponse>(`${this.baseUrl}/offres`, { params: hp });
+  }
+
+  validerOffre(type: 'stage' | 'emploi', id: string): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/offres/${type}/${id}/valider`, {});
+  }
+
+  archiverOffre(type: 'stage' | 'emploi', id: string): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/offres/${type}/${id}/archiver`, {});
+  }
+
+  supprimerOffre(type: 'stage' | 'emploi', id: string): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/offres/${type}/${id}`);
   }
 }

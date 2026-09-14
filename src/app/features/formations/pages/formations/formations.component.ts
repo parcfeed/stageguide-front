@@ -2,13 +2,14 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Location } from '@angular/common';
 import { catchError, finalize, of } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 import { FormationsService } from '../../../../core/services/formations.service';
 import { Formation, InscriptionFormation } from '../../../../core/interfaces/formation.interface';
 
 @Component({
   selector: 'app-formations',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './formations.component.html',
   styleUrl: './formations.component.css'
 })
@@ -34,6 +35,14 @@ export class FormationsComponent implements OnInit {
     );
   });
 
+  // Forum state
+  selectedFormationForum = signal<{ id: string; titre: string } | null>(null);
+  sujetsForum = signal<any[]>([]);
+  showForumModal = signal(false);
+  nouveauSujetTitre = signal('');
+  nouveauSujetContenu = signal('');
+  nouvelleReponseContenu = signal<Record<string, string>>({});
+
   ngOnInit(): void {
     this.chargerDonnees();
   }
@@ -47,6 +56,89 @@ export class FormationsComponent implements OnInit {
 
   rechercher(value: string): void {
     this.searchQuery.set(value);
+  }
+
+  inscrire(formation: Formation): void {
+    this.formationsService.inscrire(formation.id).subscribe({
+      next: () => {
+        this.successMessage.set(`Inscription validée à la formation "${formation.titre}" !`);
+        this.chargerDonnees();
+        this.switchTab('mes-formations');
+        setTimeout(() => this.successMessage.set(null), 4000);
+      },
+      error: () => this.errorMessage.set('Erreur lors de l’inscription')
+    });
+  }
+
+  avancerProgression(inscription: InscriptionFormation, ajout: number): void {
+    const nouv = Math.min(100, (inscription.progression || 0) + ajout);
+    const formationId = inscription.formationId || inscription.formation?.id;
+    if (!formationId) return;
+
+    this.formationsService.updateProgression(formationId, { progression: nouv, estTermine: nouv >= 100 }).subscribe({
+      next: () => {
+        this.chargerDonnees();
+      }
+    });
+  }
+
+  ouvrirForum(formation: Formation | InscriptionFormation): void {
+    const fId = 'formation' in formation ? (formation.formation?.id || formation.formationId) : formation.id;
+    const fTitre = 'formation' in formation ? (formation.formation?.titre || 'Formation') : formation.titre;
+    if (!fId) return;
+
+    this.selectedFormationForum.set({ id: fId, titre: fTitre });
+    this.showForumModal.set(true);
+    this.chargerForum(fId);
+  }
+
+  fermerForum(): void {
+    this.showForumModal.set(false);
+    this.selectedFormationForum.set(null);
+  }
+
+  chargerForum(formationId: string): void {
+    this.formationsService.getForum(formationId).subscribe({
+      next: (sujets) => this.sujetsForum.set(sujets || [])
+    });
+  }
+
+  creerSujet(): void {
+    const f = this.selectedFormationForum();
+    if (!f || !this.nouveauSujetTitre().trim() || !this.nouveauSujetContenu().trim()) return;
+
+    this.formationsService.creerSujet(f.id, {
+      titre: this.nouveauSujetTitre(),
+      contenu: this.nouveauSujetContenu()
+    }).subscribe({
+      next: () => {
+        this.nouveauSujetTitre.set('');
+        this.nouveauSujetContenu.set('');
+        this.chargerForum(f.id);
+      }
+    });
+  }
+
+  repondreSujet(sujetId: string): void {
+    const f = this.selectedFormationForum();
+    const texte = this.nouvelleReponseContenu()[sujetId];
+    if (!f || !texte?.trim()) return;
+
+    this.formationsService.repondreSujet(f.id, sujetId, { contenu: texte }).subscribe({
+      next: () => {
+        const map = { ...this.nouvelleReponseContenu() };
+        delete map[sujetId];
+        this.nouvelleReponseContenu.set(map);
+        this.chargerForum(f.id);
+      }
+    });
+  }
+
+  setReponseTexte(sujetId: string, val: string): void {
+    this.nouvelleReponseContenu.set({
+      ...this.nouvelleReponseContenu(),
+      [sujetId]: val
+    });
   }
 
   protected goBack(): void {

@@ -1,0 +1,305 @@
+﻿<div class="reseau-container">
+  <div class="reseau-header">
+    <div class="header-left">
+      <span class="category-tag">COMMUNAUTÉ STAGEGUIDE</span>
+      <h1>Réseau Professionnel</h1>
+      <p class="header-subtitle">
+        Développez votre réseau, connectez-vous avec des stagiaires, mentors et entreprises partenaires.
+      </p>
+    </div>
+
+    <div class="nav-tabs">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab() === 'suggestions'"
+        (click)="setTab('suggestions')">
+        <span class="material-symbols-outlined">auto_awesome</span>
+        Suggestions ({{ suggestions().length }})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab() === 'membres'"
+        (click)="setTab('membres')">
+        <span class="material-symbols-outlined">group</span>
+        Annuaire
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab() === 'connexions'"
+        (click)="setTab('connexions')">
+        <span class="material-symbols-outlined">handshake</span>
+        Mes Connexions ({{ connexionsActives().length }})
+        @if (demandesRecues().length > 0) {
+          <span class="badge-count">{{ demandesRecues().length }}</span>
+        }
+      </button>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert-banner success">
+      <span class="material-symbols-outlined">check_circle</span>
+      <span>{{ successMessage() }}</span>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert-banner error">
+      <span class="material-symbols-outlined">error</span>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- TAB 1: SUGGESTIONS -->
+  @if (activeTab() === 'suggestions') {
+    <div class="tab-content">
+      <div class="section-intro">
+        <h2>Recommandés pour vous</h2>
+        <p>Profils suggérés selon vos compétences, votre école ou votre secteur d'activité.</p>
+      </div>
+
+      @if (suggestions().length === 0 && !isLoading()) {
+        <div class="empty-state">
+          <span class="material-symbols-outlined empty-icon">person_search</span>
+          <h3>Aucune suggestion pour le moment</h3>
+          <p>Complétez vos compétences et votre profil pour obtenir des recommandations ciblées.</p>
+        </div>
+      }
+
+      <div class="grid-cards">
+        @for (sug of suggestions(); track sug.id) {
+          <div class="member-card">
+            <div class="card-top">
+              <div class="avatar-box">
+                <span class="material-symbols-outlined">person</span>
+              </div>
+              <div class="match-badge">
+                <span class="material-symbols-outlined">verified</span>
+                <span>{{ sug.scoreMatch }}% compatibilité</span>
+              </div>
+            </div>
+
+            <div class="card-info">
+              <h3>{{ sug.prenom }} {{ sug.nom }}</h3>
+              <span class="role-pill role-{{ sug.role.toLowerCase() }}">{{ sug.role }}</span>
+
+              @if (sug.poste || sug.entreprise) {
+                <p class="company-text">
+                  <span class="material-symbols-outlined">work</span>
+                  {{ sug.poste || 'Membre' }} @if (sug.entreprise) { · {{ sug.entreprise }} }
+                </p>
+              }
+
+              @if (sug.ecole) {
+                <p class="school-text">
+                  <span class="material-symbols-outlined">school</span>
+                  {{ sug.ecole }}
+                </p>
+              }
+
+              @if (sug.raisons && sug.raisons.length > 0) {
+                <div class="reasons-list">
+                  @for (r of sug.raisons; track r) {
+                    <span class="reason-tag">💡 {{ r }}</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="card-actions">
+              <button class="btn-connect" (click)="ouvrirModalConnexion(sug)">
+                <span class="material-symbols-outlined">person_add</span>
+                Se connecter
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- TAB 2: ANNUAIRE MEMBRES -->
+  @if (activeTab() === 'membres') {
+    <div class="tab-content">
+      <div class="search-filter-bar">
+        <div class="search-input-wrap">
+          <span class="material-symbols-outlined">search</span>
+          <input 
+            type="text" 
+            placeholder="Rechercher par nom, compétences, école ou entreprise..." 
+            [(ngModel)]="filtreRecherche"
+            (keyup.enter)="rechercherMembres()"
+          />
+        </div>
+        <select [(ngModel)]="filtreRole" (change)="rechercherMembres()" class="select-role">
+          <option value="">Tous les rôles</option>
+          <option value="STAGIAIRE">Stagiaires</option>
+          <option value="MENTOR">Mentors</option>
+          <option value="ENTREPRISE">Entreprises</option>
+        </select>
+        <button class="btn-search" (click)="rechercherMembres()">Filtrer</button>
+      </div>
+
+      <div class="grid-cards">
+        @for (m of membres(); track m.id) {
+          <div class="member-card">
+            <div class="card-top">
+              <div class="avatar-box">
+                <span class="material-symbols-outlined">account_circle</span>
+              </div>
+              <span class="role-pill role-{{ m.role.toLowerCase() }}">{{ m.role }}</span>
+            </div>
+
+            <div class="card-info">
+              <h3>{{ m.prenom }} {{ m.nom }}</h3>
+              @if (m.poste || m.entreprise) {
+                <p class="company-text">
+                  <span class="material-symbols-outlined">business_center</span>
+                  {{ m.poste || 'Collaborateur' }} @if (m.entreprise) { · {{ m.entreprise }} }
+                </p>
+              }
+              @if (m.ecole) {
+                <p class="school-text">
+                  <span class="material-symbols-outlined">school</span>
+                  {{ m.ecole }} @if (m.niveauEtudes) { ({{ m.niveauEtudes }}) }
+                </p>
+              }
+              @if (m.bio) {
+                <p class="bio-snippet">{{ m.bio }}</p>
+              }
+            </div>
+
+            <div class="card-actions">
+              <button class="btn-connect" (click)="ouvrirModalConnexion(m)">
+                <span class="material-symbols-outlined">person_add</span>
+                Ajouter
+              </button>
+              <button class="btn-msg" (click)="contacter(m.id)">
+                <span class="material-symbols-outlined">chat</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- TAB 3: CONNEXIONS -->
+  @if (activeTab() === 'connexions') {
+    <div class="tab-content">
+      <!-- Demandes reçues -->
+      @if (demandesRecues().length > 0) {
+        <div class="section-group">
+          <h2 class="group-title">
+            <span class="material-symbols-outlined">mark_email_unread</span>
+            Demandes reçues en attente ({{ demandesRecues().length }})
+          </h2>
+          <div class="requests-grid">
+            @for (dem of demandesRecues(); track dem.id) {
+              <div class="request-card">
+                <div class="request-info">
+                  <h4>{{ dem.demandeur?.prenom }} {{ dem.demandeur?.nom }}</h4>
+                  <span class="role-pill role-{{ dem.demandeur?.role?.toLowerCase() }}">{{ dem.demandeur?.role }}</span>
+                  @if (dem.message) {
+                    <p class="quote">« {{ dem.message }} »</p>
+                  }
+                </div>
+                <div class="request-actions">
+                  <button class="btn-accept" (click)="repondreDemande(dem.id, 'ACCEPTEE')">
+                    <span class="material-symbols-outlined">check</span>
+                    Accepter
+                  </button>
+                  <button class="btn-reject" (click)="repondreDemande(dem.id, 'REFUSEE')">
+                    <span class="material-symbols-outlined">close</span>
+                    Refuser
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Connexions Actives -->
+      <div class="section-group">
+        <h2 class="group-title">
+          <span class="material-symbols-outlined">people</span>
+          Mes contacts ({{ connexionsActives().length }})
+        </h2>
+
+        @if (connexionsActives().length === 0) {
+          <div class="empty-state">
+            <span class="material-symbols-outlined empty-icon">handshake</span>
+            <h3>Pas encore de contacts dans votre réseau</h3>
+            <p>Consultez les suggestions pour démarrer vos premières connexions professionnelles !</p>
+          </div>
+        }
+
+        <div class="grid-cards">
+          @for (c of connexionsActives(); track c.id) {
+            <div class="member-card connected">
+              <div class="card-top">
+                <div class="avatar-box">
+                  <span class="material-symbols-outlined">verified_user</span>
+                </div>
+                <span class="status-connected">Connecté</span>
+              </div>
+              <div class="card-info">
+                <h3>{{ c.contact.prenom }} {{ c.contact.nom }}</h3>
+                <span class="role-pill role-{{ c.contact.role.toLowerCase() }}">{{ c.contact.role }}</span>
+                @if (c.contact.poste || c.contact.entreprise) {
+                  <p class="company-text">
+                    <span class="material-symbols-outlined">work</span>
+                    {{ c.contact.poste }} @if (c.contact.entreprise) { · {{ c.contact.entreprise }} }
+                  </p>
+                }
+              </div>
+              <div class="card-actions">
+                <button class="btn-msg full-width" (click)="contacter(c.contact.id)">
+                  <span class="material-symbols-outlined">chat</span>
+                  Envoyer un message
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL DEMANDE CONNEXION -->
+  @if (showConnectModal()) {
+    <div class="modal-backdrop" (click)="fermerModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Se connecter avec {{ selectedDestinataire()?.prenom }} {{ selectedDestinataire()?.nom }}</h3>
+          <button class="btn-close" (click)="fermerModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">
+            Envoyez un message pour vous présenter et expliquer votre démarche.
+          </p>
+          <textarea 
+            rows="4" 
+            [(ngModel)]="messageConnexion" 
+            placeholder="Écrivez votre message d'introduction..."
+            class="textarea-input">
+          </textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" (click)="fermerModal()">Annuler</button>
+          <button class="btn-submit" [disabled]="isSubmitting()" (click)="envoyerDemande()">
+            @if (isSubmitting()) {
+              Envoi...
+            } @else {
+              <span class="material-symbols-outlined">send</span>
+              Envoyer l'invitation
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

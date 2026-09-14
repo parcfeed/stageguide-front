@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Candidature, CreerCandidatureDto } from '../interfaces/candidature.interface';
@@ -23,5 +23,12 @@ export class CandidatureService {
    */
   creerCandidature(donnees: CreerCandidatureDto): Observable<Candidature> {
     return this.http.post<Candidature>(this.apiUrl, donnees);
+  }
+
+  /**
+   * Annuler une candidature
+   */
+  annulerCandidature(id: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${id}/annuler`, {});
   }
 }

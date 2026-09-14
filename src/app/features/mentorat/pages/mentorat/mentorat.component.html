@@ -318,7 +318,24 @@
                 <span class="material-symbols-outlined empty-icon-mini">mail</span>
                 <p>Aucune demande d'accompagnement en attente pour l'instant.</p>
               </div>
-            }
+          <div class="card glass-card" style="margin-top: 1.5rem;">
+            <div class="card-heading">
+              <p class="eyebrow">Agenda</p>
+              <h2>Export de Sessions & Synchronisation</h2>
+              <p class="card-desc">Exportez vos rendez-vous de mentorat vers Google Calendar, Outlook ou Apple Calendar.</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.5rem; padding: 0.75rem 1rem;">
+                <div>
+                  <strong>Session de suivi mentorat</strong>
+                  <small style="color: #94a3b8; display: block;">Format iCalendar (.ics) universel</small>
+                </div>
+                <button class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;" (click)="telechargerIcal('session-active')">
+                  <span class="material-symbols-outlined" style="font-size: 1rem;">calendar_add_on</span>
+                  Télécharger .ics
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

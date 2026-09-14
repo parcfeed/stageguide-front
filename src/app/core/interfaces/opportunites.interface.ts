@@ -1,4 +1,4 @@
-export interface Partner {
+﻿export interface Partner {
   id: string;
   nomEntreprise: string;
   ville: string;
@@ -25,6 +25,9 @@ export interface OffreStage {
   createdAt: string;
   updatedAt: string;
   partenaire?: Partner | null;
+  matchScore?: number;
+  score?: number;
+  raisons?: string[];
 }
 
 export interface OffreEmploi {
@@ -44,6 +47,9 @@ export interface OffreEmploi {
   createdAt: string;
   updatedAt: string;
   partenaire?: Partner | null;
+  matchScore?: number;
+  score?: number;
+  raisons?: string[];
 }
 
 export interface ListerOffresStageDto {
@@ -68,4 +74,30 @@ export interface OffresStageResponse {
 export interface OffresEmploiResponse {
   filtres: ListerOffresEmploiDto;
   offres: OffreEmploi[];
+}
+
+export interface OffreSauvegardee {
+  id: string;
+  utilisateurId: string;
+  offreStageId?: string | null;
+  offreEmploiId?: string | null;
+  createdAt: string;
+  offreStage?: OffreStage | null;
+  offreEmploi?: OffreEmploi | null;
+}
+
+export interface AlerteRecherche {
+  id: string;
+  utilisateurId: string;
+  titre: string;
+  message: string;
+  type?: string;
+  createdAt: string;
+}
+
+export interface CreerAlerteDto {
+  domaine?: string;
+  ville?: string;
+  typeOffre?: 'STAGE' | 'EMPLOI' | 'TOUT';
+  motsCles?: string;
 }

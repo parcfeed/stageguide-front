@@ -1,0 +1,140 @@
+﻿<div class="admin-offres-container">
+  <div class="admin-header">
+    <div class="header-info">
+      <span class="category-tag">ESPACE ADMINISTRATEUR</span>
+      <h1>Modération des Offres</h1>
+      <p class="subtitle">Validez, diffusez ou archivez les offres de stage et d’emploi soumises par les entreprises partenaires.</p>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="alert-success">
+      <span class="material-symbols-outlined">check_circle</span>
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert-error">
+      <span class="material-symbols-outlined">error</span>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="filter-card">
+    <div class="search-input-wrap">
+      <span class="material-symbols-outlined">search</span>
+      <input 
+        type="text" 
+        placeholder="Rechercher par titre, entreprise, ville..." 
+        [(ngModel)]="filtreRecherche"
+        (keyup.enter)="chargerOffres()"
+      />
+    </div>
+
+    <div class="tabs-group">
+      <button 
+        class="tab-filter-btn" 
+        [class.active]="filtreType() === 'TOUT'"
+        (click)="filtreType.set('TOUT'); chargerOffres()">
+        Toutes les offres
+      </button>
+      <button 
+        class="tab-filter-btn" 
+        [class.active]="filtreType() === 'STAGE'"
+        (click)="filtreType.set('STAGE'); chargerOffres()">
+        Stages
+      </button>
+      <button 
+        class="tab-filter-btn" 
+        [class.active]="filtreType() === 'EMPLOI'"
+        (click)="filtreType.set('EMPLOI'); chargerOffres()">
+        Emplois
+      </button>
+    </div>
+  </div>
+
+  <!-- Offers Table -->
+  <div class="table-card">
+    @if (isLoading()) {
+      <div class="loading-state">
+        <span class="material-symbols-outlined spin">progress_activity</span>
+        <p>Chargement des offres en cours...</p>
+      </div>
+    } @else if (offres().length === 0) {
+      <div class="empty-state">
+        <span class="material-symbols-outlined empty-icon">assignment_turned_in</span>
+        <h3>Aucune offre trouvée</h3>
+        <p>Toutes les offres soumises ont été traitées ou aucun résultat ne correspond aux filtres.</p>
+      </div>
+    } @else {
+      <table class="offres-table">
+        <thead>
+          <tr>
+            <th>Offre</th>
+            <th>Type</th>
+            <th>Entreprise & Ville</th>
+            <th>Statut</th>
+            <th>Date</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (offre of offres(); track offre.id) {
+            <tr>
+              <td>
+                <div class="offer-cell">
+                  <strong>{{ offre.titre }}</strong>
+                  <small>{{ offre.domaine || 'Général' }}</small>
+                </div>
+              </td>
+              <td>
+                <span class="type-pill type-{{ offre.type.toLowerCase() }}">
+                  {{ offre.type }}
+                </span>
+              </td>
+              <td>
+                <div class="company-cell">
+                  <span>{{ offre.partenaire?.nomEntreprise || 'Partenaire' }}</span>
+                  <small class="location">
+                    <span class="material-symbols-outlined">location_on</span>
+                    {{ offre.ville }} @if (offre.remote) { (Télétravail) }
+                  </small>
+                </div>
+              </td>
+              <td>
+                @if (offre.isArchived) {
+                  <span class="status-pill status-archived">Archivée</span>
+                } @else {
+                  <span class="status-pill status-active">Publiée</span>
+                }
+              </td>
+              <td>
+                <span class="date-text">{{ offre.datePublication | date:'shortDate' }}</span>
+              </td>
+              <td>
+                <div class="actions-cell">
+                  @if (offre.isArchived) {
+                    <button class="btn-action btn-validate" title="Valider et publier" (click)="validerOffre(offre)">
+                      <span class="material-symbols-outlined">check</span>
+                      Publier
+                    </button>
+                  } @else {
+                    <button class="btn-action btn-archive" title="Archiver" (click)="archiverOffre(offre)">
+                      <span class="material-symbols-outlined">archive</span>
+                      Archiver
+                    </button>
+                  }
+                  <button class="btn-action btn-delete" title="Supprimer" (click)="supprimerOffre(offre)">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>

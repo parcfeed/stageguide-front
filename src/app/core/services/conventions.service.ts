@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../constants/api.constants';
@@ -15,5 +15,9 @@ export class ConventionsService {
 
   creer(payload: CreerConventionPayload): Observable<CreerConventionResponse> {
     return this.http.post<CreerConventionResponse>(this.baseUrl, payload);
+  }
+
+  changerStatut(id: string, statut: string): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/${id}/statut`, { statut });
   }
 }

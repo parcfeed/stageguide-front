@@ -1,4 +1,4 @@
-import { UserRole } from './user.interface';
+﻿import { UserRole } from './user.interface';
 
 export interface AdminUser {
   id: string;
@@ -47,4 +47,26 @@ export interface UpdatePartnerPayload {
   ville?: string;
   email?: string;
   lienSiteWeb?: string;
+}
+
+export interface AdminOffreItem {
+  id: string;
+  type: 'STAGE' | 'EMPLOI';
+  titre: string;
+  description: string;
+  ville: string;
+  domaine?: string;
+  remote: boolean;
+  isArchived: boolean;
+  datePublication: string;
+  partenaire?: {
+    id: string;
+    nomEntreprise: string;
+    ville: string;
+  };
+}
+
+export interface AdminOffresResponse {
+  total: number;
+  offres: AdminOffreItem[];
 }

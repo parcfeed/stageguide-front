@@ -19,16 +19,25 @@ export class OpportunitesComponent implements OnInit {
   private readonly candidatureService = inject(CandidatureService);
   private readonly router = inject(Router);
 
-  // Active tab management
-  activeTab = signal<'stage' | 'emploi'>('stage');
+  // Active tab management: 'stage' | 'emploi' | 'recommandations' | 'favoris'
+  activeTab = signal<'stage' | 'emploi' | 'recommandations' | 'favoris'>('stage');
 
   // State indicators
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
+  successMessage = signal<string | null>(null);
 
   // Lists of offers
   offresStage = signal<OffreStage[]>([]);
   offresEmploi = signal<OffreEmploi[]>([]);
+  recommandations = signal<(OffreStage | OffreEmploi)[]>([]);
+  offresSauvegardees = signal<any[]>([]);
+
+  // Alertes
+  alertes = signal<any[]>([]);
+  showAlertesModal = signal(false);
+  nouvelleAlerteDomaine = signal('');
+  nouvelleAlerteVille = signal('');
 
   // Filter models
   searchQuery = signal('');
@@ -76,9 +85,37 @@ export class OpportunitesComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    const isStage = this.activeTab() === 'stage';
+    const tab = this.activeTab();
 
-    if (isStage) {
+    if (tab === 'recommandations') {
+      this.opportunitesService.getRecommandationsStage().subscribe({
+        next: (stages) => {
+          this.recommandations.set(stages || []);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.errorMessage.set('Erreur lors du calcul des recommandations');
+          this.isLoading.set(false);
+        }
+      });
+      return;
+    }
+
+    if (tab === 'favoris') {
+      this.opportunitesService.listerOffresSauvegardees().subscribe({
+        next: (favs) => {
+          this.offresSauvegardees.set(favs || []);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.errorMessage.set('Erreur lors du chargement des offres sauvegardées');
+          this.isLoading.set(false);
+        }
+      });
+      return;
+    }
+
+    if (tab === 'stage') {
       this.opportunitesService.listerOffresStage({
         search: this.searchQuery() || undefined,
         ville: this.villeQuery() || undefined,
@@ -116,6 +153,67 @@ export class OpportunitesComponent implements OnInit {
   }
 
   /**
+   * Sauvegarder ou retirer des favoris
+   */
+  toggleFavori(offre: OffreStage | OffreEmploi, event: Event): void {
+    event.stopPropagation();
+    const isStage = 'duree' in offre;
+    const payload = isStage ? { offreStageId: offre.id } : { offreEmploiId: offre.id };
+
+    this.opportunitesService.sauvegarderOffre(payload).subscribe({
+      next: () => {
+        this.successMessage.set('Offre ajoutée aux favoris !');
+        setTimeout(() => this.successMessage.set(null), 3000);
+      },
+      error: () => {}
+    });
+  }
+
+  supprimerFavori(favId: string, event: Event): void {
+    event.stopPropagation();
+    this.opportunitesService.supprimerOffreSauvegardee(favId).subscribe({
+      next: () => {
+        this.rechercher();
+      }
+    });
+  }
+
+  // --- Alertes ---
+  ouvrirModalAlertes(): void {
+    this.showAlertesModal.set(true);
+    this.chargerAlertes();
+  }
+
+  fermerModalAlertes(): void {
+    this.showAlertesModal.set(false);
+  }
+
+  chargerAlertes(): void {
+    this.opportunitesService.listerAlertes().subscribe({
+      next: (res) => this.alertes.set(res || [])
+    });
+  }
+
+  creerAlerte(): void {
+    this.opportunitesService.creerAlerte({
+      domaine: this.nouvelleAlerteDomaine() || undefined,
+      ville: this.nouvelleAlerteVille() || undefined
+    }).subscribe({
+      next: () => {
+        this.nouvelleAlerteDomaine.set('');
+        this.nouvelleAlerteVille.set('');
+        this.chargerAlertes();
+      }
+    });
+  }
+
+  supprimerAlerte(id: string): void {
+    this.opportunitesService.supprimerAlerte(id).subscribe({
+      next: () => this.chargerAlertes()
+    });
+  }
+
+  /**
    * Reset all search query variables
    */
   reinitialiser(): void {
@@ -129,7 +227,7 @@ export class OpportunitesComponent implements OnInit {
   /**
    * Switch between stages and emplois
    */
-  switchTab(tab: 'stage' | 'emploi'): void {
+  switchTab(tab: 'stage' | 'emploi' | 'recommandations' | 'favoris'): void {
     if (this.activeTab() === tab) return;
     this.activeTab.set(tab);
     this.rechercher();

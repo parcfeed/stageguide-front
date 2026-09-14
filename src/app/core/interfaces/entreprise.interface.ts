@@ -1,4 +1,4 @@
-import { User } from './user.interface';
+﻿import { User } from './user.interface';
 import { OffreStage, OffreEmploi } from './opportunites.interface';
 import { Candidature } from './candidature.interface';
 
@@ -65,10 +65,33 @@ export interface Entretien {
   dateProposee: string;
   lieu: string | null;
   message: string | null;
+  statut?: string;
   createdAt: string;
   updatedAt: string;
   candidature?: Candidature;
   utilisateur?: User;
   offreStage?: OffreStage | null;
   offreEmploi?: OffreEmploi | null;
+}
+
+export interface EntrepriseStatistiques {
+  totalOffresStage: number;
+  totalOffresEmploi: number;
+  offresActives: number;
+  offresArchivees: number;
+  totalCandidatures: number;
+  candidaturesAcceptees: number;
+  candidaturesRefusees: number;
+  candidaturesEnAttente: number;
+  tauxAcceptation: number;
+  totalEntretiens: number;
+  entretiensConfirmes: number;
+  satisfactionMoyenne: number;
+}
+
+export interface EvaluerStagiairePayload {
+  stagiaireId: string;
+  candidatureId?: string;
+  note: number;
+  commentaire?: string;
 }

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../constants/api.constants';
@@ -6,7 +6,8 @@ import {
   ConversationsListResponse,
   ConversationDetailResponse,
   EnvoyerMessagePayload,
-  EnvoyerMessageResponse
+  EnvoyerMessageResponse,
+  CreerConversationPayload
 } from '../interfaces/message.interface';
 
 @Injectable({
@@ -28,5 +29,9 @@ export class MessagesService {
       `${API_BASE_URL}/messages/${conversationId}/messages`,
       payload
     );
+  }
+
+  creerConversation(payload: CreerConversationPayload): Observable<any> {
+    return this.http.post(`${API_BASE_URL}/messages/conversations`, payload);
   }
 }

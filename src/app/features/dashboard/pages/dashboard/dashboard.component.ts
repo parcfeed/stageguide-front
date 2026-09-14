@@ -21,6 +21,7 @@ export class DashboardComponent implements OnInit {
 
   protected readonly user = signal<User | null>(null);
   protected readonly dashboard = signal<StagiaireDashboard | null>(null);
+  protected readonly calendrier = signal<any[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isLoggingOut = signal(false);
@@ -123,6 +124,10 @@ export class DashboardComponent implements OnInit {
       if (dashboard) {
         this.dashboard.set(dashboard);
       }
+    });
+
+    this.dashboardService.getCalendrier().subscribe({
+      next: (res) => this.calendrier.set(res.evenements || [])
     });
   }
 

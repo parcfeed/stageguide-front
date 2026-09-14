@@ -265,6 +265,19 @@ export class MentoratComponent implements OnInit {
           'Impossible de charger votre espace mentor.'
         ));
       }
+  telechargerIcal(sessionId: string): void {
+    this.mentoratService.telechargerIcal(sessionId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `session-mentorat-${sessionId}.ics`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        this.successMessage.set('Session exportée au format iCal (.ics) avec succès !');
+        setTimeout(() => this.successMessage.set(null), 3000);
+      },
+      error: () => this.errorMessage.set('Erreur lors du téléchargement du fichier iCal')
     });
   }
 }

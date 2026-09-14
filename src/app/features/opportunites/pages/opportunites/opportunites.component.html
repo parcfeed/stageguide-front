@@ -27,7 +27,35 @@
       <span class="material-symbols-outlined">work</span>
       Offres d'Emploi
     </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'recommandations'"
+      (click)="switchTab('recommandations')"
+    >
+      <span class="material-symbols-outlined">auto_awesome</span>
+      Recommandés pour moi
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'favoris'"
+      (click)="switchTab('favoris')"
+    >
+      <span class="material-symbols-outlined">bookmark</span>
+      Favoris ({{ offresSauvegardees().length }})
+    </button>
+
+    <button class="btn-alerte-trigger" (click)="ouvrirModalAlertes()">
+      <span class="material-symbols-outlined">add_alert</span>
+      Mes Alertes
+    </button>
   </div>
+
+  @if (successMessage()) {
+    <div class="alert-success-banner">
+      <span class="material-symbols-outlined">check_circle</span>
+      {{ successMessage() }}
+    </div>
+  }
 
   <div class="filters-card glass-card">
     <div class="filters-grid">
@@ -353,6 +381,66 @@
             </button>
           }
           <button class="btn btn-secondary" (click)="fermerDetail()">Fermer</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL ALERTES DE RECHERCHE -->
+  @if (showAlertesModal()) {
+    <div class="modal-backdrop" (click)="fermerModalAlertes()">
+      <div class="modal-content glass-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-area">
+            <h3>Mes Alertes de Recherche</h3>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">Recevez une notification en temps réel dès qu'une offre correspondant à vos critères est publiée.</p>
+          </div>
+          <button class="modal-close" (click)="fermerModalAlertes()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1.5rem;">
+            <h4 style="margin: 0 0 0.75rem; font-size: 0.95rem;">Créer une nouvelle alerte</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; align-items: flex-end;">
+              <div>
+                <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 0.2rem;">Domaine</label>
+                <input type="text" [(ngModel)]="nouvelleAlerteDomaine" placeholder="Ex: Informatique, Design..." class="glass-input" style="padding: 0.5rem;" />
+              </div>
+              <div>
+                <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 0.2rem;">Ville</label>
+                <input type="text" [(ngModel)]="nouvelleAlerteVille" placeholder="Ex: Douala, Yaoundé..." class="glass-input" style="padding: 0.5rem;" />
+              </div>
+              <button class="btn btn-primary" (click)="creerAlerte()" style="padding: 0.5rem 1rem;">
+                <span class="material-symbols-outlined">notifications_active</span>
+                Créer
+              </button>
+            </div>
+          </div>
+
+          <h4 style="margin: 0 0 0.75rem; font-size: 0.95rem;">Alertes actives ({{ alertes().length }})</h4>
+          @if (alertes().length === 0) {
+            <p style="color: #64748b; font-size: 0.85rem; text-align: center; padding: 1.5rem;">Aucune alerte active configurée.</p>
+          } @else {
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              @for (alt of alertes(); track alt.id) {
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.5rem; padding: 0.75rem 1rem;">
+                  <div>
+                    <strong>{{ alt.titre }}</strong>
+                    <small style="color: #94a3b8; display: block;">{{ alt.message }}</small>
+                  </div>
+                  <button (click)="supprimerAlerte(alt.id)" style="background: transparent; border: none; color: #f87171; cursor: pointer;">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="fermerModalAlertes()">Fermer</button>
         </div>
       </div>
     </div>

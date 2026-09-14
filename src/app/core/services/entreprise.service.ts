@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { OffreStage, OffreEmploi } from '../interfaces/opportunites.interface';
@@ -9,7 +9,9 @@ import {
   CreateOffreEmploiPayload, 
   UpdateOffreEmploiPayload, 
   PlanifierEntretienPayload, 
-  Entretien 
+  Entretien,
+  EntrepriseStatistiques,
+  EvaluerStagiairePayload
 } from '../interfaces/entreprise.interface';
 import { API_BASE_URL } from '../constants/api.constants';
 
@@ -59,6 +61,10 @@ export class EntrepriseService {
     return this.http.get<Candidature[]>(`${this.apiUrl}/candidatures`);
   }
 
+  changerStatutCandidature(id: string, statut: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/candidatures/${id}/statut`, { statut });
+  }
+
   // --- Entretiens ---
   listerEntretiens(): Observable<Entretien[]> {
     return this.http.get<Entretien[]>(`${this.apiUrl}/entretiens`);
@@ -66,5 +72,19 @@ export class EntrepriseService {
 
   planifierEntretien(payload: PlanifierEntretienPayload): Observable<Entretien> {
     return this.http.post<Entretien>(`${this.apiUrl}/entretiens`, payload);
+  }
+
+  changerStatutEntretien(id: string, statut: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/entretiens/${id}/statut`, { statut });
+  }
+
+  // --- Statistiques détaillées ---
+  getStatistiques(): Observable<EntrepriseStatistiques> {
+    return this.http.get<EntrepriseStatistiques>(`${this.apiUrl}/statistiques`);
+  }
+
+  // --- Évaluation croisée ---
+  evaluerStagiaire(payload: EvaluerStagiairePayload): Observable<any> {
+    return this.http.post(`${this.apiUrl}/evaluations`, payload);
   }
 }
