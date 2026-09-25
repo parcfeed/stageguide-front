@@ -34,6 +34,13 @@
     </div>
   }
 
+  @if (successMessage() && !isLoading()) {
+    <div class="alert alert-success">
+      <span class="material-symbols-outlined" style="font-size: 1.25rem;">check_circle</span>
+      {{ successMessage() }}
+    </div>
+  }
+
   @if (!isLoading() && activeTab() === 'mes-formations') {
     @if (mesInscriptions().length === 0) {
       <div class="empty-state glass-card">
@@ -73,17 +80,10 @@
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
                   <span class="progress-label">{{ getStatutLabel(inscription.progression) }}</span>
-                  <div style="display: flex; gap: 0.35rem;">
-                    @if (inscription.progression < 100) {
-                      <button class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" (click)="avancerProgression(inscription, 25)">
-                        +25%
-                      </button>
-                    }
-                    <button class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" (click)="ouvrirForum(inscription)">
-                      <span class="material-symbols-outlined" style="font-size: 0.85rem;">forum</span>
-                      Forum
-                    </button>
-                  </div>
+                  <button class="btn btn-secondary" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" (click)="ouvrirForum(inscription)">
+                    <span class="material-symbols-outlined" style="font-size: 0.85rem;">forum</span>
+                    Forum
+                  </button>
                 </div>
               </div>
             </div>
@@ -161,6 +161,13 @@
         </div>
 
         <div style="padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem;">
+          @if (forumErreur()) {
+            <div class="alert alert-error" style="margin: 0;">
+              <span class="material-symbols-outlined" style="font-size: 1.1rem;">error</span>
+              {{ forumErreur() }}
+            </div>
+          }
+
           <!-- Nouveau sujet -->
           <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem;">
             <h4 style="margin: 0 0 0.5rem; font-size: 0.95rem;">Poser une question / Nouveau sujet</h4>

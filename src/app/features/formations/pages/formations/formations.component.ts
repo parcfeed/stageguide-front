@@ -42,6 +42,7 @@ export class FormationsComponent implements OnInit {
   nouveauSujetTitre = signal('');
   nouveauSujetContenu = signal('');
   nouvelleReponseContenu = signal<Record<string, string>>({});
+  forumErreur = signal<string | null>(null);
 
   ngOnInit(): void {
     this.chargerDonnees();
@@ -70,18 +71,6 @@ export class FormationsComponent implements OnInit {
     });
   }
 
-  avancerProgression(inscription: InscriptionFormation, ajout: number): void {
-    const nouv = Math.min(100, (inscription.progression || 0) + ajout);
-    const formationId = inscription.formationId || inscription.formation?.id;
-    if (!formationId) return;
-
-    this.formationsService.updateProgression(formationId, { progression: nouv, estTermine: nouv >= 100 }).subscribe({
-      next: () => {
-        this.chargerDonnees();
-      }
-    });
-  }
-
   ouvrirForum(formation: Formation | InscriptionFormation): void {
     const fId = 'formation' in formation ? (formation.formation?.id || formation.formationId) : formation.id;
     const fTitre = 'formation' in formation ? (formation.formation?.titre || 'Formation') : formation.titre;
@@ -98,8 +87,10 @@ export class FormationsComponent implements OnInit {
   }
 
   chargerForum(formationId: string): void {
+    this.forumErreur.set(null);
     this.formationsService.getForum(formationId).subscribe({
-      next: (sujets) => this.sujetsForum.set(sujets || [])
+      next: (sujets) => this.sujetsForum.set(sujets || []),
+      error: () => this.forumErreur.set('Impossible de charger le forum de cette formation.')
     });
   }
 
@@ -114,8 +105,10 @@ export class FormationsComponent implements OnInit {
       next: () => {
         this.nouveauSujetTitre.set('');
         this.nouveauSujetContenu.set('');
+        this.forumErreur.set(null);
         this.chargerForum(f.id);
-      }
+      },
+      error: () => this.forumErreur.set('Impossible de publier votre sujet pour le moment.')
     });
   }
 
@@ -129,8 +122,10 @@ export class FormationsComponent implements OnInit {
         const map = { ...this.nouvelleReponseContenu() };
         delete map[sujetId];
         this.nouvelleReponseContenu.set(map);
+        this.forumErreur.set(null);
         this.chargerForum(f.id);
-      }
+      },
+      error: () => this.forumErreur.set("Impossible d'envoyer votre réponse pour le moment.")
     });
   }
 

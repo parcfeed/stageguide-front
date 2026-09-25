@@ -8,6 +8,14 @@
       <h1>Notifications</h1>
       <p class="header-subtitle">Consultez vos notifications et restez informé de votre activité.</p>
     </div>
+    @if (unreadCount() > 0) {
+      <div class="header-right">
+        <button class="btn btn-secondary" (click)="marquerToutCommeLue()" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 500; cursor: pointer;">
+          <span class="material-symbols-outlined" style="font-size: 1.2rem;">done_all</span>
+          Tout marquer comme lu ({{ unreadCount() }})
+        </button>
+      </div>
+    }
   </div>
 
   @if (errorMessage()) {
@@ -32,7 +40,7 @@
     } @else {
       <div class="notifications-list">
         @for (notif of sortedNotifications(); track notif.id) {
-          <div class="notification-card" [class.unread]="!notif.estLue">
+          <div class="notification-card" [class.unread]="!notif.estLue" (click)="marquerCommeLue(notif)" [style.cursor]="!notif.estLue ? 'pointer' : 'default'">
             <div class="card-glow"></div>
             @if (!notif.estLue) {
               <div class="unread-dot"></div>
@@ -47,7 +55,7 @@
               </div>
               <div class="notif-footer">
                 <span class="notif-badge" [class.read]="notif.estLue">
-                  {{ notif.estLue ? 'Lu' : 'Non lu' }}
+                  {{ notif.estLue ? 'Lu' : 'Non lu - Cliquer pour marquer comme lu' }}
                 </span>
               </div>
             </div>

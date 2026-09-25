@@ -11,8 +11,6 @@ export interface MessageItem {
   conversationId: string;
   expediteurId: string;
   contenu: string;
-  fichierId?: string | null;
-  lienRessource?: string | null;
   estSysteme?: boolean;
   creeLe: string;
   expediteur?: ParticipantInfo;
@@ -42,8 +40,6 @@ export interface ConversationDetailResponse {
 
 export interface EnvoyerMessagePayload {
   contenu: string;
-  lienRessource?: string;
-  fichierId?: string;
 }
 
 export interface EnvoyerMessageResponse {
@@ -51,8 +47,6 @@ export interface EnvoyerMessageResponse {
   conversationId: string;
   expediteurId: string;
   contenu: string;
-  fichierId?: string | null;
-  lienRessource?: string | null;
   creeLe: string;
 }
 

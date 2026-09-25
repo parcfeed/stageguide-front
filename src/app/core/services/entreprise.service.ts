@@ -14,6 +14,7 @@ import {
   EvaluerStagiairePayload
 } from '../interfaces/entreprise.interface';
 import { API_BASE_URL } from '../constants/api.constants';
+import { EntrepriseProfile } from '../interfaces/profile.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -54,6 +55,15 @@ export class EntrepriseService {
 
   archiverOffreEmploi(id: string): Observable<OffreEmploi> {
     return this.http.patch<OffreEmploi>(`${this.apiUrl}/offres-emploi/${id}/archive`, {});
+  }
+
+  // --- Profil entreprise ---
+  getEntrepriseProfile(): Observable<EntrepriseProfile> {
+    return this.http.get<EntrepriseProfile>(`${this.apiUrl}/profil`);
+  }
+
+  getEntrepriseProfileById(userId: string): Observable<EntrepriseProfile> {
+    return this.http.get<EntrepriseProfile>(`${this.apiUrl}/profil/${userId}`);
   }
 
   // --- Candidatures Reçues ---

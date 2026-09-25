@@ -41,20 +41,49 @@
   flex-wrap: wrap;
 }
 
-.btn-primary, .btn-secondary, .btn-accent {
+.btn-primary, .btn-secondary, .btn-accent, .btn-download {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   padding: 0.65rem 1.25rem;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   font: 600 0.85rem/1 'Hanken Grotesk', sans-serif;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: none;
 }
 
-.btn-primary { background: var(--primary, #7c5dfa); border: none; color: #fff; }
-.btn-secondary { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; }
-.btn-accent { background: #0284c7; border: none; color: #fff; }
+.btn-primary {
+  background: linear-gradient(135deg, #7c5dfa 0%, #6846f5 100%);
+  border: none;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(124, 93, 250, 0.3);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.btn-accent {
+  background: linear-gradient(135deg, #3ea1ff 0%, #2d8cf0 100%);
+  border: none;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(62, 161, 255, 0.3);
+}
+
+.btn-download {
+  background: linear-gradient(135deg, #3ea1ff 0%, #2d8cf0 100%);
+  border: none;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(62, 161, 255, 0.3);
+}
+
+.btn-primary:hover, .btn-accent:hover, .btn-download:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
 
 .share-box {
   background: rgba(2, 132, 199, 0.1);

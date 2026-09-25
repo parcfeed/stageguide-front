@@ -1,0 +1,656 @@
+<div class="landing-page">
+  <!-- Navbar -->
+  <header class="landing-header">
+    <div class="landing-container nav-content">
+      <a routerLink="/" class="brand-logo">
+        <span class="material-symbols-outlined brand-icon">school</span>
+        <span class="brand-name">
+          <span class="text-white">Stage</span><span class="text-accent">Guide</span>
+        </span>
+      </a>
+
+      <nav class="nav-links desktop-only">
+        <a href="#features" class="nav-link">Fonctionnalités</a>
+        <a href="#audiences" class="nav-link">Espaces dédiés</a>
+        <a href="#modules" class="nav-link">Modules intégrés</a>
+        <a href="#how-it-works" class="nav-link">Fonctionnement</a>
+      </nav>
+
+      <div class="nav-actions desktop-only">
+        @if (isAuthenticated()) {
+          <a [routerLink]="userDashboardRoute()" class="btn btn-primary nav-btn">
+            <span class="material-symbols-outlined">dashboard</span>
+            Mon Espace
+          </a>
+        } @else {
+          <a routerLink="/login" class="btn btn-ghost nav-btn">Se connecter</a>
+          <a routerLink="/register" class="btn btn-primary nav-btn glow-effect">
+            Créer un compte
+            <span class="material-symbols-outlined">arrow_forward</span>
+          </a>
+        }
+      </div>
+
+      <!-- Mobile Hamburger Button -->
+      <button class="mobile-toggle mobile-only" (click)="toggleMobileMenu()" aria-label="Menu">
+        <span class="material-symbols-outlined">{{ isMobileMenuOpen() ? 'close' : 'menu' }}</span>
+      </button>
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    @if (isMobileMenuOpen()) {
+      <div class="mobile-dropdown mobile-only">
+        <a href="#features" class="mobile-link" (click)="closeMobileMenu()">Fonctionnalités</a>
+        <a href="#audiences" class="mobile-link" (click)="closeMobileMenu()">Espaces dédiés</a>
+        <a href="#modules" class="mobile-link" (click)="closeMobileMenu()">Modules intégrés</a>
+        <a href="#how-it-works" class="mobile-link" (click)="closeMobileMenu()">Fonctionnement</a>
+        <div class="mobile-actions">
+          @if (isAuthenticated()) {
+            <a [routerLink]="userDashboardRoute()" class="btn btn-primary w-full" (click)="closeMobileMenu()">
+              <span class="material-symbols-outlined">dashboard</span>
+              Mon Espace
+            </a>
+          } @else {
+            <a routerLink="/login" class="btn btn-ghost w-full" (click)="closeMobileMenu()">Se connecter</a>
+            <a routerLink="/register" class="btn btn-primary w-full" (click)="closeMobileMenu()">Créer un compte</a>
+          }
+        </div>
+      </div>
+    }
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-glow"></div>
+    <div class="landing-container hero-grid">
+      <div class="hero-text">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          <span>Plateforme intégrée de gestion de stages & mentorat</span>
+        </div>
+
+        <h1 class="hero-title">
+          Simplifiez votre parcours de stage avec <span class="gradient-text">StageGuide</span>
+        </h1>
+
+        <p class="hero-desc">
+          L'environnement centralisé qui connecte les étudiants, les mentors et les entreprises : consultation d'offres de stages et d'emplois, création de CV dynamique, suivi de mentorat, formations en ligne et gestion complète des conventions.
+        </p>
+
+        <div class="hero-cta-group">
+          @if (isAuthenticated()) {
+            <a [routerLink]="userDashboardRoute()" class="btn btn-primary btn-hero glow-effect">
+              <span class="material-symbols-outlined">dashboard</span>
+              Accéder à mon tableau de bord
+            </a>
+          } @else {
+            <a routerLink="/register" class="btn btn-primary btn-hero glow-effect">
+              <span class="material-symbols-outlined">person_add</span>
+              Rejoindre la plateforme
+            </a>
+            <a routerLink="/login" class="btn btn-secondary btn-hero">
+              <span class="material-symbols-outlined">login</span>
+              Se connecter
+            </a>
+          }
+        </div>
+
+        <!-- Authentic Feature Badges Strip (No fake numbers) -->
+        <div class="hero-features-strip">
+          <div class="strip-item">
+            <span class="material-symbols-outlined strip-icon">target</span>
+            <span>Matching par compétences</span>
+          </div>
+          <div class="strip-item">
+            <span class="material-symbols-outlined strip-icon">badge</span>
+            <span>CV en ligne partageable</span>
+          </div>
+          <div class="strip-item">
+            <span class="material-symbols-outlined strip-icon">handshake</span>
+            <span>Mentorat & export iCal</span>
+          </div>
+          <div class="strip-item">
+            <span class="material-symbols-outlined strip-icon">description</span>
+            <span>Conventions dématérialisées</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Visual / Real Application Preview -->
+      <div class="hero-visual">
+        <div class="preview-frame glass-card">
+          <div class="preview-header">
+            <div class="window-controls">
+              <span class="ctrl ctrl-red"></span>
+              <span class="ctrl ctrl-yellow"></span>
+              <span class="ctrl ctrl-green"></span>
+            </div>
+            <span class="preview-title-bar">stageguide.app/dashboard</span>
+          </div>
+
+          <div class="preview-body">
+            <!-- Mock Matching Card -->
+            <div class="mock-card match-card">
+              <div class="mock-badge">
+                <span class="material-symbols-outlined">auto_awesome</span>
+                Recommandation selon votre profil
+              </div>
+              <h4>Offre de stage : Développement Web</h4>
+              <p class="company-name">Offre validée par l'administration • Mode hybride</p>
+              <div class="tags-row">
+                <span class="tag">TypeScript</span>
+                <span class="tag">Angular</span>
+                <span class="tag">NestJS</span>
+              </div>
+            </div>
+
+            <!-- Mock Cards Grid -->
+            <div class="mock-grid-cards">
+              <!-- Mock Formation -->
+              <div class="mock-subcard">
+                <div class="mock-icon icon-blue">
+                  <span class="material-symbols-outlined">school</span>
+                </div>
+                <div class="mock-info">
+                  <h5>Formation en ligne</h5>
+                  <div class="mock-progression-bar">
+                    <div class="fill" style="width: 50%;"></div>
+                  </div>
+                  <small>Progression & forum d'entraide</small>
+                </div>
+              </div>
+
+              <!-- Mock Mentor Session -->
+              <div class="mock-subcard">
+                <div class="mock-icon icon-purple">
+                  <span class="material-symbols-outlined">handshake</span>
+                </div>
+                <div class="mock-info">
+                  <h5>Séance de mentorat</h5>
+                  <span class="mock-status">Rendez-vous planifié</span>
+                  <small>Format iCal (.ics) disponible</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mock Convention & CV Status -->
+            <div class="mock-share-card">
+              <span class="material-symbols-outlined" style="color: #4cd6ff;">share</span>
+              <div class="share-text">
+                <strong>Partage public de CV</strong>
+                <small>Lien direct consultable sans compte</small>
+              </div>
+              <span class="mock-pill">Actif</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="section-padding features-section">
+    <div class="landing-container">
+      <div class="section-header text-center">
+        <p class="section-eyebrow">Fonctionnalités</p>
+        <h2 class="section-title">Les fonctionnalités développées dans l'application</h2>
+        <p class="section-subtitle">
+          Découvrez l'ensemble des modules opérationnels conçus pour simplifier la vie des étudiants, des encadrants et des recruteurs.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card glass-card">
+          <div class="feature-icon-wrapper icon-violet">
+            <span class="material-symbols-outlined">target</span>
+          </div>
+          <h3>Recherche & Matching</h3>
+          <p>
+            Consultez les offres de stages et d'emplois, filtrez par ville et domaine, activez le tri par recommandation basé sur vos compétences et sauvegardez vos favoris.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card glass-card">
+          <div class="feature-icon-wrapper icon-cyan">
+            <span class="material-symbols-outlined">badge</span>
+          </div>
+          <h3>CV Dynamique & Partage Public</h3>
+          <p>
+            Renseignez votre profil, vos compétences, vos expériences et formations. Générez un lien de partage sécurisé pour diffuser votre CV sans contraindre le recruteur à s'inscrire.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card glass-card">
+          <div class="feature-icon-wrapper icon-emerald">
+            <span class="material-symbols-outlined">handshake</span>
+          </div>
+          <h3>Espace Mentorat & iCal</h3>
+          <p>
+            Mise en relation avec des mentors, envoi de demandes d'accompagnement, fixation d'objectifs personnalisés et export des sessions au format calendrier (.ics).
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card glass-card">
+          <div class="feature-icon-wrapper icon-amber">
+            <span class="material-symbols-outlined">auto_stories</span>
+          </div>
+          <h3>Formations & Forum Collaboratif</h3>
+          <p>
+            Inscrivez-vous aux formations disponibles, suivez votre progression en pourcentage, participez aux discussions sur les forums dédiés et posez vos questions.
+          </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="feature-card glass-card">
+          <div class="feature-icon-wrapper icon-blue">
+            <span class="material-symbols-outlined">description</span>
+          </div>
+          <h3>Conventions de Stage</h3>
+          <p>
+            Créez vos conventions de stage directement en ligne, suivez leur cycle de vie (brouillon, en attente, signée) et dématérialisez la signature des documents.
+          </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="feature-card glass-card">
+          <div class="feature-icon-wrapper icon-rose">
+            <span class="material-symbols-outlined">corporate_fare</span>
+          </div>
+          <h3>Espace Recruteur & Entretiens</h3>
+          <p>
+            Pour les entreprises : publication et gestion d'offres de stage et d'emploi, suivi des statuts des candidatures, planification des entretiens et statistiques de recrutement.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Audience Section (Tabs) -->
+  <section id="audiences" class="section-padding audience-section">
+    <div class="landing-container">
+      <div class="section-header text-center">
+        <p class="section-eyebrow">Espaces Dédiés</p>
+        <h2 class="section-title">Une interface adaptée à chaque profil</h2>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div class="tabs-nav">
+        <button
+          class="tab-btn"
+          [class.active]="activeTab() === 'etudiants'"
+          (click)="setTab('etudiants')"
+        >
+          <span class="material-symbols-outlined">school</span>
+          Stagiaires & Étudiants
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab() === 'entreprises'"
+          (click)="setTab('entreprises')"
+        >
+          <span class="material-symbols-outlined">domain</span>
+          Entreprises & Recruteurs
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab() === 'mentors'"
+          (click)="setTab('mentors')"
+        >
+          <span class="material-symbols-outlined">support_agent</span>
+          Mentors
+        </button>
+      </div>
+
+      <!-- Tab 1: Étudiants -->
+      @if (activeTab() === 'etudiants') {
+        <div class="tab-panel glass-card">
+          <div class="panel-content">
+            <span class="panel-tag">Espace Stagiaire</span>
+            <h3>Gérez votre recherche et vos démarches au même endroit</h3>
+            <p>
+              Accédez à toutes les fonctionnalités nécessaires pour trouver un stage, développer vos compétences et officialiser votre convention.
+            </p>
+            <ul class="benefit-list">
+              <li>
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+                Consultation des offres avec matching prédictif et favoris
+              </li>
+              <li>
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+                Éditeur de CV dynamique avec lien de partage public
+              </li>
+              <li>
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+                Portfolio pour exposer vos projets et réalisations
+              </li>
+              <li>
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+                Suivi de vos candidatures et de vos conventions de stage
+              </li>
+              <li>
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+                Formations certifiantes en ligne avec suivi d'avancement
+              </li>
+            </ul>
+            <div class="panel-cta">
+              <a routerLink="/register" [queryParams]="{ role: 'stagiaire' }" class="btn btn-primary">
+                Créer un compte stagiaire
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+          <div class="panel-illustration">
+            <div class="illustration-badge">
+              <span class="material-symbols-outlined" style="color: #4cd6ff;">badge</span>
+              <div>
+                <strong>Profil complet</strong>
+                <small>CV & portfolio en ligne</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Tab 2: Entreprises -->
+      @if (activeTab() === 'entreprises') {
+        <div class="tab-panel glass-card">
+          <div class="panel-content">
+            <span class="panel-tag">Espace Entreprise</span>
+            <h3>Pilotez vos recrutements de stagiaires et d'employés</h3>
+            <p>
+              Publiez vos offres, gérez vos candidatures par statut et planifiez les entretiens directement depuis votre tableau de bord.
+            </p>
+            <ul class="benefit-list">
+              <li>
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+                Publication et archivage d'offres de stages et d'emplois
+              </li>
+              <li>
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+                Suivi des candidatures reçues (En attente, Revue, Acceptée, Refusée)
+              </li>
+              <li>
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+                Planification des entretiens avec dates et lieux
+              </li>
+              <li>
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+                Statistiques détaillées sur vos offres et conversions
+              </li>
+            </ul>
+            <div class="panel-cta">
+              <a routerLink="/register" [queryParams]="{ role: 'entreprise' }" class="btn btn-primary">
+                Créer un compte entreprise
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+          <div class="panel-illustration">
+            <div class="illustration-badge">
+              <span class="material-symbols-outlined" style="color: #7C5DFA;">analytics</span>
+              <div>
+                <strong>Suivi recruteur</strong>
+                <small>Offres, candidatures & KPIs</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Tab 3: Mentors -->
+      @if (activeTab() === 'mentors') {
+        <div class="tab-panel glass-card">
+          <div class="panel-content">
+            <span class="panel-tag">Espace Mentor</span>
+            <h3>Accompagnez des étudiants dans leur développement</h3>
+            <p>
+              Recevez les demandes d'accompagnement, planifiez vos séances et suivez les objectifs définis avec chaque stagiaire.
+            </p>
+            <ul class="benefit-list">
+              <li>
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+                Gestion des demandes de mentorat reçues (accepter/refuser)
+              </li>
+              <li>
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+                Planification de sessions avec export iCal (.ics)
+              </li>
+              <li>
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+                Suivi des objectifs d'apprentissage et des stagiaires supervisés
+              </li>
+              <li>
+                <span class="material-symbols-outlined check-icon">check_circle</span>
+                Évaluation croisée des compétences acquises
+              </li>
+            </ul>
+            <div class="panel-cta">
+              <a routerLink="/register" [queryParams]="{ role: 'mentor' }" class="btn btn-primary">
+                Créer un compte mentor
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+          <div class="panel-illustration">
+            <div class="illustration-badge">
+              <span class="material-symbols-outlined" style="color: #34d399;">handshake</span>
+              <div>
+                <strong>Accompagnement</strong>
+                <small>Séances & objectifs de carrière</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- Detailed Modules Overview -->
+  <section id="modules" class="section-padding modules-section">
+    <div class="landing-container">
+      <div class="section-header text-center">
+        <p class="section-eyebrow">Architecture Fonctionnelle</p>
+        <h2 class="section-title">Les modules intégrés de la plateforme</h2>
+        <p class="section-subtitle">
+          Chaque composant a été codé et connecté à son API backend pour offrir une expérience fluide et cohérente.
+        </p>
+      </div>
+
+      <div class="modules-grid">
+        <div class="module-item glass-card">
+          <div class="module-header">
+            <span class="material-symbols-outlined module-icon" style="color: #7C5DFA;">search</span>
+            <h4>Opportunités</h4>
+          </div>
+          <p>Recherche d'offres de stages et d'emplois, filtre par domaine et ville, calcul des recommandations de matching et gestion des alertes.</p>
+        </div>
+
+        <div class="module-item glass-card">
+          <div class="module-header">
+            <span class="material-symbols-outlined module-icon" style="color: #4cd6ff;">badge</span>
+            <h4>CV & Portfolio</h4>
+          </div>
+          <p>Éditeur de CV structuré (compétences, parcours, formations) avec génération d'un lien de consultation public et espace projets.</p>
+        </div>
+
+        <div class="module-item glass-card">
+          <div class="module-header">
+            <span class="material-symbols-outlined module-icon" style="color: #34d399;">handshake</span>
+            <h4>Mentorat</h4>
+          </div>
+          <p>Mise en relation, acceptation des demandes, planification de réunions, suivi d'objectifs et export universel iCalendar (.ics).</p>
+        </div>
+
+        <div class="module-item glass-card">
+          <div class="module-header">
+            <span class="material-symbols-outlined module-icon" style="color: #fbbf24;">auto_stories</span>
+            <h4>Formations</h4>
+          </div>
+          <p>Catalogue de formations certifiantes en ligne, barre de progression interactive et espace forum d'entraide par cours.</p>
+        </div>
+
+        <div class="module-item glass-card">
+          <div class="module-header">
+            <span class="material-symbols-outlined module-icon" style="color: #60a5fa;">description</span>
+            <h4>Conventions</h4>
+          </div>
+          <p>Génération de conventions de stage, suivi de statut (Brouillon, En attente, Signée) et dématérialisation administrative.</p>
+        </div>
+
+        <div class="module-item glass-card">
+          <div class="module-header">
+            <span class="material-symbols-outlined module-icon" style="color: #f43f5e;">corporate_fare</span>
+            <h4>Espace Entreprise</h4>
+          </div>
+          <p>Tableau de bord recruteur, gestion des offres et des candidatures, planification d'entretiens et statistiques de performance.</p>
+        </div>
+
+        <div class="module-item glass-card">
+          <div class="module-header">
+            <span class="material-symbols-outlined module-icon" style="color: #a78bfa;">chat</span>
+            <h4>Messagerie & Fichiers</h4>
+          </div>
+          <p>Conversations instantanées avec pièces jointes et liens ressources, et espace centralisé pour gérer vos documents déposés.</p>
+        </div>
+
+        <div class="module-item glass-card">
+          <div class="module-header">
+            <span class="material-symbols-outlined module-icon" style="color: #38bdf8;">hub</span>
+            <h4>Réseau & Communauté</h4>
+          </div>
+          <p>Annuaire des membres (étudiants, mentors, entreprises), suggestions de profils compatibles et gestion des demandes de connexion.</p>
+        </div>
+
+        <div class="module-item glass-card">
+          <div class="module-header">
+            <span class="material-symbols-outlined module-icon" style="color: #e2e8f0;">fact_check</span>
+            <h4>Administration</h4>
+          </div>
+          <p>Modération des offres publiées (validation, archivage, suppression), gestion des utilisateurs et suivi des partenaires.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it Works (3 Steps) -->
+  <section id="how-it-works" class="section-padding how-section">
+    <div class="landing-container">
+      <div class="section-header text-center">
+        <p class="section-eyebrow">Fonctionnement</p>
+        <h2 class="section-title">Comment utiliser StageGuide ?</h2>
+        <p class="section-subtitle">Un flux de travail simple et structuré pour démarrer.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card glass-card">
+          <div class="step-number">01</div>
+          <div class="step-icon">
+            <span class="material-symbols-outlined">person_add</span>
+          </div>
+          <h3>Création de compte</h3>
+          <p>Inscrivez-vous en choisissant votre profil (Stagiaire, Entreprise ou Mentor) et complétez les premières informations de votre espace.</p>
+        </div>
+
+        <div class="step-card glass-card">
+          <div class="step-number">02</div>
+          <div class="step-icon">
+            <span class="material-symbols-outlined">hub</span>
+          </div>
+          <h3>Utilisation des modules</h3>
+          <p>Consultez les offres, éditez votre CV, planifiez vos sessions de mentorat ou publiez vos offres selon votre statut.</p>
+        </div>
+
+        <div class="step-card glass-card">
+          <div class="step-number">03</div>
+          <div class="step-icon">
+            <span class="material-symbols-outlined">verified</span>
+          </div>
+          <h3>Suivi et validation</h3>
+          <p>Suivez l'état d'avancement de vos candidatures, vos conventions en ligne et vos formations certifiantes depuis votre tableau de bord.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA Banner -->
+  <section class="final-cta-section">
+    <div class="landing-container">
+      <div class="cta-banner glass-card">
+        <div class="cta-glow"></div>
+        <h2>Accédez dès maintenant à votre espace StageGuide</h2>
+        <p>
+          Connectez-vous à votre compte ou inscrivez-vous pour découvrir l'ensemble des fonctionnalités de la plateforme.
+        </p>
+        <div class="banner-buttons">
+          @if (isAuthenticated()) {
+            <a [routerLink]="userDashboardRoute()" class="btn btn-primary btn-large">
+              Accéder à mon tableau de bord
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+          } @else {
+            <a routerLink="/register" class="btn btn-primary btn-large glow-effect">
+              Créer un compte
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+            <a routerLink="/login" class="btn btn-secondary btn-large">
+              Se connecter
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div class="landing-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a routerLink="/" class="brand-logo">
+            <span class="material-symbols-outlined brand-icon">school</span>
+            <span class="brand-name">
+              <span class="text-white">Stage</span><span class="text-accent">Guide</span>
+            </span>
+          </a>
+          <p class="footer-desc">
+            Plateforme de gestion de stages, de mentorat professionnel et de conventions dématérialisées.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Modules</h4>
+          <a routerLink="/login">Offres de stages</a>
+          <a routerLink="/login">CV Dynamique</a>
+          <a routerLink="/login">Mentorat</a>
+          <a routerLink="/login">Formations en ligne</a>
+        </div>
+
+        <div class="footer-col">
+          <h4>Gestion</h4>
+          <a routerLink="/login">Espace Recruteur</a>
+          <a routerLink="/login">Conventions de stage</a>
+          <a routerLink="/login">Réseau professionnel</a>
+        </div>
+
+        <div class="footer-col">
+          <h4>Accès</h4>
+          <a routerLink="/login">Connexion</a>
+          <a routerLink="/register">Inscription</a>
+          <a routerLink="/register" [queryParams]="{ role: 'entreprise' }">Inscription Entreprise</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 StageGuide. Plateforme de gestion de stages & mentorat.</p>
+        <div class="system-status">
+          <span class="status-indicator"></span>
+          <span>Système opérationnel</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>

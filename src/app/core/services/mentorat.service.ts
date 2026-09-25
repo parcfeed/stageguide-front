@@ -6,6 +6,7 @@ import {
   CreerDemandeMentoratPayload,
   CreerDemandeMentoratResponse,
   MentorDemandesResponse,
+  MentorSessionsResponse,
   MentorStagiairesResponse,
   MentorSuggestionsResponse,
   MentoratStagiaireOverview,
@@ -54,6 +55,10 @@ export class MentoratService {
 
   listerStagiairesMentor(): Observable<MentorStagiairesResponse> {
     return this.http.get<MentorStagiairesResponse>(`${API_BASE_URL}/mentor/stagiaires`);
+  }
+
+  listerSessionsMentor(): Observable<MentorSessionsResponse> {
+    return this.http.get<MentorSessionsResponse>(`${API_BASE_URL}/mentor/mentorat/sessions`);
   }
 
   // --- Sessions & iCal ---

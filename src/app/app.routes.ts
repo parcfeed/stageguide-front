@@ -6,10 +6,14 @@ import { LayoutComponent } from './core/components/layout/layout.component';
 export const routes: Routes = [
   {
     path: '',
+    pathMatch: 'full',
+    loadComponent: () => import('./features/landing/pages/landing/landing.component').then(m => m.LandingComponent)
+  },
+  {
+    path: '',
     component: LayoutComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
         path: 'dashboard',
         canActivate: [roleGuard],
@@ -153,8 +157,7 @@ export const routes: Routes = [
     canActivate: [noAuthGuard]
   },
   {
-    path: '',
-    redirectTo: 'login',
-    pathMatch: 'full'
+    path: '**',
+    redirectTo: ''
   }
 ];

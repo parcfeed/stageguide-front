@@ -145,3 +145,8 @@ export interface MentorStagiairesResponse {
   mentorId: string;
   stagiaires: MentoratPerson[];
 }
+
+export interface MentorSessionsResponse {
+  mentorId: string;
+  sessions: SessionMentoratItem[];
+}

@@ -17,6 +17,7 @@ export class AdminDashboardComponent implements OnInit {
 
   protected readonly userCount = signal(0);
   protected readonly partnerCount = signal(0);
+  protected readonly offresCount = signal(0);
   protected readonly isLoading = signal(true);
 
   ngOnInit(): void {
@@ -30,6 +31,9 @@ export class AdminDashboardComponent implements OnInit {
   private chargerStats(): void {
     this.adminService.listUsers({ limit: 1 }).subscribe(r => {
       if (r) this.userCount.set(r.total);
+    });
+    this.adminService.listerOffres().subscribe(r => {
+      if (r) this.offresCount.set(r.total);
     });
     this.adminService.listPartners().subscribe(r => {
       if (r) this.partnerCount.set(r.length);

@@ -43,10 +43,13 @@
       <span class="material-symbols-outlined">bookmark</span>
       Favoris ({{ offresSauvegardees().length }})
     </button>
-
-    <button class="btn-alerte-trigger" (click)="ouvrirModalAlertes()">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'alertes'"
+      (click)="switchTab('alertes')"
+    >
       <span class="material-symbols-outlined">add_alert</span>
-      Mes Alertes
+      Mes Alertes ({{ alertes().length }})
     </button>
   </div>
 
@@ -57,6 +60,7 @@
     </div>
   }
 
+  @if (activeTab() === 'stage' || activeTab() === 'emploi') {
   <div class="filters-card glass-card">
     <div class="filters-grid">
       <div class="field-group">
@@ -122,6 +126,7 @@
       </button>
     </div>
   </div>
+  }
 
   @if (isLoading()) {
     <div class="state-panel">
@@ -191,10 +196,20 @@
                     </span>
                   }
                 </div>
-                <button class="btn-details" (click)="ouvrirDetail(offre)">
-                  Voir les détails
-                  <span class="material-symbols-outlined">arrow_forward</span>
-                </button>
+                <div class="card-actions">
+                  <button
+                    class="btn-favori"
+                    [class.active]="estFavori(offre.id)"
+                    (click)="toggleFavori(offre, 'STAGE', $event)"
+                    [title]="estFavori(offre.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'"
+                  >
+                    <span class="material-symbols-outlined">{{ estFavori(offre.id) ? 'bookmark' : 'bookmark_border' }}</span>
+                  </button>
+                  <button class="btn-details" (click)="ouvrirDetail(offre, 'STAGE')">
+                    Voir les détails
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                  </button>
+                </div>
               </div>
             </div>
           }
@@ -255,15 +270,331 @@
                     </span>
                   }
                 </div>
-                <button class="btn-details" (click)="ouvrirDetail(offre)">
-                  Voir les détails
-                  <span class="material-symbols-outlined">arrow_forward</span>
-                </button>
+                <div class="card-actions">
+                  <button
+                    class="btn-favori"
+                    [class.active]="estFavori(offre.id)"
+                    (click)="toggleFavori(offre, 'EMPLOI', $event)"
+                    [title]="estFavori(offre.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'"
+                  >
+                    <span class="material-symbols-outlined">{{ estFavori(offre.id) ? 'bookmark' : 'bookmark_border' }}</span>
+                  </button>
+                  <button class="btn-details" (click)="ouvrirDetail(offre, 'EMPLOI')">
+                    Voir les détails
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                  </button>
+                </div>
               </div>
             </div>
           }
         </div>
       }
+    }
+
+    <!-- ONGLET : RECOMMANDATIONS -->
+    @if (activeTab() === 'recommandations') {
+      @if (recommandationsStage().length === 0 && recommandationsEmploi().length === 0) {
+        <div class="empty-state glass-card">
+          <span class="empty-icon material-symbols-outlined">auto_awesome</span>
+          <h3>Aucune recommandation pour le moment</h3>
+          <p>Les recommandations sont calculées à partir des offres publiées par les partenaires. Ajoutez des compétences à votre profil pour affiner le classement.</p>
+        </div>
+      } @else {
+        @if (recommandationsStage().length > 0) {
+          <h2 class="section-title">Stages recommandés ({{ recommandationsStage().length }})</h2>
+          <div class="offers-grid">
+            @for (offre of recommandationsStage(); track offre.id) {
+              <div class="offer-card glass-card">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                  <div class="company-logo">
+                    @if (offre.logoUrl) {
+                      <img [src]="offre.logoUrl" [alt]="offre.partenaire?.nomEntreprise || 'Logo'" (error)="offre.logoUrl = ''" />
+                    } @else {
+                      <span class="material-symbols-outlined logo-fallback">business</span>
+                    }
+                  </div>
+                  <div class="company-info">
+                    <h4 class="company-name">{{ offre.partenaire?.nomEntreprise || 'Partenaire StageGuide' }}</h4>
+                    <p class="location">
+                      <span class="material-symbols-outlined" style="font-size: 0.75rem; vertical-align: middle;">location_on</span>
+                      {{ offre.ville }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="card-body">
+                  <h3 class="offer-title">{{ offre.titre }}</h3>
+                  <span class="domain-pill">
+                    <span class="material-symbols-outlined" style="font-size: 0.85rem;">folder</span>
+                    {{ offre.domaine || 'Général' }}
+                  </span>
+                  <p class="offer-snippet">{{ offre.description | slice:0:150 }}...</p>
+
+                  @if (offre.score) {
+                    <div class="reco-details">
+                      <span class="badge badge-score">
+                        <span class="material-symbols-outlined" style="font-size: 0.75rem;">trending_up</span>
+                        Score {{ offre.score }}%
+                      </span>
+                      @for (raison of (offre.matchReasons || offre.raisons || []); track raison) {
+                        <span class="badge">{{ raison }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <div class="card-footer">
+                  <div class="badges">
+                    @if (offre.remote) {
+                      <span class="badge badge-success">
+                        <span class="material-symbols-outlined" style="font-size: 0.75rem;">wifi</span>
+                        Distanciel
+                      </span>
+                    }
+                  </div>
+                  <div class="card-actions">
+                    <button
+                      class="btn-favori"
+                      [class.active]="estFavori(offre.id)"
+                      (click)="toggleFavori(offre, 'STAGE', $event)"
+                      [title]="estFavori(offre.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'"
+                    >
+                      <span class="material-symbols-outlined">{{ estFavori(offre.id) ? 'bookmark' : 'bookmark_border' }}</span>
+                    </button>
+                    <button class="btn-details" (click)="ouvrirDetail(offre, 'STAGE')">
+                      Voir les détails
+                      <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (recommandationsEmploi().length > 0) {
+          <h2 class="section-title">Emplois recommandés ({{ recommandationsEmploi().length }})</h2>
+          <div class="offers-grid">
+            @for (offre of recommandationsEmploi(); track offre.id) {
+              <div class="offer-card glass-card">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                  <div class="company-logo">
+                    @if (offre.logoUrl) {
+                      <img [src]="offre.logoUrl" [alt]="offre.partenaire?.nomEntreprise || 'Logo'" (error)="offre.logoUrl = ''" />
+                    } @else {
+                      <span class="material-symbols-outlined logo-fallback">business</span>
+                    }
+                  </div>
+                  <div class="company-info">
+                    <h4 class="company-name">{{ offre.partenaire?.nomEntreprise || 'Partenaire StageGuide' }}</h4>
+                    <p class="location">
+                      <span class="material-symbols-outlined" style="font-size: 0.75rem; vertical-align: middle;">location_on</span>
+                      {{ offre.ville }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="card-body">
+                  <h3 class="offer-title">{{ offre.titre }}</h3>
+                  <span class="domain-pill">
+                    <span class="material-symbols-outlined" style="font-size: 0.85rem;">folder</span>
+                    {{ offre.domaine || 'Général' }}
+                  </span>
+                  <p class="offer-snippet">{{ offre.description | slice:0:150 }}...</p>
+
+                  @if (offre.score) {
+                    <div class="reco-details">
+                      <span class="badge badge-score">
+                        <span class="material-symbols-outlined" style="font-size: 0.75rem;">trending_up</span>
+                        Score {{ offre.score }}%
+                      </span>
+                      @for (raison of (offre.matchReasons || offre.raisons || []); track raison) {
+                        <span class="badge">{{ raison }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <div class="card-footer">
+                  <div class="badges">
+                    @if (offre.typeContrat) {
+                      <span class="badge">
+                        <span class="material-symbols-outlined" style="font-size: 0.75rem;">description</span>
+                        {{ offre.typeContrat }}
+                      </span>
+                    }
+                    @if (offre.remote) {
+                      <span class="badge badge-success">
+                        <span class="material-symbols-outlined" style="font-size: 0.75rem;">wifi</span>
+                        Distanciel
+                      </span>
+                    }
+                  </div>
+                  <div class="card-actions">
+                    <button
+                      class="btn-favori"
+                      [class.active]="estFavori(offre.id)"
+                      (click)="toggleFavori(offre, 'EMPLOI', $event)"
+                      [title]="estFavori(offre.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'"
+                    >
+                      <span class="material-symbols-outlined">{{ estFavori(offre.id) ? 'bookmark' : 'bookmark_border' }}</span>
+                    </button>
+                    <button class="btn-details" (click)="ouvrirDetail(offre, 'EMPLOI')">
+                      Voir les détails
+                      <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+    }
+
+    <!-- ONGLET : FAVORIS -->
+    @if (activeTab() === 'favoris') {
+      @if (offresSauvegardees().length === 0) {
+        <div class="empty-state glass-card">
+          <span class="empty-icon material-symbols-outlined">bookmark_border</span>
+          <h3>Aucun favori pour le moment</h3>
+          <p>Utilisez le bouton marque-page sur une offre de stage ou d'emploi pour la retrouver ici.</p>
+        </div>
+      } @else {
+        <div class="offers-grid">
+          @for (favori of offresSauvegardees(); track favori.id) {
+            <div class="offer-card glass-card">
+              <div class="card-glow"></div>
+              @let offre = offreDuFavori(favori);
+              @if (offre) {
+                <div class="card-header">
+                  <div class="company-logo">
+                    @if (offre.logoUrl) {
+                      <img [src]="offre.logoUrl" [alt]="offre.partenaire?.nomEntreprise || 'Logo'" (error)="offre.logoUrl = ''" />
+                    } @else {
+                      <span class="material-symbols-outlined logo-fallback">business</span>
+                    }
+                  </div>
+                  <div class="company-info">
+                    <h4 class="company-name">{{ offre.partenaire?.nomEntreprise || 'Partenaire StageGuide' }}</h4>
+                    <p class="location">
+                      <span class="material-symbols-outlined" style="font-size: 0.75rem; vertical-align: middle;">location_on</span>
+                      {{ offre.ville }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="card-body">
+                  <h3 class="offer-title">{{ offre.titre }}</h3>
+                  <span class="domain-pill">
+                    <span class="material-symbols-outlined" style="font-size: 0.85rem;">folder</span>
+                    {{ offre.domaine || 'Général' }}
+                  </span>
+                  <p class="offer-snippet">{{ offre.description | slice:0:150 }}...</p>
+                </div>
+
+                <div class="card-footer">
+                  <div class="badges">
+                    <span class="badge">{{ typeDuFavori(favori) === 'STAGE' ? 'Stage' : 'Emploi' }}</span>
+                    @if (offre.remote) {
+                      <span class="badge badge-success">
+                        <span class="material-symbols-outlined" style="font-size: 0.75rem;">wifi</span>
+                        Distanciel
+                      </span>
+                    }
+                  </div>
+                  <div class="card-actions">
+                    <button class="btn-favori active" (click)="supprimerFavori(favori.id, $event)" title="Retirer des favoris">
+                      <span class="material-symbols-outlined">bookmark</span>
+                    </button>
+                    <button class="btn-details" (click)="ouvrirDetail(offre, typeDuFavori(favori))">
+                      Voir les détails
+                      <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <div class="card-body">
+                  <h3 class="offer-title">Offre supprimée</h3>
+                  <p class="offer-snippet">Cette offre n'est plus publiée, vous pouvez retirer ce favori.</p>
+                </div>
+                <div class="card-footer">
+                  <div class="badges"></div>
+                  <div class="card-actions">
+                    <button class="btn-favori active" (click)="supprimerFavori(favori.id, $event)" title="Retirer des favoris">
+                      <span class="material-symbols-outlined">bookmark</span>
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- ONGLET : ALERTES -->
+    @if (activeTab() === 'alertes') {
+      <div class="alertes-panel glass-card">
+        <h3 class="alertes-title">Mes alertes de recherche</h3>
+        <p class="alertes-hint">
+          Recevez une notification dès qu'une offre correspondant à vos critères est publiée par un partenaire.
+        </p>
+
+        <div class="alertes-form">
+          <div class="field-group">
+            <label class="field-label" for="alerte-domaine">Domaine</label>
+            <input
+              id="alerte-domaine"
+              type="text"
+              class="glass-input"
+              [(ngModel)]="nouvelleAlerteDomaine"
+              placeholder="Ex: Informatique, Design..."
+            />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="alerte-ville">Ville</label>
+            <input
+              id="alerte-ville"
+              type="text"
+              class="glass-input"
+              [(ngModel)]="nouvelleAlerteVille"
+              placeholder="Ex: Douala, Yaoundé..."
+            />
+          </div>
+          <button
+            class="btn btn-primary"
+            (click)="creerAlerte()"
+            [disabled]="!nouvelleAlerteDomaine().trim() && !nouvelleAlerteVille().trim()"
+          >
+            <span class="material-symbols-outlined">notifications_active</span>
+            Créer l'alerte
+          </button>
+        </div>
+
+        <h4 class="alertes-count">Alertes actives ({{ alertes().length }})</h4>
+
+        @if (alertes().length === 0) {
+          <p class="alertes-empty">Aucune alerte active configurée.</p>
+        } @else {
+          <div class="alertes-list">
+            @for (alerte of alertes(); track alerte.id) {
+              <div class="alerte-item">
+                <div>
+                  <strong>{{ alerte.titre }}</strong>
+                  <small>{{ alerte.message }}</small>
+                  <small class="alerte-date">Créée le {{ alerte.createdAt | date:'dd/MM/yyyy' }}</small>
+                </div>
+                <button class="btn-supprimer" (click)="supprimerAlerte(alerte.id)" title="Supprimer l'alerte">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
     }
   }
 
@@ -298,7 +629,7 @@
 
         <div class="modal-body">
           <div class="modal-badges">
-            @if (activeTab() === 'stage') {
+            @if (selectedTypeOffre() === 'STAGE') {
               @if (selectedOfferAsAny.duree) {
                 <span class="badge">
                   <span class="material-symbols-outlined" style="font-size: 0.75rem;">schedule</span>
@@ -386,63 +717,4 @@
     </div>
   }
 
-  <!-- MODAL ALERTES DE RECHERCHE -->
-  @if (showAlertesModal()) {
-    <div class="modal-backdrop" (click)="fermerModalAlertes()">
-      <div class="modal-content glass-card" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <div class="modal-title-area">
-            <h3>Mes Alertes de Recherche</h3>
-            <p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">Recevez une notification en temps réel dès qu'une offre correspondant à vos critères est publiée.</p>
-          </div>
-          <button class="modal-close" (click)="fermerModalAlertes()">
-            <span class="material-symbols-outlined">close</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1.5rem;">
-            <h4 style="margin: 0 0 0.75rem; font-size: 0.95rem;">Créer une nouvelle alerte</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; align-items: flex-end;">
-              <div>
-                <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 0.2rem;">Domaine</label>
-                <input type="text" [(ngModel)]="nouvelleAlerteDomaine" placeholder="Ex: Informatique, Design..." class="glass-input" style="padding: 0.5rem;" />
-              </div>
-              <div>
-                <label style="font-size: 0.75rem; color: #94a3b8; display: block; margin-bottom: 0.2rem;">Ville</label>
-                <input type="text" [(ngModel)]="nouvelleAlerteVille" placeholder="Ex: Douala, Yaoundé..." class="glass-input" style="padding: 0.5rem;" />
-              </div>
-              <button class="btn btn-primary" (click)="creerAlerte()" style="padding: 0.5rem 1rem;">
-                <span class="material-symbols-outlined">notifications_active</span>
-                Créer
-              </button>
-            </div>
-          </div>
-
-          <h4 style="margin: 0 0 0.75rem; font-size: 0.95rem;">Alertes actives ({{ alertes().length }})</h4>
-          @if (alertes().length === 0) {
-            <p style="color: #64748b; font-size: 0.85rem; text-align: center; padding: 1.5rem;">Aucune alerte active configurée.</p>
-          } @else {
-            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-              @for (alt of alertes(); track alt.id) {
-                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.5rem; padding: 0.75rem 1rem;">
-                  <div>
-                    <strong>{{ alt.titre }}</strong>
-                    <small style="color: #94a3b8; display: block;">{{ alt.message }}</small>
-                  </div>
-                  <button (click)="supprimerAlerte(alt.id)" style="background: transparent; border: none; color: #f87171; cursor: pointer;">
-                    <span class="material-symbols-outlined">delete</span>
-                  </button>
-                </div>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" (click)="fermerModalAlertes()">Fermer</button>
-        </div>
-      </div>
-    </div>
-  }
 </div>

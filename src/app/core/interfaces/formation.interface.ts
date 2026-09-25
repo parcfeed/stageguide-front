@@ -28,6 +28,12 @@ export interface MesFormationsResponse {
   inscriptions: InscriptionFormation[];
 }
 
+export interface ForumResponse {
+  formationId: string;
+  total: number;
+  sujets: SujetForum[];
+}
+
 export interface ProgressionDetail {
   formationId: string;
   titre: string;

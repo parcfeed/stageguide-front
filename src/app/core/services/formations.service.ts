@@ -1,10 +1,11 @@
 ﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { API_BASE_URL } from '../constants/api.constants';
 import { 
   CatalogueResponse, 
   MesFormationsResponse, 
+  ForumResponse,
   ProgressionDetail, 
   SujetForum, 
   ReponseForum 
@@ -31,12 +32,18 @@ export class FormationsService {
     return this.http.get<ProgressionDetail>(`${this.baseUrl}/${formationId}/progression`);
   }
 
-  updateProgression(formationId: string, payload: { progression: number; estTermine?: boolean }): Observable<any> {
-    return this.http.patch(`${this.baseUrl}/${formationId}/progression`, payload);
+  /**
+   * Le backend (MettreAJourProgressionDto) n'accepte que le champ progression :
+   * envoyer estTermine déclenche un 400 (forbidNonWhitelisted).
+   */
+  updateProgression(formationId: string, progression: number): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/${formationId}/progression`, { progression });
   }
 
   getForum(formationId: string): Observable<SujetForum[]> {
-    return this.http.get<SujetForum[]>(`${this.baseUrl}/${formationId}/forum`);
+    return this.http
+      .get<ForumResponse>(`${this.baseUrl}/${formationId}/forum`)
+      .pipe(map(res => res?.sujets ?? []));
   }
 
   creerSujet(formationId: string, payload: { titre: string; contenu: string }): Observable<SujetForum> {

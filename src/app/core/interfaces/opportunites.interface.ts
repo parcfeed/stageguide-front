@@ -28,6 +28,7 @@ export interface OffreStage {
   matchScore?: number;
   score?: number;
   raisons?: string[];
+  matchReasons?: string[];
 }
 
 export interface OffreEmploi {
@@ -50,6 +51,7 @@ export interface OffreEmploi {
   matchScore?: number;
   score?: number;
   raisons?: string[];
+  matchReasons?: string[];
 }
 
 export interface ListerOffresStageDto {
@@ -101,3 +103,25 @@ export interface CreerAlerteDto {
   typeOffre?: 'STAGE' | 'EMPLOI' | 'TOUT';
   motsCles?: string;
 }
+
+/**
+ * Le backend renvoie les recommandations et les favoris enveloppes dans un
+ * objet ({ offres }, { sauvegardes }, { alertes }) et non en tableau brut.
+ */
+export interface RecommandationsResponse<T> {
+  utilisateurId: string;
+  total: number;
+  offres: T[];
+}
+
+export interface OffresSauvegardeesResponse {
+  utilisateurId: string;
+  sauvegardes: OffreSauvegardee[];
+}
+
+export interface AlertesResponse {
+  utilisateurId: string;
+  alertes: AlerteRecherche[];
+}
+
+export type TypeOffre = 'STAGE' | 'EMPLOI';

@@ -48,6 +48,27 @@ export class NotificationsComponent implements OnInit {
     });
   }
 
+  protected marquerCommeLue(notif: NotificationItem): void {
+    if (notif.estLue) return;
+    this.notificationsService.marquerCommeLue(notif.id).subscribe({
+      next: () => {
+        this.notifications.update(list =>
+          list.map(n => n.id === notif.id ? { ...n, estLue: true } : n)
+        );
+      }
+    });
+  }
+
+  protected marquerToutCommeLue(): void {
+    this.notificationsService.marquerToutCommeLue().subscribe({
+      next: () => {
+        this.notifications.update(list =>
+          list.map(n => ({ ...n, estLue: true }))
+        );
+      }
+    });
+  }
+
   protected goBack(): void {
     this.router.navigate(['/dashboard']);
   }

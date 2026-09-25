@@ -103,17 +103,22 @@
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 9999px;
-  color: #94a3b8;
+  color: #b9c2d3;
   font: 600 0.8rem/1 'Hanken Grotesk', sans-serif;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
-.tab-filter-btn:hover { color: #fff; }
+.tab-filter-btn:hover {
+  color: #eef2ff;
+  border-color: rgba(230, 222, 255, 0.28);
+}
+
 .tab-filter-btn.active {
-  background: var(--primary, #7c5dfa);
-  border-color: var(--primary, #7c5dfa);
-  color: #fff;
+  background: #e6deff;
+  border-color: #e6deff;
+  color: #17131d;
+  box-shadow: 0 0 0 1px rgba(230, 222, 255, 0.35);
 }
 
 /* Table */

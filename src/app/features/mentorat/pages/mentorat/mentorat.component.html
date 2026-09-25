@@ -26,6 +26,52 @@
     </div>
   }
 
+  @if (showProfileModal() && profilePreview(); as preview) {
+    <div class="modal-backdrop" (click)="fermerProfilModal()" style="position: fixed; inset: 0; background: rgba(9, 12, 20, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;">
+      <div class="card glass-card" (click)="$event.stopPropagation()" style="width: min(620px, 100%); max-height: 85vh; overflow: auto; padding: 1.5rem; position: relative;">
+        <div class="card-heading" style="margin-bottom: 1rem;">
+          <p class="eyebrow">Profil</p>
+          <h2>{{ preview.title }}</h2>
+        </div>
+        <div style="display: grid; gap: 0.75rem; color: #dfe7f3;">
+          @if (preview.data.role) {
+            <div><strong>Rôle :</strong> {{ preview.data.role }}</div>
+          }
+          @if (preview.data.prenom || preview.data.nom) {
+            <div><strong>Nom :</strong> {{ preview.data.prenom || '' }} {{ preview.data.nom || '' }}</div>
+          }
+          @if (preview.data.email) {
+            <div><strong>Email :</strong> {{ preview.data.email }}</div>
+          }
+          @if (preview.data.telephone) {
+            <div><strong>Téléphone :</strong> {{ preview.data.telephone }}</div>
+          }
+          @if (preview.data.ecole) {
+            <div><strong>École :</strong> {{ preview.data.ecole }}</div>
+          }
+          @if (preview.data.niveauEtudes) {
+            <div><strong>Niveau :</strong> {{ preview.data.niveauEtudes }}</div>
+          }
+          @if (preview.data.entreprise) {
+            <div><strong>Entreprise :</strong> {{ preview.data.entreprise }}</div>
+          }
+          @if (preview.data.poste) {
+            <div><strong>Poste :</strong> {{ preview.data.poste }}</div>
+          }
+          @if (preview.data.bio) {
+            <div><strong>Bio :</strong> {{ preview.data.bio }}</div>
+          }
+        </div>
+        <div style="margin-top: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: flex-end;">
+          <button class="btn btn-secondary btn-small" type="button" (click)="fermerProfilModal()">
+            <span class="material-symbols-outlined">close</span>
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
   @if (isLoading()) {
     <div class="state-panel">
       <span class="material-symbols-outlined spin" style="font-size: 2rem;">progress_activity</span>
@@ -180,6 +226,12 @@
                         {{ mentor.entreprise || mentor.company || 'Entreprise non renseignée' }}
                       </p>
                     </div>
+                    <div class="actions-row" style="margin-left: auto; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                      <button class="btn btn-secondary btn-small" type="button" (click)="voirProfil(mentor.id ?? '', 'mentor')">
+                        <span class="material-symbols-outlined">person</span>
+                        Profil
+                      </button>
+                    </div>
                   </div>
                 }
               </div>
@@ -199,48 +251,56 @@
         <div class="mentor-grid-left">
           <div class="card glass-card">
             <div class="card-heading">
-              <p class="eyebrow">Paramètres</p>
-              <h2>Mon Profil Mentor</h2>
-              <p class="card-desc">Mettez à jour vos informations professionnelles pour les stagiaires.</p>
+              <p class="eyebrow">Planifier</p>
+              <h2>Nouvelle session de mentorat</h2>
+              <p class="card-desc">Programmez un rendez-vous avec un stagiaire et exportez-le ensuite au format .ics.</p>
             </div>
-            <form [formGroup]="mentorProfileForm" (ngSubmit)="saveMentorProfile()" class="form-stack">
+            <form [formGroup]="sessionForm" (ngSubmit)="submitSession()" class="form-stack">
+              <div class="form-group">
+                <label class="field-label" for="stagiaire-session">
+                  <span class="material-symbols-outlined">person</span>
+                  Stagiaire
+                </label>
+                <select id="stagiaire-session" formControlName="stagiaireId" class="glass-input">
+                  <option value="">Sélectionner un stagiaire</option>
+                  @for (stagiaire of mentorStagiairesList(); track stagiaire.id) {
+                    <option [value]="stagiaire.id">{{ personName(stagiaire) }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="field-label" for="sujet-session">
+                  <span class="material-symbols-outlined">topic</span>
+                  Objet de la session
+                </label>
+                <input id="sujet-session" formControlName="sujet" type="text" class="glass-input" placeholder="Ex. Suivi candidature, préparation entretien, revue de projet..." />
+              </div>
+
               <div class="form-row">
                 <div class="form-group">
-                  <label class="field-label" for="telephone-mentor">
-                    <span class="material-symbols-outlined">phone</span>
-                    Téléphone
+                  <label class="field-label" for="debut-session">
+                    <span class="material-symbols-outlined">schedule</span>
+                    Début
                   </label>
-                  <input id="telephone-mentor" formControlName="telephone" class="glass-input" type="text" placeholder="+33 6 00 00 00 00" />
+                  <input id="debut-session" formControlName="commenceLe" type="datetime-local" class="glass-input" />
                 </div>
                 <div class="form-group">
-                  <label class="field-label" for="entreprise-mentor">
-                    <span class="material-symbols-outlined">business</span>
-                    Entreprise
+                  <label class="field-label" for="fin-session">
+                    <span class="material-symbols-outlined">event</span>
+                    Fin
                   </label>
-                  <input id="entreprise-mentor" formControlName="entreprise" class="glass-input" type="text" placeholder="Vercel, Inc." />
+                  <input id="fin-session" formControlName="termineLe" type="datetime-local" class="glass-input" />
                 </div>
               </div>
-              <div class="form-group">
-                <label class="field-label" for="poste-mentor">
-                  <span class="material-symbols-outlined">badge</span>
-                  Poste actuel
-                </label>
-                <input id="poste-mentor" formControlName="poste" class="glass-input" type="text" placeholder="Lead Software Engineer" />
-              </div>
-              <div class="form-group">
-                <label class="field-label" for="bio-mentor">
-                  <span class="material-symbols-outlined">description</span>
-                  Biographie / Présentation
-                </label>
-                <textarea id="bio-mentor" formControlName="bio" class="glass-input" rows="4" placeholder="Parlez brièvement de votre parcours..."></textarea>
-              </div>
+
               <button class="btn btn-primary" type="submit" [disabled]="isSaving()">
                 @if (isSaving()) {
                   <span class="spinner" style="width: 18px; height: 18px; border-width: 2px;"></span>
-                  Enregistrement...
+                  Planification...
                 } @else {
-                  <span class="material-symbols-outlined">save</span>
-                  Mettre à jour mon profil
+                  <span class="material-symbols-outlined">add_circle</span>
+                  Planifier la session
                 }
               </button>
             </form>
@@ -267,6 +327,16 @@
                         Niveau : {{ stagiaire.niveauEtudes || 'Non renseigné' }}
                       </p>
                     </div>
+                    <div class="actions-row" style="margin-left: auto; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                      <button class="btn btn-secondary btn-small" type="button" (click)="voirProfil(stagiaire.id ?? '', 'stagiaire')">
+                        <span class="material-symbols-outlined">person</span>
+                        Profil
+                      </button>
+                      <button class="btn btn-secondary btn-small" type="button" (click)="telechargerCv(stagiaire.id ?? '')">
+                        <span class="material-symbols-outlined">download</span>
+                        CV PDF
+                      </button>
+                    </div>
                   </div>
                 }
               </div>
@@ -277,6 +347,7 @@
               </div>
             }
           </div>
+
         </div>
 
         <div class="mentor-grid-right">
@@ -300,6 +371,14 @@
                     </div>
                     @if (demande.statut === 'EN_ATTENTE') {
                       <div class="actions-row">
+                        <button class="btn btn-secondary btn-small" type="button" (click)="voirProfil(demande.stagiaire?.id ?? '', 'stagiaire')" [disabled]="!demande.stagiaire?.id">
+                          <span class="material-symbols-outlined">person</span>
+                          Profil
+                        </button>
+                        <button class="btn btn-secondary btn-small" type="button" (click)="telechargerCv(demande.stagiaire?.id ?? '')" [disabled]="!demande.stagiaire?.id">
+                          <span class="material-symbols-outlined">download</span>
+                          CV PDF
+                        </button>
                         <button class="btn btn-primary btn-small" type="button" (click)="respondToRequest(demande, 'ACCEPTEE')" [disabled]="isSaving()">
                           <span class="material-symbols-outlined">check</span>
                           Accepter
@@ -318,28 +397,40 @@
                 <span class="material-symbols-outlined empty-icon-mini">mail</span>
                 <p>Aucune demande d'accompagnement en attente pour l'instant.</p>
               </div>
+            }
+          </div>
+
           <div class="card glass-card" style="margin-top: 1.5rem;">
             <div class="card-heading">
               <p class="eyebrow">Agenda</p>
               <h2>Export de Sessions & Synchronisation</h2>
-              <p class="card-desc">Exportez vos rendez-vous de mentorat vers Google Calendar, Outlook ou Apple Calendar.</p>
+              <p class="card-desc">Exportez vos rendez-vous de mentorat au format iCalendar compatible avec Google Calendar, Outlook et Apple Calendar.</p>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.5rem; padding: 0.75rem 1rem;">
-                <div>
-                  <strong>Session de suivi mentorat</strong>
-                  <small style="color: #94a3b8; display: block;">Format iCalendar (.ics) universel</small>
-                </div>
-                <button class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;" (click)="telechargerIcal('session-active')">
-                  <span class="material-symbols-outlined" style="font-size: 1rem;">calendar_add_on</span>
-                  Télécharger .ics
-                </button>
+            @if (mentorSessionsList().length) {
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                @for (session of mentorSessionsList(); track session.id) {
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.5rem; padding: 0.75rem 1rem; gap: 1rem;">
+                    <div>
+                      <strong>{{ session.sujet }}</strong>
+                      <small style="color: #94a3b8; display: block;">{{ formatSessionDate(session.commenceLe) }}</small>
+                      <small style="color: #94a3b8; display: block;">{{ session.stagiaire ? (session.stagiaire.prenom + ' ' + session.stagiaire.nom) : 'Stagiaire' }}</small>
+                    </div>
+                    <button class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;" type="button" (click)="telechargerIcal(session.id)">
+                      <span class="material-symbols-outlined" style="font-size: 1rem;">calendar_add_on</span>
+                      Télécharger .ics
+                    </button>
+                  </div>
+                }
               </div>
-            </div>
+            } @else {
+              <div class="empty-mini">
+                <span class="material-symbols-outlined empty-icon-mini">event</span>
+                <p>Aucune session planifiée pour le moment.</p>
+              </div>
+            }
           </div>
         </div>
       </div>
     }
-
   }
 </div>

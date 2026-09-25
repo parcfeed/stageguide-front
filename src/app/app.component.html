@@ -1,1 +1,23 @@
 <router-outlet></router-outlet>
+
+<div class="toast-stack" aria-live="polite" aria-atomic="true">
+  @for (toast of toasts(); track toast.id) {
+    <div class="toast toast-{{ toast.type }}" role="status" aria-live="polite">
+      <span class="toast-icon">
+        @if (toast.type === 'success') {
+          <span class="material-symbols-outlined">check_circle</span>
+        } @else if (toast.type === 'error') {
+          <span class="material-symbols-outlined">error</span>
+        } @else {
+          <span class="material-symbols-outlined">info</span>
+        }
+      </span>
+
+      <span class="toast-message">{{ toast.message }}</span>
+
+      <button type="button" class="toast-close" (click)="closeToast(toast.id)" aria-label="Fermer la notification">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+  }
+</div>

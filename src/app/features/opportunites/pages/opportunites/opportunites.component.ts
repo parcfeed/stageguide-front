@@ -4,8 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { OpportunitesService } from '../../../../core/services/opportunites.service';
 import { CandidatureService } from '../../../../core/services/candidature.service';
-import { OffreStage, OffreEmploi } from '../../../../core/interfaces/opportunites.interface';
-import { catchError, of } from 'rxjs';
+import {
+  AlerteRecherche,
+  OffreEmploi,
+  OffreSauvegardee,
+  OffreStage,
+  TypeOffre
+} from '../../../../core/interfaces/opportunites.interface';
+import { catchError, forkJoin, of } from 'rxjs';
 
 @Component({
   selector: 'app-opportunites',
@@ -19,8 +25,8 @@ export class OpportunitesComponent implements OnInit {
   private readonly candidatureService = inject(CandidatureService);
   private readonly router = inject(Router);
 
-  // Active tab management: 'stage' | 'emploi' | 'recommandations' | 'favoris'
-  activeTab = signal<'stage' | 'emploi' | 'recommandations' | 'favoris'>('stage');
+  // Active tab management
+  activeTab = signal<'stage' | 'emploi' | 'recommandations' | 'favoris' | 'alertes'>('stage');
 
   // State indicators
   isLoading = signal(false);
@@ -30,12 +36,14 @@ export class OpportunitesComponent implements OnInit {
   // Lists of offers
   offresStage = signal<OffreStage[]>([]);
   offresEmploi = signal<OffreEmploi[]>([]);
-  recommandations = signal<(OffreStage | OffreEmploi)[]>([]);
-  offresSauvegardees = signal<any[]>([]);
+  recommandationsStage = signal<OffreStage[]>([]);
+  recommandationsEmploi = signal<OffreEmploi[]>([]);
+  offresSauvegardees = signal<OffreSauvegardee[]>([]);
+  // Index offre.id -> sauvegarde.id : permet de savoir si une offre est en favori
+  private readonly favorisIndex = signal<Record<string, string>>({});
 
   // Alertes
-  alertes = signal<any[]>([]);
-  showAlertesModal = signal(false);
+  alertes = signal<AlerteRecherche[]>([]);
   nouvelleAlerteDomaine = signal('');
   nouvelleAlerteVille = signal('');
 
@@ -47,6 +55,7 @@ export class OpportunitesComponent implements OnInit {
 
   // Detail Modal state
   selectedOffer = signal<OffreStage | OffreEmploi | null>(null);
+  selectedTypeOffre = signal<TypeOffre>('STAGE');
   showDetailModal = signal(false);
 
   // Motivation & Application state
@@ -76,6 +85,9 @@ export class OpportunitesComponent implements OnInit {
 
   ngOnInit(): void {
     this.rechercher();
+    // Chargés dès l'ouverture pour connaître l'état des boutons favoris et le nombre d'alertes
+    this.chargerFavoris();
+    this.chargerAlertes();
   }
 
   /**
@@ -88,30 +100,27 @@ export class OpportunitesComponent implements OnInit {
     const tab = this.activeTab();
 
     if (tab === 'recommandations') {
-      this.opportunitesService.getRecommandationsStage().subscribe({
-        next: (stages) => {
-          this.recommandations.set(stages || []);
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.errorMessage.set('Erreur lors du calcul des recommandations');
-          this.isLoading.set(false);
-        }
+      // Un échec sur un des deux types ne doit pas masquer l'autre
+      forkJoin({
+        stages: this.opportunitesService.getRecommandationsStage().pipe(catchError(() => of([]))),
+        emplois: this.opportunitesService.getRecommandationsEmploi().pipe(catchError(() => of([])))
+      }).subscribe(({ stages, emplois }) => {
+        this.recommandationsStage.set(stages);
+        this.recommandationsEmploi.set(emplois);
+        this.isLoading.set(false);
       });
       return;
     }
 
     if (tab === 'favoris') {
-      this.opportunitesService.listerOffresSauvegardees().subscribe({
-        next: (favs) => {
-          this.offresSauvegardees.set(favs || []);
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.errorMessage.set('Erreur lors du chargement des offres sauvegardées');
-          this.isLoading.set(false);
-        }
-      });
+      this.chargerFavoris();
+      this.isLoading.set(false);
+      return;
+    }
+
+    if (tab === 'alertes') {
+      this.chargerAlertes();
+      this.isLoading.set(false);
       return;
     }
 
@@ -155,39 +164,85 @@ export class OpportunitesComponent implements OnInit {
   /**
    * Sauvegarder ou retirer des favoris
    */
-  toggleFavori(offre: OffreStage | OffreEmploi, event: Event): void {
-    event.stopPropagation();
-    const isStage = 'duree' in offre;
-    const payload = isStage ? { offreStageId: offre.id } : { offreEmploiId: offre.id };
+  /**
+   * Recharge les favoris et reconstruit l'index offre -> sauvegarde
+   */
+  chargerFavoris(): void {
+    this.opportunitesService.listerOffresSauvegardees().subscribe({
+      next: (favoris) => {
+        this.offresSauvegardees.set(favoris);
+        const index: Record<string, string> = {};
+        for (const favori of favoris) {
+          const offreId = favori.offreStageId ?? favori.offreEmploiId;
+          if (offreId) {
+            index[offreId] = favori.id;
+          }
+        }
+        this.favorisIndex.set(index);
+      },
+      error: () => {
+        // On ne bloque pas l'affichage des offres si les favoris échouent
+        if (this.activeTab() === 'favoris') {
+          this.errorMessage.set('Erreur lors du chargement des offres sauvegardées');
+        }
+      }
+    });
+  }
 
+  estFavori(offreId: string): boolean {
+    return Boolean(this.favorisIndex()[offreId]);
+  }
+
+  /**
+   * Ajoute ou retire une offre des favoris selon son état actuel
+   */
+  toggleFavori(offre: OffreStage | OffreEmploi, type: TypeOffre, event: Event): void {
+    event.stopPropagation();
+    const sauvegardeId = this.favorisIndex()[offre.id];
+
+    if (sauvegardeId) {
+      this.supprimerFavori(sauvegardeId, event);
+      return;
+    }
+
+    const payload = type === 'STAGE' ? { offreStageId: offre.id } : { offreEmploiId: offre.id };
     this.opportunitesService.sauvegarderOffre(payload).subscribe({
       next: () => {
-        this.successMessage.set('Offre ajoutée aux favoris !');
-        setTimeout(() => this.successMessage.set(null), 3000);
+        this.chargerFavoris();
+        this.afficherSucces('Offre ajoutée aux favoris !');
       },
       error: () => {}
     });
   }
 
-  supprimerFavori(favId: string, event: Event): void {
+  supprimerFavori(sauvegardeId: string, event: Event): void {
     event.stopPropagation();
-    this.opportunitesService.supprimerOffreSauvegardee(favId).subscribe({
+    this.opportunitesService.supprimerOffreSauvegardee(sauvegardeId).subscribe({
       next: () => {
-        this.rechercher();
-      }
+        this.chargerFavoris();
+        this.afficherSucces('Offre retirée des favoris.');
+      },
+      error: () => {}
     });
   }
 
+  /**
+   * Offre associée à une sauvegarde (null si l'offre a été supprimée)
+   */
+  offreDuFavori(favori: OffreSauvegardee): OffreStage | OffreEmploi | null {
+    return favori.offreStage ?? favori.offreEmploi ?? null;
+  }
+
+  typeDuFavori(favori: OffreSauvegardee): TypeOffre {
+    return favori.offreStage ? 'STAGE' : 'EMPLOI';
+  }
+
+  private afficherSucces(message: string): void {
+    this.successMessage.set(message);
+    setTimeout(() => this.successMessage.set(null), 3000);
+  }
+
   // --- Alertes ---
-  ouvrirModalAlertes(): void {
-    this.showAlertesModal.set(true);
-    this.chargerAlertes();
-  }
-
-  fermerModalAlertes(): void {
-    this.showAlertesModal.set(false);
-  }
-
   chargerAlertes(): void {
     this.opportunitesService.listerAlertes().subscribe({
       next: (res) => this.alertes.set(res || [])
@@ -227,17 +282,19 @@ export class OpportunitesComponent implements OnInit {
   /**
    * Switch between stages and emplois
    */
-  switchTab(tab: 'stage' | 'emploi' | 'recommandations' | 'favoris'): void {
+  switchTab(tab: 'stage' | 'emploi' | 'recommandations' | 'favoris' | 'alertes'): void {
     if (this.activeTab() === tab) return;
     this.activeTab.set(tab);
+    this.errorMessage.set(null);
     this.rechercher();
   }
 
   /**
    * Open the detailed modal view for an offer
    */
-  ouvrirDetail(offre: OffreStage | OffreEmploi): void {
+  ouvrirDetail(offre: OffreStage | OffreEmploi, type: TypeOffre): void {
     this.selectedOffer.set(offre);
+    this.selectedTypeOffre.set(type);
     this.showDetailModal.set(true);
     this.modalLogoError.set(false);
     // Reset apply states
@@ -270,7 +327,7 @@ export class OpportunitesComponent implements OnInit {
     this.applySuccessMessage.set(null);
     this.applyErrorMessage.set(null);
 
-    const isStage = this.activeTab() === 'stage';
+    const isStage = this.selectedTypeOffre() === 'STAGE';
     const payload: any = {};
 
     if (isStage) {

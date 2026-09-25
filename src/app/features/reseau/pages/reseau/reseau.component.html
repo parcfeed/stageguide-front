@@ -70,9 +70,9 @@
         @for (sug of suggestions(); track sug.id) {
           <div class="member-card">
             <div class="card-top">
-              <div class="avatar-box">
+              <button type="button" class="avatar-box avatar-button" (click)="ouvrirProfilMembre(sug)" aria-label="Voir le profil de {{ sug.prenom }} {{ sug.nom }}">
                 <span class="material-symbols-outlined">person</span>
-              </div>
+              </button>
               <div class="match-badge">
                 <span class="material-symbols-outlined">verified</span>
                 <span>{{ sug.scoreMatch }}% compatibilité</span>
@@ -144,9 +144,9 @@
         @for (m of membres(); track m.id) {
           <div class="member-card">
             <div class="card-top">
-              <div class="avatar-box">
+              <button type="button" class="avatar-box avatar-button" (click)="ouvrirProfilMembre(m)" aria-label="Voir le profil de {{ m.prenom }} {{ m.nom }}">
                 <span class="material-symbols-outlined">account_circle</span>
-              </div>
+              </button>
               <span class="role-pill role-{{ m.role.toLowerCase() }}">{{ m.role }}</span>
             </div>
 
@@ -220,6 +220,35 @@
         </div>
       }
 
+      <!-- Demandes envoyées -->
+      @if (demandesEnvoyees().length > 0) {
+        <div class="section-group">
+          <h2 class="group-title">
+            <span class="material-symbols-outlined">send</span>
+            Demandes envoyées en attente ({{ demandesEnvoyees().length }})
+          </h2>
+          <div class="requests-grid">
+            @for (dem of demandesEnvoyees(); track dem.id) {
+              <div class="request-card">
+                <div class="request-info">
+                  <h4>{{ dem.receveur?.prenom }} {{ dem.receveur?.nom }}</h4>
+                  <span class="role-pill role-{{ dem.receveur?.role?.toLowerCase() }}">{{ dem.receveur?.role }}</span>
+                  @if (dem.message) {
+                    <p class="quote">« {{ dem.message }} »</p>
+                  }
+                </div>
+                <div class="request-actions">
+                  <button class="btn-secondary" disabled>
+                    <span class="material-symbols-outlined">hourglass_top</span>
+                    En attente
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
       <!-- Connexions Actives -->
       <div class="section-group">
         <h2 class="group-title">
@@ -239,9 +268,9 @@
           @for (c of connexionsActives(); track c.id) {
             <div class="member-card connected">
               <div class="card-top">
-                <div class="avatar-box">
+                <button type="button" class="avatar-box avatar-button" (click)="ouvrirProfilMembre(c.contact)" aria-label="Voir le profil de {{ c.contact.prenom }} {{ c.contact.nom }}">
                   <span class="material-symbols-outlined">verified_user</span>
-                </div>
+                </button>
                 <span class="status-connected">Connecté</span>
               </div>
               <div class="card-info">
@@ -262,6 +291,76 @@
               </div>
             </div>
           }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL PROFIL MEMBRE -->
+  @if (showProfileModal()) {
+    <div class="modal-backdrop" (click)="fermerProfilModal()">
+      <div class="profile-modal-card modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Profil de {{ selectedProfile()?.prenom || '' }} {{ selectedProfile()?.nom || '' }}</h3>
+          <button class="btn-close" (click)="fermerProfilModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        @if (profileLoading()) {
+          <div class="profile-loading">
+            <span class="material-symbols-outlined spin">progress_activity</span>
+            <p>Chargement du profil...</p>
+          </div>
+        } @else if (selectedProfile(); as profile) {
+          <div class="profile-detail-list">
+            @if (profile.prenom || profile.nom) {
+              <div class="profile-row">
+                <span class="profile-label">Nom</span>
+                <strong>{{ profile.prenom || '' }} {{ profile.nom || '' }}</strong>
+              </div>
+            }
+            @if (profile.entreprise) {
+              <div class="profile-row">
+                <span class="profile-label">Entreprise</span>
+                <strong>{{ profile.entreprise }}</strong>
+              </div>
+            }
+            @if (profile.poste) {
+              <div class="profile-row">
+                <span class="profile-label">Poste</span>
+                <strong>{{ profile.poste }}</strong>
+              </div>
+            }
+            @if (profile.ecole) {
+              <div class="profile-row">
+                <span class="profile-label">École</span>
+                <strong>{{ profile.ecole }}</strong>
+              </div>
+            }
+            @if (profile.telephone) {
+              <div class="profile-row">
+                <span class="profile-label">Téléphone</span>
+                <strong>{{ profile.telephone }}</strong>
+              </div>
+            }
+            @if (profile.email) {
+              <div class="profile-row">
+                <span class="profile-label">Email</span>
+                <strong>{{ profile.email }}</strong>
+              </div>
+            }
+            @if (profile.bio) {
+              <div class="profile-row bio-row">
+                <span class="profile-label">Bio</span>
+                <p>{{ profile.bio }}</p>
+              </div>
+            }
+          </div>
+        }
+
+        <div class="modal-footer">
+          <button class="btn-cancel" (click)="fermerProfilModal()">Fermer</button>
         </div>
       </div>
     </div>

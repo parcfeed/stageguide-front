@@ -1,16 +1,19 @@
 ﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { 
-  ListerOffresStageDto, 
-  ListerOffresEmploiDto, 
-  OffresStageResponse, 
-  OffresEmploiResponse,
-  OffreStage,
-  OffreEmploi,
-  OffreSauvegardee,
+  AlertesResponse,
   AlerteRecherche,
-  CreerAlerteDto
+  CreerAlerteDto,
+  ListerOffresEmploiDto,
+  ListerOffresStageDto,
+  OffresEmploiResponse,
+  OffreEmploi,
+  OffresSauvegardeesResponse,
+  OffresStageResponse,
+  OffreSauvegardee,
+  OffreStage,
+  RecommandationsResponse
 } from '../interfaces/opportunites.interface';
 import { API_BASE_URL } from '../constants/api.constants';
 
@@ -41,7 +44,9 @@ export class OpportunitesService {
    * Recommandations intelligentes de stages pour le profil stagiaire
    */
   getRecommandationsStage(): Observable<OffreStage[]> {
-    return this.http.get<OffreStage[]>(`${this.apiUrl}/offres-stage/recommandations`);
+    return this.http
+      .get<RecommandationsResponse<OffreStage>>(`${this.apiUrl}/offres-stage/recommandations`)
+      .pipe(map(res => res?.offres ?? []));
   }
 
   /**
@@ -63,14 +68,18 @@ export class OpportunitesService {
    * Recommandations intelligentes d'emplois pour le profil
    */
   getRecommandationsEmploi(): Observable<OffreEmploi[]> {
-    return this.http.get<OffreEmploi[]>(`${this.apiUrl}/offres-emploi/recommandations`);
+    return this.http
+      .get<RecommandationsResponse<OffreEmploi>>(`${this.apiUrl}/offres-emploi/recommandations`)
+      .pipe(map(res => res?.offres ?? []));
   }
 
   /**
    * Lister les offres sauvegardées en favoris
    */
   listerOffresSauvegardees(): Observable<OffreSauvegardee[]> {
-    return this.http.get<OffreSauvegardee[]>(`${this.apiUrl}/offres-sauvegardees`);
+    return this.http
+      .get<OffresSauvegardeesResponse>(`${this.apiUrl}/offres-sauvegardees`)
+      .pipe(map(res => res?.sauvegardes ?? []));
   }
 
   /**
@@ -91,7 +100,9 @@ export class OpportunitesService {
    * Lister les alertes de recherche du stagiaire
    */
   listerAlertes(): Observable<AlerteRecherche[]> {
-    return this.http.get<AlerteRecherche[]>(this.alertesUrl);
+    return this.http
+      .get<AlertesResponse>(this.alertesUrl)
+      .pipe(map(res => res?.alertes ?? []));
   }
 
   /**

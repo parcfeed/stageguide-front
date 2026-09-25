@@ -4,6 +4,8 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { Router } from '@angular/router';
 import { EntrepriseService } from '../../../../core/services/entreprise.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ProfileService } from '../../../../core/services/profile.service';
+import { CvService } from '../../../../core/services/cv.service';
 import { OffreStage, OffreEmploi } from '../../../../core/interfaces/opportunites.interface';
 import { Candidature } from '../../../../core/interfaces/candidature.interface';
 import { Entretien } from '../../../../core/interfaces/entreprise.interface';
@@ -19,11 +21,13 @@ import { Observable, catchError, of } from 'rxjs';
 export class EntrepriseComponent implements OnInit {
   private readonly entrepriseService = inject(EntrepriseService);
   private readonly authService = inject(AuthService);
+  private readonly profileService = inject(ProfileService);
+  private readonly cvService = inject(CvService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
   // Active view management
-  activeTab = signal<'offres' | 'candidatures' | 'entretiens'>('offres');
+  activeTab = signal<'offres' | 'candidatures' | 'entretiens' | 'statistiques'>('offres');
 
   // Loading & Error States
   isLoading = signal(false);
@@ -35,6 +39,8 @@ export class EntrepriseComponent implements OnInit {
   offresEmploi = signal<OffreEmploi[]>([]);
   candidatures = signal<Candidature[]>([]);
   entretiens = signal<Entretien[]>([]);
+  statistiques = signal<any | null>(null);
+  profilePreview = signal<{ title: string; data: any } | null>(null);
 
   // Modals / Form states
   showOfferForm = signal(false);
@@ -125,7 +131,79 @@ export class EntrepriseComponent implements OnInit {
       this.loadCandidatures();
     } else if (tab === 'entretiens') {
       this.loadEntretiens();
+    } else if (tab === 'statistiques') {
+      this.loadStatistiques();
     }
+  }
+
+  private loadStatistiques(): void {
+    this.entrepriseService.getStatistiques().subscribe({
+      next: (stats) => {
+        this.statistiques.set(stats);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.errorMessage.set('Erreur lors du chargement des statistiques.');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  changerStatutCandidature(id: string, statut: string): void {
+    this.entrepriseService.changerStatutCandidature(id, statut).subscribe({
+      next: () => {
+        this.successMessage.set(`Statut de la candidature mis à jour en "${statut}".`);
+        this.loadCandidatures();
+        setTimeout(() => this.successMessage.set(null), 3500);
+      },
+      error: () => this.errorMessage.set('Erreur lors de la mise à jour du statut.')
+    });
+  }
+
+  changerStatutEntretien(id: string, statut: string): void {
+    this.entrepriseService.changerStatutEntretien(id, statut).subscribe({
+      next: () => {
+        this.successMessage.set(`Statut de l'entretien mis à jour en "${statut}".`);
+        this.loadEntretiens();
+        setTimeout(() => this.successMessage.set(null), 3500);
+      },
+      error: () => this.errorMessage.set('Erreur lors de la mise à jour de l’entretien.')
+    });
+  }
+
+  voirProfilStagiaire(userId: string): void {
+    this.profileService.getStagiaireProfileById(userId).subscribe({
+      next: (profile) => {
+        this.profilePreview.set({
+          title: `${profile.prenom ?? ''} ${profile.nom ?? ''}`.trim() || 'Profil stagiaire',
+          data: profile
+        });
+      },
+      error: () => this.errorMessage.set('Impossible de charger le profil du stagiaire.')
+    });
+  }
+
+  telechargerCvStagiaire(userId: string): void {
+    this.cvService.telechargerPdfByUserId(userId).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `cv-${userId}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        this.successMessage.set('CV téléchargé avec succès.');
+        setTimeout(() => this.successMessage.set(null), 2500);
+      },
+      error: () => this.errorMessage.set('Impossible de télécharger le CV du stagiaire.')
+    });
+  }
+
+  switchTab(tab: 'offres' | 'candidatures' | 'entretiens' | 'statistiques'): void {
+    this.activeTab.set(tab);
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
+    this.refreshData();
   }
 
   private loadOffres(): void {
@@ -177,13 +255,6 @@ export class EntrepriseComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
-  }
-
-  switchTab(tab: 'offres' | 'candidatures' | 'entretiens'): void {
-    this.activeTab.set(tab);
-    this.successMessage.set(null);
-    this.errorMessage.set(null);
-    this.refreshData();
   }
 
   // --- Offers Management ---

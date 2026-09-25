@@ -2,9 +2,12 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { ReseauService } from '../../../../core/services/reseau.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { MessagesService } from '../../../../core/services/messages.service';
+import { ProfileService } from '../../../../core/services/profile.service';
+import { EntrepriseService } from '../../../../core/services/entreprise.service';
 import {
   MembreReseau,
   SuggestionReseau,
@@ -23,6 +26,8 @@ export class ReseauComponent implements OnInit {
   private readonly reseauService = inject(ReseauService);
   private readonly authService = inject(AuthService);
   private readonly messagesService = inject(MessagesService);
+  private readonly profileService = inject(ProfileService);
+  private readonly entrepriseService = inject(EntrepriseService);
   private readonly router = inject(Router);
 
   readonly currentUser = this.authService.currentUser;
@@ -52,6 +57,11 @@ export class ReseauComponent implements OnInit {
   selectedDestinataire = signal<MembreReseau | null>(null);
   messageConnexion = signal('');
   isSubmitting = signal(false);
+
+  // Modal profil
+  showProfileModal = signal(false);
+  selectedProfile = signal<any | null>(null);
+  profileLoading = signal(false);
 
   ngOnInit(): void {
     this.chargerDonnees();
@@ -115,6 +125,71 @@ export class ReseauComponent implements OnInit {
     this.showConnectModal.set(false);
     this.selectedDestinataire.set(null);
     this.messageConnexion.set('');
+  }
+
+  ouvrirProfilMembre(membre: any): void {
+    if (!membre?.id) {
+      this.errorMessage.set('Profil introuvable.');
+      return;
+    }
+
+    this.profileLoading.set(true);
+    this.selectedProfile.set(null);
+    this.showProfileModal.set(true);
+    this.errorMessage.set(null);
+
+    const role = (membre.role ?? '').toUpperCase();
+    let profileRequest$: Observable<any>;
+
+    switch (role) {
+      case 'STAGIAIRE':
+        profileRequest$ = this.profileService.getStagiaireProfileById(membre.id);
+        break;
+      case 'MENTOR':
+        profileRequest$ = this.profileService.getMentorProfileById(membre.id);
+        break;
+      case 'ENTREPRISE':
+        profileRequest$ = this.entrepriseService.getEntrepriseProfileById(membre.id);
+        break;
+      default:
+        this.selectedProfile.set({
+          prenom: membre.prenom,
+          nom: membre.nom,
+          entreprise: membre.entreprise,
+          poste: membre.poste,
+          ecole: membre.ecole,
+          bio: membre.bio,
+          telephone: 'Non renseigné'
+        });
+        this.profileLoading.set(false);
+        return;
+    }
+
+    profileRequest$.subscribe({
+      next: (profile) => {
+        this.selectedProfile.set(profile);
+        this.profileLoading.set(false);
+      },
+      error: () => {
+        this.selectedProfile.set({
+          prenom: membre.prenom,
+          nom: membre.nom,
+          entreprise: membre.entreprise,
+          poste: membre.poste,
+          ecole: membre.ecole,
+          bio: membre.bio,
+          telephone: 'Non renseigné'
+        });
+        this.profileLoading.set(false);
+        this.errorMessage.set('Impossible de charger ce profil.');
+      }
+    });
+  }
+
+  fermerProfilModal(): void {
+    this.showProfileModal.set(false);
+    this.selectedProfile.set(null);
+    this.profileLoading.set(false);
   }
 
   envoyerDemande(): void {

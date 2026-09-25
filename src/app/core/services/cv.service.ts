@@ -19,10 +19,24 @@ export class CvService {
   }
 
   /**
+   * Récupère le CV d'un stagiaire cible pour un profil autorisé
+   */
+  getCvByUserId(userId: string): Observable<CvStructure> {
+    return this.http.get<CvStructure>(`${this.baseUrl}/${userId}`);
+  }
+
+  /**
    * Télécharge le CV au format PDF
    */
   telechargerPdf(): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/pdf`, { responseType: 'blob' });
+  }
+
+  /**
+   * Télécharge le CV d'un stagiaire cible pour un profil autorisé
+   */
+  telechargerPdfByUserId(userId: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${userId}/pdf`, { responseType: 'blob' });
   }
 
   /**

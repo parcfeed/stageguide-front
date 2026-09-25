@@ -3,6 +3,9 @@
 
 :root {
   --midnight-accent: #7C5DFA;
+  --midnight-accent-strong: #6846f5;
+  --sky-accent: #3ea1ff;
+  --sky-accent-strong: #2d8cf0;
   --on-surface: #e6e1e7;
   --inverse-surface: #e6e1e7;
   --surface-container: #201f23;
@@ -76,6 +79,93 @@ body {
   min-height: 100vh;
   line-height: 1.5;
   overflow-x: hidden;
+  max-width: 100vw;
+}
+
+html, body, app-root {
+  width: 100%;
+  max-width: 100%;
+}
+
+* {
+  max-width: 100%;
+}
+
+button, input, textarea, select, label, .glass-card, .card, .panel, .section, .request-info, .suggestion-info, .request-item, .form-group {
+  min-width: 0;
+  max-width: 100%;
+}
+
+button, input, textarea, select {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+button {
+  color: var(--on-surface);
+  border: 1px solid transparent;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+button:not(:disabled):hover {
+  filter: brightness(1.04);
+}
+
+button, select, input, textarea {
+  color: var(--on-surface);
+}
+
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"],
+input[type="month"],
+select,
+textarea,
+input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]) {
+  background: rgba(15, 17, 24, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.75rem;
+  color: var(--on-surface);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.03);
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="month"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(1) brightness(1.4);
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit,
+input[type="time"]::-webkit-datetime-edit,
+input[type="month"]::-webkit-datetime-edit {
+  color: var(--on-surface);
+}
+
+select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--on-surface) 50%),
+    linear-gradient(135deg, var(--on-surface) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 3px),
+    calc(100% - 12px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 2.5rem;
+}
+
+p, span, div, h1, h2, h3, h4, h5, h6, strong, small {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -133,7 +223,15 @@ select.form-control option:checked {
 .glass-input {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  /* Les champs de saisie n'héritent pas de la couleur du body : sans cette
+     ligne le texte reste noir sur le fond sombre (formulaires illisibles). */
+  color: var(--on-surface);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-input::placeholder {
+  color: var(--on-surface-variant);
+  opacity: 0.6;
 }
 
 .glass-input:focus {
@@ -180,20 +278,30 @@ select.form-control option:checked {
 }
 
 .btn-primary {
-  background: var(--midnight-accent);
-  color: white;
-  box-shadow: 0 4px 15px rgba(124, 93, 250, 0.3);
+  background: linear-gradient(135deg, var(--midnight-accent) 0%, var(--midnight-accent-strong) 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(124, 93, 250, 0.35);
 }
 
 .btn-primary:hover {
-  box-shadow: 0 8px 25px rgba(124, 93, 250, 0.5);
+  box-shadow: 0 10px 24px rgba(124, 93, 250, 0.52);
   transform: translateY(-2px);
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(96, 136, 255, 0.1);
   color: var(--on-surface);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(124, 93, 250, 0.35);
+}
+
+.btn-download {
+  background: linear-gradient(135deg, var(--sky-accent) 0%, var(--sky-accent-strong) 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(62, 161, 255, 0.3);
+}
+
+.btn-download:hover {
+  box-shadow: 0 10px 24px rgba(62, 161, 255, 0.46);
 }
 
 .btn-secondary:hover {

@@ -129,24 +129,27 @@
             </div>
 
             <form [formGroup]="messageForm" (ngSubmit)="sendMessage()" class="message-form">
-              <div class="input-row">
-                <input
-                  formControlName="contenu"
-                  class="message-input"
-                  placeholder="Écrire un message..."
-                  type="text"
-                />
-                <button
-                  class="btn btn-primary send-btn"
-                  type="submit"
-                  [disabled]="isSending() || messageForm.invalid"
-                >
-                  @if (isSending()) {
-                    <span class="material-symbols-outlined spin" style="font-size: 1.25rem;">progress_activity</span>
-                  } @else {
-                    <span class="material-symbols-outlined">send</span>
-                  }
-                </button>
+              <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%;">
+                <div class="input-row">
+                  <input
+                    formControlName="contenu"
+                    class="message-input"
+                    placeholder="Écrire un message..."
+                    type="text"
+                  />
+                  <button
+                    class="btn btn-primary send-btn"
+                    type="submit"
+                    [disabled]="isSending() || messageForm.invalid"
+                  >
+                    @if (isSending()) {
+                      <span class="material-symbols-outlined spin" style="font-size: 1.25rem;">progress_activity</span>
+                    } @else {
+                      <span class="material-symbols-outlined">send</span>
+                    }
+                  </button>
+                </div>
+
               </div>
             </form>
           </div>

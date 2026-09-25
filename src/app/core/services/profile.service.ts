@@ -27,6 +27,13 @@ export class ProfileService {
   }
 
   /**
+   * Get a stagiaire profile by id (for mentor/entreprise access)
+   */
+  getStagiaireProfileById(userId: string): Observable<StagiaireProfile> {
+    return this.http.get<StagiaireProfile>(`${this.apiUrl}/stagiaire/profil/${userId}`);
+  }
+
+  /**
    * Update stagiaire profile
    * PATCH /stagiaire/profil
    */
@@ -43,6 +50,13 @@ export class ProfileService {
    */
   getMentorProfile(): Observable<MentorProfile> {
     return this.http.get<MentorProfile>(`${this.apiUrl}/mentor/profil`);
+  }
+
+  /**
+   * Get a mentor profile by id (for stagiaire/entreprise access)
+   */
+  getMentorProfileById(userId: string): Observable<MentorProfile> {
+    return this.http.get<MentorProfile>(`${this.apiUrl}/mentor/profil/${userId}`);
   }
 
   /**

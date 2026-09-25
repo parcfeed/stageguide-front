@@ -11,7 +11,7 @@
         <span class="material-symbols-outlined">edit</span>
         Éditer Portfolio
       </button>
-      <button class="btn-primary" [disabled]="isDownloading()" (click)="telechargerPdf()">
+      <button class="btn-download" [disabled]="isDownloading()" (click)="telechargerPdf()">
         <span class="material-symbols-outlined">download</span>
         {{ isDownloading() ? 'Génération...' : 'Télécharger PDF' }}
       </button>

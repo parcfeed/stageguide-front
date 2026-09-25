@@ -4,12 +4,14 @@
  */
 export interface StagiaireProfile {
   utilisateurId: string;
+  email?: string;
   prenom: string;
   nom: string;
   telephone?: string;
   ecole?: string;
   niveauEtudes?: string;
   bio?: string;
+  role?: string;
 }
 
 /**
@@ -34,12 +36,14 @@ export interface StagiaireProfileResponse extends StagiaireProfile {
  */
 export interface MentorProfile {
   utilisateurId: string;
+  email?: string;
   prenom: string;
   nom: string;
   telephone?: string;
   entreprise?: string;
   poste?: string;
   bio?: string;
+  role?: string;
 }
 
 /**
@@ -56,4 +60,16 @@ export interface UpdateMentorProfilePayload {
 
 export interface MentorProfileResponse extends MentorProfile {
   message?: string;
+}
+
+export interface EntrepriseProfile {
+  utilisateurId: string;
+  email?: string;
+  prenom: string;
+  nom: string;
+  telephone?: string;
+  entreprise?: string;
+  poste?: string;
+  bio?: string;
+  role?: string;
 }

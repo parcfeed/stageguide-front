@@ -37,6 +37,14 @@
       <span class="material-symbols-outlined">calendar_month</span>
       Entretiens planifiés
     </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab() === 'statistiques'"
+      (click)="switchTab('statistiques')"
+    >
+      <span class="material-symbols-outlined">query_stats</span>
+      Statistiques & KPIs
+    </button>
   </div>
 
   <!-- Success/Error Messages -->
@@ -48,6 +56,38 @@
   @if (errorMessage()) {
     <div class="alert alert-error">
       {{ errorMessage() }}
+    </div>
+  }
+
+  @if (profilePreview(); as preview) {
+    <div class="card glass-card" style="margin-bottom: 1.5rem;">
+      <div class="card-heading">
+        <p class="eyebrow">Profil candidat</p>
+        <h2>{{ preview.title }}</h2>
+      </div>
+      <div style="display: grid; gap: 0.5rem; color: #dfe7f3;">
+        @if (preview.data.prenom || preview.data.nom) {
+          <div><strong>Nom :</strong> {{ preview.data.prenom || '' }} {{ preview.data.nom || '' }}</div>
+        }
+        @if (preview.data.telephone) {
+          <div><strong>Téléphone :</strong> {{ preview.data.telephone }}</div>
+        }
+        @if (preview.data.ecole) {
+          <div><strong>École :</strong> {{ preview.data.ecole }}</div>
+        }
+        @if (preview.data.niveauEtudes) {
+          <div><strong>Niveau :</strong> {{ preview.data.niveauEtudes }}</div>
+        }
+        @if (preview.data.bio) {
+          <div><strong>Bio :</strong> {{ preview.data.bio }}</div>
+        }
+      </div>
+      <div style="margin-top: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <button class="btn btn-secondary btn-small" type="button" (click)="profilePreview.set(null)">
+          <span class="material-symbols-outlined">close</span>
+          Fermer
+        </button>
+      </div>
     </div>
   }
 
@@ -195,11 +235,27 @@
                 </div>
               }
 
-              <div class="candidature-actions" style="margin-top: 1.25rem;">
+              <div class="candidature-actions" style="margin-top: 1.25rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button class="btn btn-secondary btn-small" type="button" (click)="voirProfilStagiaire(candidature.utilisateur?.id ?? '')" [disabled]="!candidature.utilisateur?.id">
+                  <span class="material-symbols-outlined">person</span>
+                  Voir profil
+                </button>
+                <button class="btn btn-secondary btn-small" type="button" (click)="telechargerCvStagiaire(candidature.utilisateur?.id ?? '')" [disabled]="!candidature.utilisateur?.id">
+                  <span class="material-symbols-outlined">download</span>
+                  CV PDF
+                </button>
                 @if (candidature.statut === 'EN_ATTENTE' || candidature.statut === 'EN_COURS') {
                   <button class="btn btn-primary btn-small" (click)="openPlanInterview(candidature)">
                     <span class="material-symbols-outlined">calendar_month</span>
                     Planifier un entretien
+                  </button>
+                  <button class="btn btn-secondary btn-small" style="background: rgba(16,185,129,0.15); color: #34d399; border-color: rgba(16,185,129,0.3);" (click)="changerStatutCandidature(candidature.id, 'ACCEPTEE')">
+                    <span class="material-symbols-outlined">check</span>
+                    Accepter
+                  </button>
+                  <button class="btn btn-secondary btn-small" style="background: rgba(239,68,68,0.15); color: #f87171; border-color: rgba(239,68,68,0.3);" (click)="changerStatutCandidature(candidature.id, 'REFUSEE')">
+                    <span class="material-symbols-outlined">close</span>
+                    Refuser
                   </button>
                 }
               </div>
@@ -246,9 +302,62 @@
                     <p class="message-text">{{ entretien.message }}</p>
                   </div>
                 }
+                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                  <button class="btn btn-secondary btn-small" (click)="changerStatutEntretien(entretien.id, 'CONFIRME')">
+                    <span class="material-symbols-outlined">done_all</span>
+                    Confirmer
+                  </button>
+                  <button class="btn btn-secondary btn-small" style="color: #f87171;" (click)="changerStatutEntretien(entretien.id, 'ANNULE')">
+                    <span class="material-symbols-outlined">cancel</span>
+                    Annuler
+                  </button>
+                </div>
               </div>
             </div>
           }
+        </div>
+      }
+    }
+
+    <!-- 4. STATISTIQUES TAB -->
+    @if (activeTab() === 'statistiques') {
+      <div class="tab-header">
+        <h2>Indicateurs Clés & Performance Recrutement</h2>
+      </div>
+
+      @if (statistiques(); as stats) {
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+          <div class="glass-card" style="padding: 1.5rem; text-align: center;">
+            <span class="material-symbols-outlined" style="font-size: 2rem; color: var(--primary, #7c5dfa);">work</span>
+            <h3 style="font-size: 2rem; margin: 0.5rem 0 0.2rem; font-weight: 800;">{{ stats.totalOffresStage + stats.totalOffresEmploi }}</h3>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">Total des offres publiées</p>
+            <small style="color: #34d399;">{{ stats.offresActives }} actives · {{ stats.offresArchivees }} archivées</small>
+          </div>
+
+          <div class="glass-card" style="padding: 1.5rem; text-align: center;">
+            <span class="material-symbols-outlined" style="font-size: 2rem; color: #38bdf8;">group</span>
+            <h3 style="font-size: 2rem; margin: 0.5rem 0 0.2rem; font-weight: 800;">{{ stats.totalCandidatures }}</h3>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">Candidatures reçues</p>
+            <small style="color: #38bdf8;">{{ stats.candidaturesEnAttente }} en attente</small>
+          </div>
+
+          <div class="glass-card" style="padding: 1.5rem; text-align: center;">
+            <span class="material-symbols-outlined" style="font-size: 2rem; color: #34d399;">thumb_up</span>
+            <h3 style="font-size: 2rem; margin: 0.5rem 0 0.2rem; font-weight: 800;">{{ stats.tauxAcceptation }}%</h3>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">Taux d'acceptation</p>
+            <small style="color: #34d399;">{{ stats.candidaturesAcceptees }} retenues</small>
+          </div>
+
+          <div class="glass-card" style="padding: 1.5rem; text-align: center;">
+            <span class="material-symbols-outlined" style="font-size: 2rem; color: #fb923c;">videocam</span>
+            <h3 style="font-size: 2rem; margin: 0.5rem 0 0.2rem; font-weight: 800;">{{ stats.totalEntretiens }}</h3>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">Entretiens organisés</p>
+            <small style="color: #fb923c;">{{ stats.entretiensConfirmes }} confirmés</small>
+          </div>
+        </div>
+      } @else {
+        <div class="empty-state glass-card">
+          <p>Chargement des statistiques...</p>
         </div>
       }
     }

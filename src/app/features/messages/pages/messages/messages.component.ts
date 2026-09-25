@@ -36,7 +36,7 @@ export class MessagesComponent implements OnInit {
   @ViewChild('messagesContainer') private messagesContainer?: ElementRef<HTMLElement>;
 
   protected readonly messageForm = this.fb.nonNullable.group({
-    contenu: ['', [Validators.required, Validators.minLength(1)]]
+    contenu: ['', [Validators.minLength(1)]]
   });
 
   protected readonly currentUserId = signal<string | null>(null);
@@ -92,7 +92,10 @@ export class MessagesComponent implements OnInit {
 
   protected sendMessage(): void {
     const conv = this.selectedConversation();
-    if (!conv || this.messageForm.invalid) {
+    const { contenu } = this.messageForm.getRawValue();
+    const texteMessage = (contenu ?? '').trim();
+
+    if (!conv || !texteMessage) {
       this.messageForm.markAllAsTouched();
       return;
     }
@@ -100,21 +103,21 @@ export class MessagesComponent implements OnInit {
     this.isSending.set(true);
     this.errorMessage.set(null);
 
-    const { contenu } = this.messageForm.getRawValue();
-
-    this.messagesService.envoyerMessage(conv.id, { contenu }).pipe(
+    this.messagesService.envoyerMessage(conv.id, {
+      contenu: texteMessage
+    }).pipe(
       finalize(() => this.isSending.set(false))
     ).subscribe({
       next: newMessage => {
         this.messages.update(current => [...current, newMessage]);
         this.scrollToBottom();
         this.messageForm.reset();
-        this.successMessage.set('Message envoye avec succes.');
+        this.successMessage.set('Message envoyé avec succès.');
         setTimeout(() => this.successMessage.set(null), 3000);
       },
       error: error => {
         this.errorMessage.set(
-          this.authService.getErrorMessage(error, 'Impossible d envoyer le message.')
+          this.authService.getErrorMessage(error, 'Impossible d\'envoyer le message.')
         );
       }
     });

@@ -129,10 +129,22 @@
 }
 
 .conv-item.active {
-  background: rgba(124, 93, 250, 0.25);
-  border-left: 4px solid var(--primary, #7c5dfa);
+  background: linear-gradient(90deg, rgba(164, 146, 255, 0.3), rgba(112, 92, 220, 0.2));
+  border-left: 4px solid #e7e1ff;
   border-radius: 12px 8px 8px 12px;
-  box-shadow: 0 0 12px rgba(124, 93, 250, 0.15);
+  box-shadow: 0 0 0 1px rgba(179, 170, 255, 0.25), 0 0 18px rgba(124, 93, 250, 0.2);
+}
+
+.conv-item.active .conv-name,
+.conv-item.active .conv-preview,
+.conv-item.active .conv-time,
+.conv-item.active .unread-badge {
+  color: #f8f5ff;
+}
+
+.conv-item.active .conv-avatar {
+  background: linear-gradient(135deg, #f0ebff, #c9c0ff);
+  color: #1d1a2d;
 }
 
 .conv-avatar {
